@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('billings', function (Blueprint $table) {
             $table->id();
+            $table->dateTime('transaction_date');
+            $table->decimal('total', 8, 2);
+            $table->boolean('is_paid')->default(false);
             $table->timestamps();
         });
     }

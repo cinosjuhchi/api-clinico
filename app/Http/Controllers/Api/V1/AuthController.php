@@ -20,16 +20,20 @@ class AuthController extends Controller
     public function login(UserAuthLogin $request)
     {
         $request->validated();
-        $user = User::where('email', $request->email)->first();
- 
+        $user = User::where('email', $request->user)
+                ->orWhere('phone_number', $request->user)
+                ->first();
+
+    // Periksa apakah pengguna ditemukan dan kata sandi cocok
         if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
+                'user' => ['The provided credentials are incorrect.'],
             ]);
         }
 
+        // Buat token
         $token = $user->createToken('token')->plainTextToken;
- 
+
         return response()->json([$user, 'token' => $token], 200);
     }
 

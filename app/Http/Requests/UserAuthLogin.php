@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\EmailOrPhone;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -24,7 +25,7 @@ class UserAuthLogin extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => 'required|string|max:125',
+            'user' => ['required', 'max:125', new EmailOrPhone],
             'password' => 'required|string|min:3'
         ];
     }

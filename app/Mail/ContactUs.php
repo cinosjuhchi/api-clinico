@@ -29,8 +29,11 @@ class ContactUs extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Contact Us',
-            from: new Address('contact@clinico.site', 'Clinico Malaysia'),
+            subject: $this->data['name'],
+            from: new Address('contact@clinico.site', $this->data['name']),
+            replyTo: [
+                new Address($this->data['email'], $this->data['name']),
+            ]
         );
     }
 
@@ -41,6 +44,7 @@ class ContactUs extends Mailable
     {
         return new Content(
             markdown: 'emails.contact',
+            with: ['data' => $this->data],
         );
     }
 

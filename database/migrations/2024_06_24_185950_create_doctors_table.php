@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->unsignedBigInteger('clinic_id');
             $table->unsignedBigInteger('category_id');
+            $table->string('password');
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->softDeletes();

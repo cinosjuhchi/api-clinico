@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserAuthLogin;
 use Illuminate\Auth\Events\Verified;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Auth\Events\Registered;
@@ -25,22 +26,17 @@ class AuthController extends Controller
      */
     public function login(UserAuthLogin $request)
     {
-        $request->validated();
-        $user = User::where('email', $request->user)
-                ->orWhere('phone_number', $request->user)
-                ->first();
+        $request->validated();        
 
-    // Periksa apakah pengguna ditemukan dan kata sandi cocok
-        if (! $user || ! Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'user' => ['The provided credentials are incorrect.'],
-            ]);
+        if(Auth::attempt(['email' => $request->user, 'password' => $request->password]) || Auth::attempt(['phone_number' => $request->user, 'password' => $request->password]))
+        {
+            $user = Auth::user();
+            $token = $user->createToken('Clinico', ['user']);
+            return response()->json([$user, 'token' => $token], 200);
         }
+                            
 
-        // Buat token
-        $token = $user->createToken('token')->plainTextToken;
-
-        return response()->json([$user, 'token' => $token], 200);
+        return response()->json(["message" => "User didn't exist!"], 401);
     }
 
 

@@ -2,12 +2,12 @@
 
 namespace App\Http\Requests;
 
-use App\Rules\EmailOrPhone;
-use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\EmailOrName;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UserAuthLogin extends FormRequest
+class DoctorAuthLogin extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,11 +25,10 @@ class UserAuthLogin extends FormRequest
     public function rules(): array
     {
         return [
-            'user' => ['required', 'max:125', new EmailOrPhone],
+            'user' => ['required', 'max:125', new EmailOrName],
             'password' => 'required|string|min:3'
         ];
     }
-
 
     public function messages()
     {
@@ -48,4 +47,5 @@ class UserAuthLogin extends FormRequest
                 'errors' => $validator->errors()
             ], 422));
     }
+
 }

@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Models\ChronicHealthRecord;
+use App\Models\DemographicInformation;
+use App\Models\EmergencyContactInformation;
+use App\Models\ImmunizationRecord;
+use App\Models\OccupationRecord;
+use App\Models\PhysicalExamination;
 use App\Models\User;
 use App\Models\Patient;
 use App\Mail\VerifyEmail;
@@ -9,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserAuthLogin;
+use App\Models\MedicationRecord;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -59,6 +66,11 @@ class AuthController extends Controller
            'password' => 'required|string|min:6',
            'phone_number' => 'required|string|min:10|unique:users',
            'nric' => 'required|string|min:5|unique:patients',
+           'date_birth' => 'required|date|before:today',
+           'address' => 'required|string|max:255',
+           'country' => 'required|string|max:255',
+           'postal_code' => 'required|numeric|digits_between:4,10',
+           'gender' => 'required|string',           
         ]);
 
         $user = new User();
@@ -67,24 +79,48 @@ class AuthController extends Controller
         $user->password = bcrypt($validated['password']);
         $user->phone_number = $validated['phone_number'];
         $user->save();
-        $patient = new Patient();
-        $patient->name = $validated['name'];
-        $patient->birth_date = $request->birth_date;
-        $patient->gender = $request->gender;
-        $patient->address = $request->address;
-        $patient->country = $request->country;
-        $patient->postal_code = $request->postal_code;
-        $patient->nric = $request->nric;
-        $patient->email = $validated['email'];
-        $patient->phone_number = $validated['phone_number'];
-        $patient->save();   
+        $demographic = new DemographicInformation();
+        $demographic->date_birth = $validated['date_birth'];
+        $demographic->gender = $validated['gender'];
+        $demographic->nric = $validated['nric'];
+        $demographic->address = $validated['address'];
+        $demographic->country = $validated['country'];
+        $demographic->postal_code = $validated['postal_code'];
+        $demographic->user_id = $user->id;
+        $demographic->save();
+
+        $chronic = new ChronicHealthRecord();
+        $chronic->user_id = $user->id;
+        $chronic->save();
+
+
+        $medication = new MedicationRecord();
+        $medication->user_id = $user->id;
+        $medication->save();
+
+        $physical = new PhysicalExamination();
+        $physical->user_id = $user->id;
+        $physical->save();
+
+        $occupation = new OccupationRecord();
+        $occupation->user_id = $user->id;
+        $occupation->save();
+
+        $immunization = new ImmunizationRecord();
+        $immunization->user_id = $user->id;
+        $immunization->save();
+
+        $emergency = new EmergencyContactInformation();
+        $emergency->user_id = $user->id;
+        $emergency->save();
+
         $verificationUrl = URL::temporarySignedRoute(
             'verification.verify', now()->addMinutes(60), ['id' => $user->id]
         );
     
         // Kirim email verifikasi
         Mail::to($user->email)->send(new VerifyEmail(['name' => $user->name, 'verification_url' => $verificationUrl]));
-        return response()->json(['message' => 'Register Success', 'Patient' => $patient], 201);
+        return response()->json(['message' => 'Register Success', 'Demographic' => $demographic, 'User' => $user], 201);
     }
 
     // email verification
@@ -108,6 +144,13 @@ class AuthController extends Controller
         $request->user()->sendEmailVerificationNotification();
 
         return response()->json(['message' => 'Verification email sent.']);
+    }
+
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();        
+        return response()->json(["message" => "Logout"], 200);
     }
 
     // end email verification

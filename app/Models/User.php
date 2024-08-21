@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -41,4 +42,34 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
+    
+    public function demographic(): HasOne
+    {
+        return $this->hasOne(DemographicInformation::class, 'user_id', 'id');
+    }
+    public function chronic(): HasOne
+    {
+        return $this->hasOne(ChronicHealthRecord::class, 'user_id', 'id');
+    }
+    public function medication(): HasOne
+    {
+        return $this->hasOne(MedicationRecord::class, 'user_id', 'id');
+    }
+    public function physical(): HasOne
+    {
+        return $this->hasOne(PhysicalExamination::class, 'user_id', 'id');
+    }
+    public function occupation(): HasOne
+    {
+        return $this->hasOne(OccupationRecord::class, 'user_id', 'id');
+    }
+    public function immunization(): HasOne
+    {
+        return $this->hasOne(ImmunizationRecord::class, 'user_id', 'id');
+    }
+    public function emergency(): HasOne
+    {
+        return $this->hasOne(EmergencyContactInformation::class, 'user_id', 'id');
+    }
+
 }

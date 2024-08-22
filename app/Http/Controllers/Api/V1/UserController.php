@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Models\User;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -15,7 +16,7 @@ class UserController extends Controller
     {
         $user = User::all();
         return response()->json($user, 200);
-    }
+    }    
 
     /**
      * Store a newly created resource in storage.

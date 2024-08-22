@@ -2,7 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\EmergencyContact;
+use App\Models\MedicationRecord;
+use App\Models\OccupationRecord;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\ImmunizationRecord;
+use App\Models\ChronicHealthRecord;
+use App\Models\PhysicalExamination;
+use App\Models\DemographicInformation;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -45,31 +52,31 @@ class User extends Authenticatable implements MustVerifyEmail
     
     public function demographic(): HasOne
     {
-        return $this->hasOne(DemographicInformation::class, 'user_id', 'id');
+        return $this->hasOne(DemographicInformation::class);
     }
     public function chronic(): HasOne
     {
-        return $this->hasOne(ChronicHealthRecord::class, 'user_id', 'id');
+        return $this->hasOne(ChronicHealthRecord::class);
     }
     public function medication(): HasOne
     {
-        return $this->hasOne(MedicationRecord::class, 'user_id', 'id');
+        return $this->hasOne(MedicationRecord::class);
     }
     public function physical(): HasOne
     {
-        return $this->hasOne(PhysicalExamination::class, 'user_id', 'id');
+        return $this->hasOne(PhysicalExamination::class);
     }
     public function occupation(): HasOne
     {
-        return $this->hasOne(OccupationRecord::class, 'user_id', 'id');
+        return $this->hasOne(OccupationRecord::class);
     }
     public function immunization(): HasOne
     {
-        return $this->hasOne(ImmunizationRecord::class, 'user_id', 'id');
+        return $this->hasOne(ImmunizationRecord::class);
     }
     public function emergency(): HasOne
     {
-        return $this->hasOne(EmergencyContactInformation::class, 'user_id', 'id');
+        return $this->hasOne(EmergencyContact::class);
     }
 
 }

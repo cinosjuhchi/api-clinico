@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('emergency_contact_information', function (Blueprint $table) {
+        Schema::create('emergency_contacts', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 125)->nullable();
-            $table->string('phone_number')->unique()->nullable();
+            $table->string('name', 255)->nullable();
+            $table->string('phone_number', 255)->nullable();
             $table->string('panel', 255)->nullable();
             $table->unsignedBigInteger('user_id');
 
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('emergency_contact_information');
+        Schema::dropIfExists('emergency_contacts');
     }
 };

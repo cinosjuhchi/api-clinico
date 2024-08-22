@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\User;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\EmergencyContact;
 use App\Models\MedicationRecord;
 use App\Models\OccupationRecord;
 use App\Models\ImmunizationRecord;
@@ -19,25 +20,16 @@ class ProfileController extends Controller
     public function me(Request $request)
     {
         $id = Auth::user()->id;
-        $user = User::find($id);
-
-        $demographic = $user->demographic()->first();
-        $chronic = $user->chronic()->get();
-        $medication = $user->medication()->get();
-        $physical = $user->physical()->get();
-        $occupation = $user->occupation()->get();
-        $immunization = $user->immunization()->get();
-        $emergency = $user->emergency()->get();
-        $data = [
-            "demographic" => $demographic, 
-            "chronic" => $chronic,
-            "medication" => $medication,
-            "physical" => $physical,
-            "occupation" => $occupation,
-            "immunization" => $immunization,
-            "emergency" => $emergency,
-        ];
-        return response()->json(['message' => 'success to get data', "user" => $user, "data" => $data], 200);
+        $user = User::with([
+            'demographic',
+            'chronic',
+            'medication',
+            'physical',
+            'occupation',
+            'immunization',
+            'emergency'
+        ])->find($id);                
+        return response()->json(['message' => 'success to get data', "data" => $user], 200);
     }
 
     public function setDemographic(Request $request)
@@ -160,21 +152,20 @@ class ProfileController extends Controller
         return response()->json(['message' => 'Update successful'], 200);
     }
 
-    public function setEmergencyContactInformation(Request $request)
+    public function setEmergencyContact(Request $request)
     {
         $validated = $request->validate([
             "name" => "nullable|string|max:125",
-            "phone_number" => "nullable|string|unique:emergency_contact_informations,phone_number|max:255",
+            "phone_number" => "nullable|string|unique:emergency_contacts,phone_number|max:255", // Perbaiki nama tabel di sini
             "panel" => "nullable|string|max:255",
         ]);
 
         $id = Auth::user()->id;
 
-        // Ambil atau buat data EmergencyContactInformation untuk user terkait
-        $emergencyContact = EmergencyContactInformation::where("user_id", $id)->first();
-
+        // Ambil atau buat data EmergencyContact untuk user terkait
+        $emergencyContact = EmergencyContact::where("user_id", $id)->first();
         if (!$emergencyContact) {
-            $emergencyContact = new EmergencyContactInformation();
+            $emergencyContact = new EmergencyContact();
             $emergencyContact->user_id = $id;
         }
 
@@ -187,6 +178,7 @@ class ProfileController extends Controller
 
         return response()->json(['message' => 'Update successful'], 200);
     }
+
 
     public function setMedicationRecord(Request $request)
     {

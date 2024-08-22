@@ -30,8 +30,13 @@ Route::prefix('v1')->group(function () {
             // profile route
             Route::prefix('me')->group(function () {
                 Route::get('/user', [ProfileController::class, 'me']);
-                Route::post('/update/demographic', [ProfileController::class, 'setDemographic']);
-                Route::post('/update/chronical', [ProfileController::class, 'setChronicHealth']);
+                Route::put('/update/demographic', [ProfileController::class, 'setDemographic']);
+                Route::put('/update/chronical', [ProfileController::class, 'setChronicHealth']);
+                Route::put('/update/physical', [ProfileController::class, 'setPhysicalExamination']);
+                Route::put('/update/occupation', [ProfileController::class, 'setOccupationRecord']);
+                Route::put('/update/emergency', [ProfileController::class, 'setEmergencyContact']);
+                Route::put('/update/medication-record', [ProfileController::class, 'setMedicationRecord']);
+                Route::put('/update/immunization', [ProfileController::class, 'setImmunizationRecord']);
             });
         });
     });

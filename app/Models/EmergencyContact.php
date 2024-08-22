@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class EmergencyContactInformation extends Model
+class EmergencyContact extends Model
 {
     use HasFactory;
+    protected $table = 'emergency_contacts';
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');

@@ -2,25 +2,26 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Models\ChronicHealthRecord;
-use App\Models\DemographicInformation;
-use App\Models\EmergencyContactInformation;
-use App\Models\ImmunizationRecord;
-use App\Models\OccupationRecord;
-use App\Models\PhysicalExamination;
 use App\Models\User;
 use App\Models\Patient;
 use App\Mail\VerifyEmail;
 use Illuminate\Http\Request;
+use App\Models\EmergencyContact;
+use App\Models\MedicationRecord;
+use App\Models\OccupationRecord;
+use App\Models\ImmunizationRecord;
+use App\Models\ChronicHealthRecord;
+use App\Models\PhysicalExamination;
 use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserAuthLogin;
-use App\Models\MedicationRecord;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use App\Models\DemographicInformation;
 use Illuminate\Auth\Events\Registered;
+use App\Models\EmergencyContactInformation;
 use Illuminate\Validation\ValidationException;
 
 
@@ -110,17 +111,17 @@ class AuthController extends Controller
         $immunization->user_id = $user->id;
         $immunization->save();
 
-        $emergency = new EmergencyContactInformation();
+        $emergency = new EmergencyContact();
         $emergency->user_id = $user->id;
         $emergency->save();
 
         $verificationUrl = URL::temporarySignedRoute(
             'verification.verify', now()->addMinutes(60), ['id' => $user->id]
         );
-    
+        $data = User::with('demographic')->find($user->id);
         // Kirim email verifikasi
         Mail::to($user->email)->send(new VerifyEmail(['name' => $user->name, 'verification_url' => $verificationUrl]));
-        return response()->json(['message' => 'Register Success', 'Demographic' => $demographic, 'User' => $user], 201);
+        return response()->json(['message' => 'Register Success', 'data' => $data ], 201);
     }
 
     // email verification

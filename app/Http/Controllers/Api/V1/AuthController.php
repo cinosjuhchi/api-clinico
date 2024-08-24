@@ -40,7 +40,7 @@ class AuthController extends Controller
         {
             $user = Auth::user();
             $token = $user->createToken('Clinico', ['user']);
-            return response()->json([$user, 'token' => $token], 200);
+            return response()->json(['status' => 'Success', 'message' => 'Login Success', 'token' => $token], 200);
         }
                             
 
@@ -121,7 +121,7 @@ class AuthController extends Controller
         $data = User::with('demographic')->find($user->id);
         // Kirim email verifikasi
         Mail::to($user->email)->send(new VerifyEmail(['name' => $user->name, 'verification_url' => $verificationUrl]));
-        return response()->json(['message' => 'Register Success', 'data' => $data ], 201);
+        return response()->json(['status' => 'Success', 'message' => 'Register Successful', 'data' => $data ], 201);
     }
 
     // email verification
@@ -137,14 +137,18 @@ class AuthController extends Controller
             event(new Verified($user));
         }
 
-        return response()->json(['message' => 'Email has been verified.']);
+        if($request->expectsJson()){
+            return response()->json(['message' => 'Email has been verified.'], 200);
+        }else{
+            return redirect()->to('http://localhost:5173/patient')->with('message', 'Email already verified.');
+        }
     }
 
     public function resendVerificationEmail(Request $request)
     {
         $request->user()->sendEmailVerificationNotification();
 
-        return response()->json(['message' => 'Verification email sent.']);
+        return response()->json(['status' => 'Success', 'message' => 'Verification email sent.'], 200);
     }
 
 

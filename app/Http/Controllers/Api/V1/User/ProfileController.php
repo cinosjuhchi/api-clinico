@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\User;
 
 use App\Models\User;
+use App\Service\CheckUser;
 use Illuminate\Http\Request;
 use App\Models\EmergencyContact;
 use App\Models\MedicationRecord;
@@ -13,13 +14,24 @@ use App\Models\PhysicalExamination;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Models\DemographicInformation;
-use App\Models\EmergencyContactInformation;
 
 class ProfileController extends Controller
 {
+    protected $checkUser;
+
+    public function __construct(CheckUser $checkUser)
+    {
+        $this->checkUser = $checkUser;
+    }
+
     public function me(Request $request)
     {
         $id = Auth::user()->id;
+        $exist = $this->checkUser->checkUserExist($id);
+        if(!$exist)
+        {
+            return response()->json(['status' => 'Not Found', 'message' => 'User not found, refresh your browser!'], 404);
+        }
         $user = User::with([
             'demographic',
             'chronic',
@@ -29,7 +41,7 @@ class ProfileController extends Controller
             'immunization',
             'emergency'
         ])->find($id);                
-        return response()->json(['message' => 'success to get data', "data" => $user], 200);
+        return response()->json(['status' => 'success', 'message' => 'Success to get data', "data" => $user], 200);
     }
 
     public function setDemographic(Request $request)
@@ -46,6 +58,12 @@ class ProfileController extends Controller
     
         $id = Auth::user()->id;
     
+        $exist = $this->checkUser->checkUserExist($id);
+        if(!$exist)
+        {
+            return response()->json(['status' => 'Not Found', 'message' => 'User not found, refresh your browser!'], 404);
+        }
+
         // Ambil data demografi untuk user terkait
         $demographic = DemographicInformation::where("user_id", $id)->first();
     
@@ -53,7 +71,7 @@ class ProfileController extends Controller
             $new_demographic = new DemographicInformation();
             $new_demographic->user_id = $id;
             $new_demographic->save();
-            return response()->json(['message' => 'Demographic information not found, refresh your browser!'], 404);
+            return response()->json(['status' => 'Not Found', 'message' => 'Demographic information not found, refresh your browser!'], 404);
         }
     
         // Update field hanya jika ada input yang valid
@@ -67,7 +85,7 @@ class ProfileController extends Controller
     
         $demographic->save();
     
-        return response()->json(['message' => 'Update successful'], 200);
+        return response()->json(['status' => 'Success','message' => 'Update Successful'], 200);
     }
 
     public function setChronicHealth(Request $request)
@@ -79,6 +97,12 @@ class ProfileController extends Controller
         ]);
 
         $id = Auth::user()->id;
+        
+        $exist = $this->checkUser->checkUserExist($id);
+        if(!$exist)
+        {
+            return response()->json(['status' => 'Not Found', 'message' => 'User not found, refresh your browser!'], 404);
+        }
 
         // Ambil atau buat data ChronicHealthRecord untuk user terkait
         $chronicHealthRecord = ChronicHealthRecord::where("user_id", $id)->first();
@@ -95,7 +119,7 @@ class ProfileController extends Controller
 
         $chronicHealthRecord->save();
 
-        return response()->json(['message' => 'Update successful'], 200);
+        return response()->json(['status' => 'Success', 'message' => 'Update Successful'], 200);
     }
 
     public function setPhysicalExamination(Request $request)
@@ -162,6 +186,12 @@ class ProfileController extends Controller
 
         $id = Auth::user()->id;
 
+        $exist = $this->checkUser->checkUserExist($id);
+        if(!$exist)
+        {
+            return response()->json(['status' => 'Not Found', 'message' => 'User not found, refresh your browser!'], 404);
+        }
+
         // Ambil atau buat data EmergencyContact untuk user terkait
         $emergencyContact = EmergencyContact::where("user_id", $id)->first();
         if (!$emergencyContact) {
@@ -190,6 +220,12 @@ class ProfileController extends Controller
 
         $id = Auth::user()->id;
 
+        $exist = $this->checkUser->checkUserExist($id);
+        if(!$exist)
+        {
+            return response()->json(['status' => 'Not Found', 'message' => 'User not found, refresh your browser!'], 404);
+        }
+
         // Ambil atau buat data MedicationRecord untuk user terkait
         $medicationRecord = MedicationRecord::where("user_id", $id)->first();
 
@@ -212,10 +248,16 @@ class ProfileController extends Controller
     {
         $validated = $request->validate([
             "vaccine_received" => "nullable|string|max:125",
-            "date_administered" => "nullable|date|before:today",
+            "date_administered" => "nullable|date",
         ]);
 
         $id = Auth::user()->id;
+
+        $exist = $this->checkUser->checkUserExist($id);
+        if(!$exist)
+        {
+            return response()->json(['status' => 'Not Found', 'message' => 'User not found, refresh your browser!'], 404);
+        }
 
         // Ambil atau buat data ImmunizationRecord untuk user terkait
         $immunizationRecord = ImmunizationRecord::where("user_id", $id)->first();
@@ -231,6 +273,6 @@ class ProfileController extends Controller
 
         $immunizationRecord->save();
 
-        return response()->json(['message' => 'Update successful'], 200);
+        return response()->json(['status' => 'Success', 'message' => 'Update successful'], 200);
     }
 }

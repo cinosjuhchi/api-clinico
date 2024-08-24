@@ -134,7 +134,7 @@ class AuthController extends Controller
         }
 
         if($user->hasVerifiedEmail()){
-            return redirect()->to(env('WEB_CLINICO_URL'))->with('message', 'Email already verified.');
+            return redirect()->to('https://clinico.site')->with('message', 'Email already verified.');
         }
         
 
@@ -145,7 +145,7 @@ class AuthController extends Controller
         if($request->expectsJson()){
             return response()->json(['message' => 'Email has been verified.'], 200);
         }else{
-            return redirect()->to(env('WEB_CLINICO_URL'))->with('message', 'Email already verified.');
+            return redirect()->to('https://clinico.site')->with('message', 'Email already verified.');
         }
     }
     

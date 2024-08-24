@@ -140,9 +140,10 @@ class AuthController extends Controller
         if($request->expectsJson()){
             return response()->json(['message' => 'Email has been verified.'], 200);
         }else{
-            return redirect()->to('http://localhost:5173/patient')->with('message', 'Email already verified.');
+            return redirect()->to(env('WEB_CLINICO_URL'))->with('message', 'Email already verified.');
         }
     }
+    
 
     public function resendVerificationEmail(Request $request)
     {

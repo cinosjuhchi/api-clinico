@@ -129,9 +129,14 @@ class AuthController extends Controller
     {
         $user = User::find($id);
 
-        if ($user->hasVerifiedEmail()) {
+        if ($user->hasVerifiedEmail() && $request->expectsJson()) {
             return response()->json(['message' => 'Email already verified.']);
         }
+
+        if($user->hasVerifiedEmail()){
+            return redirect()->to(env('WEB_CLINICO_URL'))->with('message', 'Email already verified.');
+        }
+        
 
         if ($user->markEmailAsVerified()) {
             event(new Verified($user));

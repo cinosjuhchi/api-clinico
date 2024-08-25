@@ -12,8 +12,7 @@ jobs:
       with:
         switches: -avzr --delete
         path: /
-        remote_path: ${{ secrets.DEPLOY_PATH }}
-        remote_host: ${{ secrets.DEPLOY_HOST }}
-        remote_port: ${{ secrets.DEPLOY_PORT }}
-        remote_user: ${{ secrets.DEPLOY_USER }}
+        remote_path: /home/u677671400/domains/clinico.site/public_html/api-clinico
+        remote_host: api.clinico.site        
+        remote_user: api
         remote_key: ${{ secrets.DEPLOY_KEY }}        

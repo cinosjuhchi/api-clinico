@@ -15,5 +15,5 @@ jobs:
         remote_path: /home/u677671400/domains/clinico.site/public_html/api-clinico
         remote_host: clinico.site
         remote_port: 65002
-        remote_user: clinico
+        remote_user: u677671400
         remote_key: ${{ secrets.DEPLOY_KEY }}        

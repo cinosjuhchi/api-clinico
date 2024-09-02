@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AppointmentController;
 use App\Http\Controllers\Api\V1\User\ProfileController;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -30,13 +31,22 @@ Route::prefix('v1')->group(function () {
             // profile route
             Route::prefix('me')->group(function () {
                 Route::get('/user', [ProfileController::class, 'me']);
-                Route::put('/update/demographic', [ProfileController::class, 'setDemographic']);
-                Route::put('/update/chronical', [ProfileController::class, 'setChronicHealth']);
-                Route::put('/update/physical', [ProfileController::class, 'setPhysicalExamination']);
-                Route::put('/update/occupation', [ProfileController::class, 'setOccupationRecord']);
-                Route::put('/update/emergency', [ProfileController::class, 'setEmergencyContact']);
-                Route::put('/update/medication-record', [ProfileController::class, 'setMedicationRecord']);
-                Route::put('/update/immunization', [ProfileController::class, 'setImmunizationRecord']);
+                Route::put('/update/demographic/{id}', [ProfileController::class, 'setDemographic']);
+                Route::put('/update/chronical/{id}', [ProfileController::class, 'setChronicHealth']);
+                Route::put('/update/physical/{id}', [ProfileController::class, 'setPhysicalExamination']);
+                Route::put('/update/occupation/{id}', [ProfileController::class, 'setOccupationRecord']);
+                Route::put('/update/emergency/{id}', [ProfileController::class, 'setEmergencyContact']);
+                Route::put('/update/medication-record/{id}', [ProfileController::class, 'setMedicationRecord']);
+                Route::put('/update/immunization/{id}', [ProfileController::class, 'setImmunizationRecord']);
+
+            });            
+
+            // appointment route
+            Route::prefix('appointment')->group(function () {
+                Route::get('/', [AppointmentController::class, 'index']);
+                Route::post('/store', [AppointmentController::class, 'store']);
+                Route::get('/show/{slug}', [AppointmentController::class, 'show']);
+                Route::get('/destroy/{slug}', [AppointmentController::class, 'destroy']);                
             });
         });
     });

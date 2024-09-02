@@ -15,9 +15,8 @@ return new class extends Migration
             $table->id();
             $table->decimal('height')->nullable();
             $table->decimal('weight')->nullable();
-            $table->unsignedBigInteger('user_id');
+            $table->foreignId('patient_id')->constrained()->onDelete('cascade');
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

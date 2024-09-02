@@ -15,9 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('vaccine_received', 125)->nullable();
             $table->date('date_administered')->nullable();
-            $table->unsignedBigInteger('user_id');
+            $table->foreignId('patient_id')->constrained()->onDelete('cascade');
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

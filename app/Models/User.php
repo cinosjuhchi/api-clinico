@@ -14,6 +14,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -49,34 +50,13 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
+
     
-    public function demographic(): HasOne
+    public function patients(): HasMany
     {
-        return $this->hasOne(DemographicInformation::class);
+        return $this->hasMany(Patient::class, 'user_id', 'id');
     }
-    public function chronic(): HasOne
-    {
-        return $this->hasOne(ChronicHealthRecord::class);
-    }
-    public function medication(): HasOne
-    {
-        return $this->hasOne(MedicationRecord::class);
-    }
-    public function physical(): HasOne
-    {
-        return $this->hasOne(PhysicalExamination::class);
-    }
-    public function occupation(): HasOne
-    {
-        return $this->hasOne(OccupationRecord::class);
-    }
-    public function immunization(): HasOne
-    {
-        return $this->hasOne(ImmunizationRecord::class);
-    }
-    public function emergency(): HasOne
-    {
-        return $this->hasOne(EmergencyContact::class);
-    }
+    
+    
 
 }

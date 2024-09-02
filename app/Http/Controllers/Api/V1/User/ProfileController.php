@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\User;
 
 use App\Models\User;
+use App\Models\Patient;
 use App\Service\CheckUser;
 use Illuminate\Http\Request;
 use App\Models\EmergencyContact;
@@ -32,246 +33,144 @@ class ProfileController extends Controller
         {
             return response()->json(['status' => 'Not Found', 'message' => 'User not found, refresh your browser!'], 404);
         }
-        $user = User::with([
-            'demographic',
-            'chronic',
-            'medication',
-            'physical',
-            'occupation',
-            'immunization',
-            'emergency'
-        ])->find($id);                
-        return response()->json(['status' => 'success', 'message' => 'Success to get data', "data" => $user], 200);
+        $patient = Patient::with([
+            'demographics',
+            'chronics',
+            'medications',
+            'physicalExaminations',
+            'occupations',
+            'immunizations',
+            'emergencyContacts'
+        ])->where('user_id', $id)->first();     
+        return response()->json(['status' => 'success', 'message' => 'Success to get data', "data" => $patient], 200);
     }
 
-    public function setDemographic(Request $request)
-    {
+    public function setDemographic(Request $request ,int $id)
+    {        
+        // Validasi input yang diterima
         $validated = $request->validate([
-            "mrn" => "nullable|string|max:255",
-            "date_birth" => "nullable|date|before:today",
-            "gender" => "nullable|string|in:male,female",
-            "nric" => "nullable|string|max:255",
-            "address" => "nullable|string|max:255",
-            "country" => "nullable|string|max:255",
-            "postal_code" => "nullable|numeric|digits_between:4,10",            
+            'mrn' => 'nullable|string|max:255',
+            'date_birth' => 'nullable|string|max:255',
+            'gender' => 'nullable|string|max:255',
+            'nric' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
+            'country' => 'nullable|string|max:255',
+            'postal_code' => 'nullable|string|max:255',
         ]);
-    
-        $id = Auth::user()->id;
-    
-        $exist = $this->checkUser->checkUserExist($id);
-        if(!$exist)
-        {
-            return response()->json(['status' => 'Not Found', 'message' => 'User not found, refresh your browser!'], 404);
-        }
-
         // Ambil data demografi untuk user terkait
-        $demographic = DemographicInformation::where("user_id", $id)->first();
+        $demographic = DemographicInformation::findOrNew($id);
+
+        // Update field dengan data yang divalidasi
+        $demographic->update($validated);
     
-        if (!$demographic) {
-            $new_demographic = new DemographicInformation();
-            $new_demographic->user_id = $id;
-            $new_demographic->save();
-            return response()->json(['status' => 'Not Found', 'message' => 'Demographic information not found, refresh your browser!'], 404);
-        }
-    
-        // Update field hanya jika ada input yang valid
-        $demographic->mrn = $validated['mrn'] ?? $demographic->mrn;
-        $demographic->date_birth = $validated['date_birth'] ?? $demographic->date_birth;
-        $demographic->gender = $validated['gender'] ?? $demographic->gender;
-        $demographic->nric = $validated['nric'] ?? $demographic->nric;
-        $demographic->address = $validated['address'] ?? $demographic->address;
-        $demographic->country = $validated['country'] ?? $demographic->country;
-        $demographic->postal_code = $validated['postal_code'] ?? $demographic->postal_code;
-    
-        $demographic->save();
-    
-        return response()->json(['status' => 'Success','message' => 'Update Successful'], 200);
+        return response()->json(['status' => 'success','message' => 'Update Successful'], 200);
     }
 
-    public function setChronicHealth(Request $request)
+    public function setChronicHealth(Request $request, int $id)
     {
+        // Validasi input yang diterima
         $validated = $request->validate([
-            "chronic_medical" => "nullable|string|max:255",
-            "father_chronic_medical" => "nullable|string|max:255",
-            "mother_chronic_medical" => "nullable|string|max:255",
+            'chronic_medical' => 'nullable|string|max:255',
+            'father_chronic_medical' => 'nullable|string|max:255',
+            'mother_chronic_medical' => 'nullable|string|max:255',
         ]);
 
-        $id = Auth::user()->id;
-        
-        $exist = $this->checkUser->checkUserExist($id);
-        if(!$exist)
-        {
-            return response()->json(['status' => 'Not Found', 'message' => 'User not found, refresh your browser!'], 404);
-        }
+        // Ambil data ChronicHealthRecord atau lempar 404 jika tidak ditemukan
+        $chronicHealthRecord = ChronicHealthRecord::findOrNew($id);
 
-        // Ambil atau buat data ChronicHealthRecord untuk user terkait
-        $chronicHealthRecord = ChronicHealthRecord::where("user_id", $id)->first();
+        // Update field dengan data yang divalidasi
+        $chronicHealthRecord->update($validated);
 
-        if (!$chronicHealthRecord) {
-            $chronicHealthRecord = new ChronicHealthRecord();
-            $chronicHealthRecord->user_id = $id;
-        }
-
-        // Update field hanya jika ada input yang valid
-        $chronicHealthRecord->chronic_medical = $validated['chronic_medical'] ?? $chronicHealthRecord->chronic_medical;
-        $chronicHealthRecord->father_chronic_medical = $validated['father_chronic_medical'] ?? $chronicHealthRecord->father_chronic_medical;
-        $chronicHealthRecord->mother_chronic_medical = $validated['mother_chronic_medical'] ?? $chronicHealthRecord->mother_chronic_medical;
-
-        $chronicHealthRecord->save();
-
-        return response()->json(['status' => 'Success', 'message' => 'Update Successful'], 200);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Update Successful'
+        ], 200);
     }
 
-    public function setPhysicalExamination(Request $request)
-    {
-        $validated = $request->validate([
-            "height" => "nullable|numeric|min:0",
-            "weight" => "nullable|numeric|min:0",
-        ]);
 
-        $id = Auth::user()->id;
+
+    public function setPhysicalExamination(Request $request, int $id)
+    {   
+        // Validasi input yang diterima
+        $validated = $request->validate([
+            'height' => 'nullable|numeric',
+            'weight' => 'nullable|numeric',
+        ]);
 
         // Ambil atau buat data PhysicalExamination untuk user terkait
-        $physicalExamination = PhysicalExamination::where("user_id", $id)->first();
-
-        if (!$physicalExamination) {
-            $physicalExamination = new PhysicalExamination();
-            $physicalExamination->user_id = $id;
-        }
+        $physicalExamination = PhysicalExamination::findOrNew($id);
 
         // Update field hanya jika ada input yang valid
-        $physicalExamination->height = $validated['height'] ?? $physicalExamination->height;
-        $physicalExamination->weight = $validated['weight'] ?? $physicalExamination->weight;
-
-        $physicalExamination->save();
-
+        $physicalExamination->update($validated);
+        
         return response()->json(['message' => 'Update successful'], 200);
     }
 
-    public function setOccupationRecord(Request $request)
-    {
+    public function setOccupationRecord(Request $request ,int $id)
+    {        
+        // Validasi input yang diterima
         $validated = $request->validate([
-            "job_position" => "nullable|string|max:255",
-            "company" => "nullable|string|max:255",
-            "panel" => "nullable|string|max:100",
+            'job_position' => 'nullable|string|max:255',
+            'company' => 'nullable|string|max:255',
+            'panel' => 'nullable|string|max:255',
         ]);
-
-        $id = Auth::user()->id;
-
         // Ambil atau buat data OccupationRecord untuk user terkait
-        $occupationRecord = OccupationRecord::where("user_id", $id)->first();
-
-        if (!$occupationRecord) {
-            $occupationRecord = new OccupationRecord();
-            $occupationRecord->user_id = $id;
-        }
+        $occupationRecord = OccupationRecord::findOrNew($id);
 
         // Update field hanya jika ada input yang valid
-        $occupationRecord->job_position = $validated['job_position'] ?? $occupationRecord->job_position;
-        $occupationRecord->company = $validated['company'] ?? $occupationRecord->company;
-        $occupationRecord->panel = $validated['panel'] ?? $occupationRecord->panel;
-
-        $occupationRecord->save();
+        $occupationRecord->update($validated);
 
         return response()->json(['message' => 'Update successful'], 200);
     }
 
-    public function setEmergencyContact(Request $request)
-    {
+    public function setEmergencyContact(Request $request, int $id)
+    {        
+        // Validasi input yang diterima
         $validated = $request->validate([
-            "name" => "nullable|string|max:125",
-            "phone_number" => "nullable|string|unique:emergency_contacts,phone_number|max:255", // Perbaiki nama tabel di sini
-            "panel" => "nullable|string|max:255",
+            'name' => 'nullable|string|max:255',
+            'phone_number' => 'nullable|string|max:255',
+            'panel' => 'nullable|string|max:255',
         ]);
-
-        $id = Auth::user()->id;
-
-        $exist = $this->checkUser->checkUserExist($id);
-        if(!$exist)
-        {
-            return response()->json(['status' => 'Not Found', 'message' => 'User not found, refresh your browser!'], 404);
-        }
-
         // Ambil atau buat data EmergencyContact untuk user terkait
-        $emergencyContact = EmergencyContact::where("user_id", $id)->first();
-        if (!$emergencyContact) {
-            $emergencyContact = new EmergencyContact();
-            $emergencyContact->user_id = $id;
-        }
+        $emergencyContact = EmergencyContact::findOrNew($id);
 
         // Update field hanya jika ada input yang valid
-        $emergencyContact->name = $validated['name'] ?? $emergencyContact->name;
-        $emergencyContact->phone_number = $validated['phone_number'] ?? $emergencyContact->phone_number;
-        $emergencyContact->panel = $validated['panel'] ?? $emergencyContact->panel;
-
-        $emergencyContact->save();
+        $emergencyContact->update($validated);
 
         return response()->json(['message' => 'Update successful'], 200);
     }
 
 
-    public function setMedicationRecord(Request $request)
-    {
+    public function setMedicationRecord(Request $request, int $id)
+    {        
+        // Validasi input yang diterima
         $validated = $request->validate([
-            "medicine" => "nullable|string|max:255",
-            "frequency" => "nullable|string|max:255",
-            "allergy" => "nullable|string|max:255",
+            'medicine' => 'nullable|string|max:255',
+            'frequency' => 'nullable|string|max:255',
+            'allergy' => 'nullable|string|max:255',
         ]);
-
-        $id = Auth::user()->id;
-
-        $exist = $this->checkUser->checkUserExist($id);
-        if(!$exist)
-        {
-            return response()->json(['status' => 'Not Found', 'message' => 'User not found, refresh your browser!'], 404);
-        }
-
         // Ambil atau buat data MedicationRecord untuk user terkait
-        $medicationRecord = MedicationRecord::where("user_id", $id)->first();
-
-        if (!$medicationRecord) {
-            $medicationRecord = new MedicationRecord();
-            $medicationRecord->user_id = $id;
-        }
+        $medicationRecord = MedicationRecord::findOrNew($id);
 
         // Update field hanya jika ada input yang valid
-        $medicationRecord->medicine = $validated['medicine'] ?? $medicationRecord->medicine;
-        $medicationRecord->frequency = $validated['frequency'] ?? $medicationRecord->frequency;
-        $medicationRecord->allergy = $validated['allergy'] ?? $medicationRecord->allergy;
-
-        $medicationRecord->save();
+        $medicationRecord->update($validated);
 
         return response()->json(['message' => 'Update successful'], 200);
     }
     
-    public function setImmunizationRecord(Request $request)
-    {
+    public function setImmunizationRecord(Request $request, int $id)
+    {        
+        // Validasi input yang diterima
         $validated = $request->validate([
-            "vaccine_received" => "nullable|string|max:125",
-            "date_administered" => "nullable|date",
+            'vaccine_received' => 'nullable|string|max:255',
+            'date_administered' => 'nullable|date',
         ]);
-
-        $id = Auth::user()->id;
-
-        $exist = $this->checkUser->checkUserExist($id);
-        if(!$exist)
-        {
-            return response()->json(['status' => 'Not Found', 'message' => 'User not found, refresh your browser!'], 404);
-        }
-
+        
         // Ambil atau buat data ImmunizationRecord untuk user terkait
-        $immunizationRecord = ImmunizationRecord::where("user_id", $id)->first();
-
-        if (!$immunizationRecord) {
-            $immunizationRecord = new ImmunizationRecord();
-            $immunizationRecord->user_id = $id;
-        }
+        $immunizationRecord = ImmunizationRecord::findOrNew($id);
 
         // Update field hanya jika ada input yang valid
-        $immunizationRecord->vaccine_received = $validated['vaccine_received'] ?? $immunizationRecord->vaccine_received;
-        $immunizationRecord->date_administered = $validated['date_administered'] ?? $immunizationRecord->date_administered;
-
-        $immunizationRecord->save();
+        $immunizationRecord->update($validated);
 
         return response()->json(['status' => 'Success', 'message' => 'Update successful'], 200);
     }

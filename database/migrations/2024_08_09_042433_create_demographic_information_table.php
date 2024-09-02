@@ -20,9 +20,7 @@ return new class extends Migration
             $table->string('address', 255)->nullable();
             $table->string('country')->nullable();
             $table->integer('postal_code')->nullable();
-            $table->unsignedBigInteger('user_id');
-
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreignId('patient_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

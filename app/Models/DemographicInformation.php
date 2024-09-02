@@ -10,9 +10,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class DemographicInformation extends Model
 {
     use HasFactory;
+
+    protected $guarded = ['id'];
         
-    public function user(): BelongsTo
+    public function patient(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(Patient::class, 'patient_id');
     }
+
+
 }

@@ -10,8 +10,9 @@ class EmergencyContact extends Model
 {
     use HasFactory;
     protected $table = 'emergency_contacts';
-    public function user(): BelongsTo
+    protected $guarded = ['id'];
+    public function patient(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(Patient::class, 'patient_id');
     }
 }

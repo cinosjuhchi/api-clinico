@@ -10,6 +10,7 @@ use App\Models\EmergencyContact;
 use App\Models\MedicationRecord;
 use App\Models\OccupationRecord;
 use App\Models\ImmunizationRecord;
+use Illuminate\Support\Facades\DB;
 use App\Models\ChronicHealthRecord;
 use App\Models\PhysicalExamination;
 use Illuminate\Support\Facades\URL;
@@ -62,67 +63,61 @@ class AuthController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-           'name' => 'required|string|max:255',
-           'email' => 'required|string|email|max:255|unique:users',
-           'password' => 'required|string|min:6',
-           'phone_number' => 'required|string|min:10|unique:users',
-           'nric' => 'required|string|min:5|unique:patients',
-           'date_birth' => 'required|date|before:today',
-           'address' => 'required|string|max:255',
-           'country' => 'required|string|max:255',
-           'postal_code' => 'required|numeric|digits_between:4,10',
-           'gender' => 'required|string',           
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users',
+        'password' => 'required|string|min:6',
+        'phone_number' => 'required|string|min:10|unique:users',
+        'nric' => 'required|string|min:5|unique:demographic_information',
+        'date_birth' => 'required|date|before:today',
+        'address' => 'required|string|max:255',
+        'country' => 'required|string|max:255',
+        'postal_code' => 'required|numeric|digits_between:4,10',
+        'gender' => 'required|string',           
         ]);
 
-        $user = new User();
-        $user->name = $validated['name'];
-        $user->email = $validated['email'];
-        $user->password = bcrypt($validated['password']);
-        $user->phone_number = $validated['phone_number'];
-        $user->save();
-        $demographic = new DemographicInformation();
-        $demographic->date_birth = $validated['date_birth'];
-        $demographic->gender = $validated['gender'];
-        $demographic->nric = $validated['nric'];
-        $demographic->address = $validated['address'];
-        $demographic->country = $validated['country'];
-        $demographic->postal_code = $validated['postal_code'];
-        $demographic->user_id = $user->id;
-        $demographic->save();
+        DB::transaction(function () use ($validated) {
+            $user = User::create([
+                'email' => $validated['email'],
+                'password' => bcrypt($validated['password']),
+                'phone_number' => $validated['phone_number'],
+            ]);
 
-        $chronic = new ChronicHealthRecord();
-        $chronic->user_id = $user->id;
-        $chronic->save();
+            $patient = Patient::create([
+                'name' => $validated['name'],
+                'address' => $validated['address'],
+                'user_id' => $user->id,
+            ]);
 
+            DemographicInformation::create([
+                'date_birth' => $validated['date_birth'],
+                'gender' => $validated['gender'],
+                'nric' => $validated['nric'],
+                'address' => $validated['address'],
+                'country' => $validated['country'],
+                'postal_code' => $validated['postal_code'],
+                'patient_id' => $patient->id,
+            ]);
 
-        $medication = new MedicationRecord();
-        $medication->user_id = $user->id;
-        $medication->save();
+            $patient->chronics()->create();
+            $patient->medications()->create();
+            $patient->physicalExaminations()->create();
+            $patient->occupations()->create();
+            $patient->immunizations()->create();
+            $patient->emergencyContacts()->create();
 
-        $physical = new PhysicalExamination();
-        $physical->user_id = $user->id;
-        $physical->save();
+            $verificationUrl = URL::temporarySignedRoute(
+                'verification.verify', now()->addMinutes(60), ['id' => $user->id]
+            );
 
-        $occupation = new OccupationRecord();
-        $occupation->user_id = $user->id;
-        $occupation->save();
+            Mail::to($user->email)->send(new VerifyEmail([
+                'name' => $patient->name,
+                'verification_url' => $verificationUrl
+            ]));
+        });
 
-        $immunization = new ImmunizationRecord();
-        $immunization->user_id = $user->id;
-        $immunization->save();
-
-        $emergency = new EmergencyContact();
-        $emergency->user_id = $user->id;
-        $emergency->save();
-
-        $verificationUrl = URL::temporarySignedRoute(
-            'verification.verify', now()->addMinutes(60), ['id' => $user->id]
-        );
-        $data = User::with('demographic')->find($user->id);
-        // Kirim email verifikasi
-        Mail::to($user->email)->send(new VerifyEmail(['name' => $user->name, 'verification_url' => $verificationUrl]));
-        return response()->json(['status' => 'Success', 'message' => 'Register Successful', 'data' => $data ], 201);
+        return response()->json(['status' => 'success', 'message' => 'Register Successful'], 201);
     }
+
 
     // email verification
     public function verifyEmail($id, Request $request)

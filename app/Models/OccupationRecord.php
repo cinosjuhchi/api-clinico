@@ -10,8 +10,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class OccupationRecord extends Model
 {
     use HasFactory;
-    public function user(): BelongsTo
+    protected $guarded = ['id'];
+    public function patient(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(Patient::class, 'patient_id');
     }
 }

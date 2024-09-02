@@ -16,9 +16,8 @@ return new class extends Migration
             $table->string('name', 255)->nullable();
             $table->string('phone_number', 255)->nullable();
             $table->string('panel', 255)->nullable();
-            $table->unsignedBigInteger('user_id');
-
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreignId('patient_id')->constrained()->onDelete('cascade');
+            
             $table->timestamps();
         });
     }

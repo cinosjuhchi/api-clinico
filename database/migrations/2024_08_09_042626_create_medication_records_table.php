@@ -16,9 +16,8 @@ return new class extends Migration
             $table->string('medicine', 255)->nullable();
             $table->string('frequency', 255)->nullable();
             $table->string('allergy', 255)->nullable();
-            $table->unsignedBigInteger('user_id');
+            $table->foreignId('patient_id')->constrained()->onDelete('cascade');
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

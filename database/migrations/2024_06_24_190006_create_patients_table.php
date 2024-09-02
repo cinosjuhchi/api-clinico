@@ -13,16 +13,9 @@ return new class extends Migration
     {
         Schema::create('patients', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->date('birth_date')->nullable();
-            $table->enum('gender', ['male', 'female'])->nullable();
-            $table->text('address')->nullable();
-            $table->string('country');
-            $table->integer('postal_code');
-            $table->string('nric')->unique();
-            $table->string('email')->nullable()->unique();
-            $table->string('phone_number')->unique();
-            
+            $table->string('name');                        
+            $table->text('address')->nullable();                                                   
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

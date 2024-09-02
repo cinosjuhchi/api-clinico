@@ -16,9 +16,8 @@ return new class extends Migration
             $table->string('chronic_medical')->nullable();
             $table->string('father_chronic_medical')->nullable();
             $table->string('mother_chronic_medical')->nullable();
-            $table->unsignedBigInteger('user_id');
-
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreignId('patient_id')->constrained()->onDelete('cascade');
+            
             $table->timestamps();
         });
     }

@@ -42,10 +42,12 @@ class AuthController extends Controller
             $user = Auth::user();
             $token = $user->createToken('Clinico', ['user']);
             return response()->json(['status' => 'Success', 'message' => 'Login Success', 'token' => $token], 200);
+        }else{
+
+            return response()->json(["message" => "User didn't exist!"], status: 404);
         }
                             
 
-        return response()->json(["message" => "User didn't exist!"], 401);
     }
 
 
@@ -98,12 +100,12 @@ class AuthController extends Controller
                 'patient_id' => $patient->id,
             ]);
 
-            $patient->chronics()->create();
-            $patient->medications()->create();
-            $patient->physicalExaminations()->create();
-            $patient->occupations()->create();
-            $patient->immunizations()->create();
-            $patient->emergencyContacts()->create();
+            // $patient->chronics()->create();
+            // $patient->medications()->create();
+            // $patient->physicalExaminations()->create();
+            // $patient->occupations()->create();
+            // $patient->immunizations()->create();
+            // $patient->emergencyContacts()->create();
 
             $verificationUrl = URL::temporarySignedRoute(
                 'verification.verify', now()->addMinutes(60), ['id' => $user->id]
@@ -123,25 +125,19 @@ class AuthController extends Controller
     public function verifyEmail($id, Request $request)
     {
         $user = User::find($id);
-
         if ($user->hasVerifiedEmail() && $request->expectsJson()) {
             return response()->json(['message' => 'Email already verified.']);
         }
-
-        if($user->hasVerifiedEmail()){
-            return redirect()->to(env('WEB_CLINICO_URL'))->with('message', 'Email already verified.');
-        }
         
+        if($user->hasVerifiedEmail()){
+            return redirect()->away(env('WEB_CLINICO_URL'))->with('message', 'Email already verified.');
+        }
 
         if ($user->markEmailAsVerified()) {
             event(new Verified($user));
+            return redirect()->away(env('WEB_CLINICO_URL'))->with('message', 'Email already verified.');
         }
-
-        if($request->expectsJson()){
-            return response()->json(['message' => 'Email has been verified.'], 200);
-        }else{
-            return redirect()->to(env('WEB_CLINICO_URL'))->with('message', 'Email already verified.');
-        }
+        
     }
     
 

@@ -1,14 +1,24 @@
 <?php
 
-use App\Http\Controllers\Api\V1\AppointmentController;
-use App\Http\Controllers\Api\V1\User\ProfileController;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\EmergencyContact;
+use App\Models\ChronicHealthRecord;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AllergyController;
+use App\Http\Controllers\ChronicController;
+use App\Http\Controllers\PhysicalController;
+use App\Http\Controllers\MedicationController;
+use App\Http\Controllers\OccupationController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\ImmunizationController;
+use App\Http\Controllers\ParentChronicController;
 use App\Http\Controllers\Api\V1\ContactUsController;
+use App\Http\Controllers\EmergencyContactController;
+use App\Http\Controllers\Api\V1\AppointmentController;
 use App\Http\Controllers\Api\V1\Doctor\IndexController;
+use App\Http\Controllers\Api\V1\User\ProfileController;
 use App\Http\Controllers\Api\V1\Auth\ClinicAuthController;
 use App\Http\Controllers\Api\V1\Auth\DoctorAuthController;
 
@@ -41,12 +51,38 @@ Route::prefix('v1')->group(function () {
 
             });            
 
+            Route::prefix('chronic')->group(function () {
+                Route::post('/store', [ChronicController::class, 'store']);
+            });
+            Route::prefix('physical')->group(function () {
+                Route::post('/store', [PhysicalController::class, 'store']);
+            });
+            Route::prefix('medicines')->group(function () {
+                Route::post('/store', [MedicationController::class, 'store']);
+            });
+            Route::prefix('immunization')->group(function () {
+                Route::post('/store', [ImmunizationController::class, 'store']);
+            });
+            Route::prefix('occupation')->group(function () {
+                Route::post('/store', [OccupationController::class, 'store']);
+            });
+            Route::prefix('emergency')->group(function () {
+                Route::post('/store', [EmergencyContactController::class, 'store']);
+            });
+            Route::prefix('parent-chronic')->group(function () {
+                Route::post('/store', [ParentChronicController::class, 'store']);
+            });
+            Route::prefix('allergy')->group(function () {
+                Route::post('/store', [AllergyController::class, 'store']);
+            });
+
             // appointment route
             Route::prefix('appointment')->group(function () {
                 Route::get('/', [AppointmentController::class, 'index']);
-                Route::post('/store', [AppointmentController::class, 'store']);
+                Route::get('/my-appointment', [AppointmentController::class, 'myAppointment']);
                 Route::get('/show/{slug}', [AppointmentController::class, 'show']);
                 Route::get('/destroy/{slug}', [AppointmentController::class, 'destroy']);                
+                Route::post('/store', [AppointmentController::class, 'store']);
             });
         });
     });

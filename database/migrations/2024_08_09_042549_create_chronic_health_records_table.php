@@ -13,11 +13,8 @@ return new class extends Migration
     {
         Schema::create('chronic_health_records', function (Blueprint $table) {
             $table->id();
-            $table->string('chronic_medical')->nullable();
-            $table->string('father_chronic_medical')->nullable();
-            $table->string('mother_chronic_medical')->nullable();
-            $table->foreignId('patient_id')->constrained()->onDelete('cascade');
-            
+            $table->string('chronic_medical')->nullable();            
+            $table->foreignId('patient_id')->constrained()->onDelete('cascade');            
             $table->timestamps();
         });
     }

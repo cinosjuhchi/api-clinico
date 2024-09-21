@@ -34,13 +34,16 @@ class ProfileController extends Controller
             return response()->json(['status' => 'Not Found', 'message' => 'User not found, refresh your browser!'], 404);
         }
         $patient = Patient::with([
+            'user',
             'demographics',
             'chronics',
             'medications',
             'physicalExaminations',
-            'occupations',
+            'occupation',
             'immunizations',
-            'emergencyContacts'
+            'emergencyContact',
+            'parentChronic',
+            'allergy'
         ])->where('user_id', $id)->first();     
         return response()->json(['status' => 'success', 'message' => 'Success to get data', "data" => $patient], 200);
     }

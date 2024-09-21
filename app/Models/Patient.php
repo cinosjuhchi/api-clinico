@@ -3,7 +3,18 @@
 namespace App\Models;
 
 use App\Models\User;
+use App\Models\Allergy;
+use App\Models\Appointment;
+use App\Models\ParentChronic;
+use App\Models\EmergencyContact;
+use App\Models\MedicationRecord;
+use App\Models\OccupationRecord;
+use App\Models\ImmunizationRecord;
+use App\Models\ChronicHealthRecord;
+use App\Models\PhysicalExamination;
+use App\Models\DemographicInformation;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,9 +36,9 @@ class Patient extends Model
         return $this->hasMany(Appointment::class);
     }
 
-    public function demographics(): HasMany
+    public function demographics(): HasOne
     {
-        return $this->hasMany(DemographicInformation::class);
+        return $this->hasOne(DemographicInformation::class);
     }
 
     public function chronics(): HasMany
@@ -40,9 +51,9 @@ class Patient extends Model
         return $this->hasMany(MedicationRecord::class);
     }
 
-    public function physicalExaminations(): HasMany
+    public function physicalExaminations(): HasOne
     {
-        return $this->hasMany(PhysicalExamination::class);
+        return $this->hasOne(PhysicalExamination::class);
     }
 
     public function immunizations(): HasMany
@@ -50,13 +61,23 @@ class Patient extends Model
         return $this->hasMany(ImmunizationRecord::class);
     }
 
-    public function occupations(): HasMany
+    public function occupation(): HasOne
     {
-        return $this->hasMany(OccupationRecord::class);
+        return $this->hasOne(OccupationRecord::class);
     }
 
-    public function emergencyContacts(): HasMany
+    public function emergencyContact(): HasOne
     {
-        return $this->hasMany(EmergencyContact::class);
+        return $this->hasOne(EmergencyContact::class);
+    }
+
+    public function parentChronic(): HasOne 
+    {
+        return $this->hasOne(ParentChronic::class);
+    }
+
+    public function allergy(): HasOne 
+    {
+        return $this->hasOne(Allergy::class);
     }
 }

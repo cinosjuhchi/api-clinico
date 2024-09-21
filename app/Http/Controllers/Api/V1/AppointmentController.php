@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Helpers\SlugAppointmentHelper;
 use App\Http\Requests\AppointmentRequest;
 
@@ -49,8 +50,7 @@ class AppointmentController extends Controller
             'message' => 'Appointments retrieved successfully',
             'data' => $appointments
         ], 200);
-    }
-
+    }    
 
     /**
      * Store a newly created resource in storage.

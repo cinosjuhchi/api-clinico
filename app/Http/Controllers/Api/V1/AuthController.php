@@ -13,6 +13,7 @@ use App\Models\ImmunizationRecord;
 use Illuminate\Support\Facades\DB;
 use App\Models\ChronicHealthRecord;
 use App\Models\PhysicalExamination;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserAuthLogin;
@@ -24,6 +25,7 @@ use App\Models\DemographicInformation;
 use Illuminate\Auth\Events\Registered;
 use App\Models\EmergencyContactInformation;
 use Illuminate\Validation\ValidationException;
+use App\Notifications\SetUpProfileNotification;
 
 
 class AuthController extends Controller
@@ -39,7 +41,7 @@ class AuthController extends Controller
 
         if(Auth::attempt(['email' => $request->user, 'password' => $request->password]) || Auth::attempt(['phone_number' => $request->user, 'password' => $request->password]))
         {
-            $user = Auth::user();
+            $user = auth()->user();                        
             $token = $user->createToken('Clinico', ['user']);
             return response()->json(['status' => 'Success', 'message' => 'Login Success', 'token' => $token], 200);
         }else{
@@ -99,13 +101,7 @@ class AuthController extends Controller
                 'postal_code' => $validated['postal_code'],
                 'patient_id' => $patient->id,
             ]);
-
-            // $patient->chronics()->create();
-            // $patient->medications()->create();
-            // $patient->physicalExaminations()->create();
-            // $patient->occupations()->create();
-            // $patient->immunizations()->create();
-            // $patient->emergencyContacts()->create();
+        
 
             $verificationUrl = URL::temporarySignedRoute(
                 'verification.verify', now()->addMinutes(60), ['id' => $user->id]
@@ -115,8 +111,13 @@ class AuthController extends Controller
                 'name' => $patient->name,
                 'verification_url' => $verificationUrl
             ]));
+            try {
+                $user->notify(new SetUpProfileNotification());
+            } catch (\Exception $e) {                
+                Log::error('Notification error: ' . $e->getMessage());
+            }
+            
         });
-
         return response()->json(['status' => 'success', 'message' => 'Register Successful'], 201);
     }
 

@@ -19,6 +19,7 @@ use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\Api\V1\AppointmentController;
 use App\Http\Controllers\Api\V1\Doctor\IndexController;
 use App\Http\Controllers\Api\V1\User\ProfileController;
+use App\Http\Controllers\PatientNotificationController;
 use App\Http\Controllers\Api\V1\Auth\ClinicAuthController;
 use App\Http\Controllers\Api\V1\Auth\DoctorAuthController;
 
@@ -37,6 +38,12 @@ Route::prefix('v1')->group(function () {
         Route::prefix('patient')->group(function () {
             Route::get('/user/{id}', [UserController::class, 'show']);
             Route::get('/logout-user', [AuthController::class, 'logout']);
+
+            Route::prefix('notifications')->group(function () {
+                Route::get('/', [PatientNotificationController::class, 'getNotifications']);  // Ambil notifikasi yang belum dibaca
+                Route::put('/mark-read/{id}', [PatientNotificationController::class, 'markAsRead']);  // Tandai satu notifikasi sebagai sudah dibaca
+                Route::put('/mark-all-read', [PatientNotificationController::class, 'markAllAsRead']);  // Tandai semua notifikasi sebagai sudah dibaca
+            });
 
             // profile route
             Route::prefix('me')->group(function () {

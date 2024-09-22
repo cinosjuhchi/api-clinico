@@ -15,6 +15,7 @@ use App\Models\PhysicalExamination;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Models\DemographicInformation;
+use App\Notifications\SetUpProfileNotification;
 
 class ProfileController extends Controller
 {
@@ -28,6 +29,7 @@ class ProfileController extends Controller
     public function me(Request $request)
     {
         $id = Auth::user()->id;
+        
         $exist = $this->checkUser->checkUserExist($id);
         if(!$exist)
         {

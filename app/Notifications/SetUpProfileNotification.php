@@ -50,7 +50,7 @@ class SetUpProfileNotification extends Notification
         return [
             'title' => 'Selamat datang di Clinico!',
             'message' => '🌟 Ayo, lengkapi profil Anda untuk mendapatkan pengalaman terbaik! Klik di sini untuk mulai.',
-            'action_url' => env('WEB_CLINICO_URL') . '/profile',
+            'action_url' => env('WEB_CLINICO_URL') . '/patient/profile',
             'type' => 'info'            
         ];        
     }

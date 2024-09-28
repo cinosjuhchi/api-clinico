@@ -10,7 +10,11 @@ class IndexController extends Controller
 {
     public function index()
     {
-        $user = Clinic::all();
-        return response()->json(['clinics' => $user], 200);
+        $clinic = Clinic::with('doctors')->get();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Success to get clinic data.',
+            'data' => $clinic
+        ], 200);
     }
 }

@@ -80,4 +80,14 @@ class Patient extends Model
     {
         return $this->hasOne(Allergy::class);
     }
+
+    public function family(): BelongsTo
+    {
+        return $this->belongsTo(Family::class);
+    }
+
+    public function familyRelationship(): BelongsTo
+    {
+        return $this->belongsTo(FamilyRelationship::class);
+    }
 }

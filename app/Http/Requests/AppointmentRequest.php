@@ -27,6 +27,7 @@ class AppointmentRequest extends FormRequest
             'current_condition' => 'required|string',
             'doctor_id' => 'required|exists:doctors,id',
             'patient_id' => 'required|exists:patients,id',
+            'clinic_id' => 'required|exists:clinics,id',
         ];
     }
 }

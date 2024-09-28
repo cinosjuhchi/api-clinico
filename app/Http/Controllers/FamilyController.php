@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Family;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\FamilyResource;
 use App\Http\Requests\StoreFamilyRequest;
 use App\Http\Requests\UpdateFamilyRequest;
 
@@ -13,7 +16,17 @@ class FamilyController extends Controller
      */
     public function index()
     {
-        //
+        $id = Auth::user()->id;
+        $families = Family::with([
+            'patients.familyRelationship',
+            'patients.demographics',
+            ])->where('user_id', $id)
+            ->firstOrFail();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'List of your families',
+            'data' => new FamilyResource($families),
+        ]);
     }
 
     /**
@@ -29,7 +42,7 @@ class FamilyController extends Controller
      */
     public function store(StoreFamilyRequest $request)
     {
-        //
+        
     }
 
     /**

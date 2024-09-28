@@ -29,14 +29,24 @@ class ProfileController extends Controller
     public function me(Request $request)
     {
         $id = Auth::user()->id;
-        
+
+        // Periksa apakah user ada menggunakan checkUserExist
         $exist = $this->checkUser->checkUserExist($id);
-        if(!$exist)
-        {
-            return response()->json(['status' => 'Not Found', 'message' => 'User not found, refresh your browser!'], 404);
+        if (!$exist) {
+            return response()->json([
+                'status' => 'Not Found', 
+                'message' => 'User not found, refresh your browser!'
+            ], 404);
         }
-        $patient = Patient::with([
+
+        // Ambil parameter 'patient' dari request (jika ada)
+        $patientId = $request->input('patient');
+
+        // Query untuk mendapatkan pasien dengan user_id yang sama
+        $patientQuery = Patient::with([
             'user',
+            'appointments.clinic',
+            'family.patients',            
             'demographics',
             'chronics',
             'medications',
@@ -46,9 +56,36 @@ class ProfileController extends Controller
             'emergencyContact',
             'parentChronic',
             'allergy'
-        ])->where('user_id', $id)->first();     
-        return response()->json(['status' => 'success', 'message' => 'Success to get data', "data" => $patient], 200);
+        ])->where('user_id', $id);
+
+        // Jika ada parameter 'patient', ambil pasien berdasarkan ID tersebut
+        if ($patientId) {
+            $patient = $patientQuery->where('id', $patientId)->first();
+            if (!$patient) {
+                return response()->json([
+                    'status' => 'Not Found', 
+                    'message' => 'Patient not found with the given ID'
+                ], 404);
+            }
+        } else {
+            // Jika tidak ada parameter 'patient', ambil patient pertama
+            $patient = $patientQuery->first();
+            if (!$patient) {
+                return response()->json([
+                    'status' => 'Not Found', 
+                    'message' => 'No patients found for this user'
+                ], 404);
+            }
+        }
+
+        // Kembalikan data patient
+        return response()->json([
+            'status' => 'success', 
+            'message' => 'Success to get data', 
+            'data' => $patient
+        ], 200);
     }
+
 
     public function setDemographic(Request $request ,int $id)
     {        

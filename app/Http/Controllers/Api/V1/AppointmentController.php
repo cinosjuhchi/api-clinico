@@ -6,6 +6,7 @@ use App\Models\Clinic;
 use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Appointment;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -72,7 +73,17 @@ class AppointmentController extends Controller
         }
         
         $title = "{$validated['visit_purpose']} on {$clinic->name}";
-        $slug = SlugAppointmentHelper::generateSlug($title);
+        $slug = Str::slug($title);
+
+        // Cek apakah slug sudah ada di database
+        $slugBase = $slug;
+        $counter = 1;
+    
+        while (Appointment::where('slug', $slug)->exists()) {
+            // Jika ada slug yang sama, tambahkan angka
+            $slug = $slugBase . '-' . $counter;
+            $counter++;
+        }
 
         try {
             // Gunakan transaksi untuk menjaga konsistensi data

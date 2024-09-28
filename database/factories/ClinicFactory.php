@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,10 +17,11 @@ class ClinicFactory extends Factory
      */
     public function definition(): array
     {
+        $name = fake()->unique()->company() . ' Clinic'; // Menghasilkan nama
         return [
-            'name' => fake()->unique()->company(),
+            'name' => $name, // Menyimpan nama ke dalam array
             'password' => bcrypt("password"),
-            'slug' => fake()->slug(),
+            'slug' => Str::slug($name), // Menggunakan nama untuk membuat slug
             'description' => fake()->paragraph(),
             'address' => fake()->address(),
             'phone' => fake()->phoneNumber(),

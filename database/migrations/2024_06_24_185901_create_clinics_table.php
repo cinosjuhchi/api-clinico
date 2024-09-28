@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('slug');
             $table->text('description')->nullable();
             $table->text('address')->nullable();
-            $table->string('phone')->nullable();
-            $table->string('email')->unique()->nullable();
+            $table->string('phone')->nullable();            
+            $table->string('email')->unique()->nullable();            
             $table->timestamps();
         });
     }

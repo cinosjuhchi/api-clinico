@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Models\User;
+use App\Models\Family;
 use App\Models\Patient;
 use App\Mail\VerifyEmail;
 use Illuminate\Http\Request;
@@ -43,9 +44,8 @@ class AuthController extends Controller
         {
             $user = auth()->user();                        
             $token = $user->createToken('Clinico', ['user']);
-            return response()->json(['status' => 'Success', 'message' => 'Login Success', 'token' => $token], 200);
+            return response()->json(['status' => 'Success', 'message' => 'Login Success', 'user' => $user, 'token' => $token], 200);
         }else{
-
             return response()->json(["message" => "User didn't exist!"], status: 404);
         }
                             
@@ -79,18 +79,24 @@ class AuthController extends Controller
         'gender' => 'required|string',           
         ]);
 
-        DB::transaction(function () use ($validated) {
+        $token = null;
+        
+        DB::transaction(function () use ($validated, &$token) {
             $user = User::create([
                 'email' => $validated['email'],
                 'password' => bcrypt($validated['password']),
                 'phone_number' => $validated['phone_number'],
             ]);
+            $token = $user->createToken('Clinico', ['user'])->plainTextToken;
+            $family = Family::create();             
 
             $patient = Patient::create([
                 'name' => $validated['name'],
                 'address' => $validated['address'],
                 'user_id' => $user->id,
+                'family_id' => $family->id,
             ]);
+
 
             DemographicInformation::create([
                 'date_birth' => $validated['date_birth'],
@@ -118,7 +124,8 @@ class AuthController extends Controller
             }
             
         });
-        return response()->json(['status' => 'success', 'message' => 'Register Successful'], 201);
+        
+        return response()->json(['status' => 'success', 'message' => 'Register Successful', 'token' => $token ], 201);
     }
 
 

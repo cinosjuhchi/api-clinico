@@ -5,8 +5,13 @@ use Illuminate\Http\Request;
 use App\Models\EmergencyContact;
 use App\Models\ChronicHealthRecord;
 use Illuminate\Support\Facades\Route;
+use App\Models\DemographicInformation;
+use App\Http\Controllers\ClinicController;
+use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\AllergyController;
 use App\Http\Controllers\ChronicController;
+use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PhysicalController;
 use App\Http\Controllers\MedicationController;
 use App\Http\Controllers\OccupationController;
@@ -17,11 +22,13 @@ use App\Http\Controllers\ParentChronicController;
 use App\Http\Controllers\Api\V1\ContactUsController;
 use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\Api\V1\AppointmentController;
+use App\Http\Controllers\FamilyRelationshipController;
 use App\Http\Controllers\Api\V1\Doctor\IndexController;
 use App\Http\Controllers\Api\V1\User\ProfileController;
 use App\Http\Controllers\PatientNotificationController;
 use App\Http\Controllers\Api\V1\Auth\ClinicAuthController;
 use App\Http\Controllers\Api\V1\Auth\DoctorAuthController;
+use App\Http\Controllers\DemographicInformationController;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('guest')->group(function () {
@@ -38,12 +45,21 @@ Route::prefix('v1')->group(function () {
         Route::prefix('patient')->group(function () {
             Route::get('/user/{id}', [UserController::class, 'show']);
             Route::get('/logout-user', [AuthController::class, 'logout']);
-
+            Route::post('/store', [PatientController::class, 'store']);
+            Route::delete('/destroy/{patient}', [PatientController::class, 'destroy']);
             Route::prefix('notifications')->group(function () {
                 Route::get('/', [PatientNotificationController::class, 'getNotifications']);  // Ambil notifikasi yang belum dibaca
                 Route::put('/mark-read/{id}', [PatientNotificationController::class, 'markAsRead']);  // Tandai satu notifikasi sebagai sudah dibaca
                 Route::put('/mark-all-read', [PatientNotificationController::class, 'markAllAsRead']);  // Tandai semua notifikasi sebagai sudah dibaca
             });
+
+            Route::prefix('relationship')->group(function () {
+                Route::get('/', [FamilyRelationshipController::class, 'index']);
+            });
+
+            Route::prefix('family')->group(function () {
+                Route::get('/', [FamilyController::class, 'index']);
+            });            
 
             // profile route
             Route::prefix('me')->group(function () {
@@ -58,6 +74,9 @@ Route::prefix('v1')->group(function () {
 
             });            
 
+            Route::prefix('demographic')->group(function () {
+                Route::post('/store', [DemographicInformationController::class, 'store']);
+            });
             Route::prefix('chronic')->group(function () {
                 Route::post('/store', [ChronicController::class, 'store']);
             });
@@ -94,10 +113,18 @@ Route::prefix('v1')->group(function () {
         });
     });
 
-    Route::middleware(['auth:sanctum', 'abilities:doctor'])->group(function () {
-        Route::prefix('doctor')->group(function () {
-            Route::get('/doctor/{id}', [IndexController::class, 'show']);
+    Route::prefix('doctor')->group(function () {
+        Route::get('/{doctor}', [DoctorController::class, 'show']);
+        Route::middleware(['auth:sanctum', 'abilities:doctor'])->group(function () {
+            
         });
+    });
+    Route::prefix('clinic')->group(function () {
+        Route::get('/', [ClinicController::class, 'index']);
+        Route::get('/show/{slug}', [ClinicController::class, 'show']);
+        // Route::middleware(['auth:sanctum', 'abilities:clinic'])->group(function () {
+            
+        // });
     });
     
 });

@@ -18,8 +18,8 @@ class PatientFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
-            'address' => $this->faker->address(),            
-            'user_id' => $this->faker->unique()->numberBetween(1, 11),
+            'family_relationship_id' => $this->faker->numberBetween(1, 8),
+            'address' => $this->faker->address(),                        
         ];
     }
 }

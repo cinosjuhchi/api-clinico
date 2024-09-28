@@ -23,7 +23,7 @@ return new class extends Migration
             $table->unsignedBigInteger('doctor_id')->nullable();
             $table->unsignedBigInteger('clinic_id')->nullable();
             $table->unsignedBigInteger('billing_id')->nullable();
-            $table->dateTime('appointment_date');
+            $table->date('appointment_date');
             $table->softDeletes();
 
             $table->foreign('patient_id')->references('id')->on('patients')->onDelete('cascade');

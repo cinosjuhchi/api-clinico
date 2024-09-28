@@ -16,8 +16,17 @@ class CategoryFactory extends Factory
      */
     public function definition(): array
     {
+        $specializations = [
+            'Cardiologist',
+            'Dentist',
+            'Neurologist',
+            'Orthopedic',
+            'Pediatrician',
+            'Dermatologist'
+        ];
+
         return [
-            'name' => $this->faker->unique()->word,
+            'name' => $this->faker->unique()->randomElement($specializations),
         ];
     }
 }

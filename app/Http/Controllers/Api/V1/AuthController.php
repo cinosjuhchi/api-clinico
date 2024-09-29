@@ -86,9 +86,11 @@ class AuthController extends Controller
                 'email' => $validated['email'],
                 'password' => bcrypt($validated['password']),
                 'phone_number' => $validated['phone_number'],
-            ]);
+            ]);            
             $token = $user->createToken('Clinico', ['user'])->plainTextToken;
-            $family = Family::create();             
+            $family = Family::create([
+                'user_id' => $user->id,
+            ]);             
 
             $patient = Patient::create([
                 'name' => $validated['name'],

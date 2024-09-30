@@ -18,6 +18,7 @@ class ClinicController extends Controller
         $page = $request->input('page', 1); // Get the page number from the request
         $clinics = Clinic::with([
             'doctors.category',
+            'doctors.schedules',
             'rooms',
             'location', 
             'schedule'

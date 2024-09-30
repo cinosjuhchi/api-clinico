@@ -19,13 +19,10 @@ class ClinicFactory extends Factory
     {
         $name = fake()->unique()->company() . ' Clinic'; // Menghasilkan nama
         return [
-            'name' => $name, // Menyimpan nama ke dalam array
-            'password' => bcrypt("password"),
+            'name' => $name, // Menyimpan nama ke dalam array            
             'slug' => Str::slug($name), // Menggunakan nama untuk membuat slug
             'description' => fake()->paragraph(),
-            'address' => fake()->address(),
-            'phone' => fake()->phoneNumber(),
-            'email' => fake()->unique()->safeEmail(),
+            'address' => fake()->address(),            
         ];
     }
 }

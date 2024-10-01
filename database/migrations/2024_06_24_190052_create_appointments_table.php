@@ -16,13 +16,14 @@ return new class extends Migration
             $table->string('title');
             $table->string('slug')->unique();
             $table->string('visit_purpose');
-            $table->enum('status', ['pending', 'completed', 'cancelled']);
+            $table->enum('status', ['pending', 'consultation', 'completed', 'cancelled']);
             $table->text('current_condition');
-            $table->string('waiting_number')->nullable();
+            $table->integer('waiting_number')->nullable();
             $table->unsignedBigInteger('patient_id');
             $table->unsignedBigInteger('doctor_id')->nullable();
             $table->unsignedBigInteger('clinic_id')->nullable();
             $table->unsignedBigInteger('billing_id')->nullable();
+            $table->foreignId('room_id')->nullable()->constrained()->onDelete('set null');
             $table->date('appointment_date');
             $table->softDeletes();
 

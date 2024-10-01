@@ -24,20 +24,40 @@ class AppointmentController extends Controller
     {
         $user = $request->user();
         $patientId = $request->input('patient_id');
+        $status = $request->input('status'); // Ambil status dari request
 
-        // Pastikan pasien yang dipilih milik user yang sedang login
-        $patient = $user->patients()->find($patientId);        
+        if ($patientId) {
+            // Jika patient_id diberikan, pastikan pasien milik user yang sedang login
+            $patient = $user->patients()->find($patientId);
 
-        if (!$patient) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Patient not found or does not belong to the user',
-            ], 404);
+            if (!$patient) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Patient not found or does not belong to the user',
+                ], 404);
+            }
+
+            // Query appointments berdasarkan patient_id dan urutkan dari yang terbaru
+            $appointmentsQuery = Appointment::where('patient_id', $patient->id)->orderBy('created_at', 'desc');
+        } else {
+            // Jika patient_id tidak diberikan, ambil semua pasien milik user
+            $patientIds = $user->patients()->pluck('id')->toArray();
+
+            // Query appointments berdasarkan semua pasien milik user dan urutkan dari yang terbaru
+            $appointmentsQuery = Appointment::whereIn('patient_id', $patientIds)->orderBy('created_at', 'desc');
         }
 
-        // Mendapatkan appointments untuk pasien yang dipilih
-        $appointments = Appointment::where('patient_id', $patient->id)->get();
-        $appointments->load(['patient:id,name', 'doctor:id,name', 'clinic:id,name']);
+        // Jika status diberikan, tambahkan filter status
+        if ($status) {
+            $appointmentsQuery->where('status', $status);
+        }
+
+        // Eksekusi query untuk mendapatkan appointments
+        $appointments = $appointmentsQuery->get();
+
+        // Muat relasi untuk appointments
+        $appointments->load(['patient:id,name', 'doctor', 'clinic.schedule']);
+
         if ($appointments->isEmpty()) {
             return response()->json([
                 'status' => 'success',
@@ -51,7 +71,10 @@ class AppointmentController extends Controller
             'message' => 'Appointments retrieved successfully',
             'data' => $appointments
         ], 200);
-    }    
+    }
+
+
+
 
     /**
      * Store a newly created resource in storage.
@@ -94,6 +117,7 @@ class AppointmentController extends Controller
                     'visit_purpose' => $validated['visit_purpose'],
                     'current_condition' => $validated['current_condition'],
                     'status' => 'pending',
+                    'room_id' => $validated['room_id'],
                     'patient_id' => $validated['patient_id'],
                     'doctor_id' => $validated['doctor_id'],
                     'clinic_id' => $clinic->id,
@@ -120,7 +144,7 @@ class AppointmentController extends Controller
      */
     public function show(string $slug)
     {
-        $appointment = Appointment::where('slug', $slug)->first();
+        $appointment = Appointment::with(['doctor.category', 'clinic', 'patient'])->where('slug', $slug)->first();
         if (!$appointment) {
             return response()->json([
                 'status' => 'error',
@@ -137,9 +161,44 @@ class AppointmentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
+    public function checkin(Appointment $appointment)
+    {        
+        if($appointment->status == 'consultation' || $appointment->status == 'cancelled' || $appointment->status == 'completed') 
+        {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Appointment has been check-in!'                
+            ], 403);
+        }
+        $booked = Appointment::where('appointment_date', $appointment->appointment_date)
+        ->where('status', 'consultation')    
+        ->where('doctor_id', $appointment->doctor_id)
+        ->where('room_id', $appointment->room_id)
+        ->latest()->first();
+
+        $waitingNumber = 1;
+        if($booked) {
+            $waitingNumber += $booked->waiting_number;
+            $appointment->update([
+                'status' => 'consultation',
+                'waiting_number' => $waitingNumber,
+            ]);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Check-In successfully!',
+                'data' => $waitingNumber
+            ], 200);
+        }
+        $appointment->update([
+            'status' => 'consultation',
+            'waiting_number' => 1
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Check-In successfully!',
+            'data' => $waitingNumber
+        ], 200);
     }
 
     /**

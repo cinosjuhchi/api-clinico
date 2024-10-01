@@ -19,10 +19,7 @@ class DoctorFactory extends Factory
         return [
             'name' => fake()->name(),
             'clinic_id' => fake()->numberBetween(1, 10), // Adjust range as needed
-            'category_id' => fake()->numberBetween(1, 5), // Adjust range as needed
-            'email' => fake()->safeEmail(),
-            'password' => bcrypt('password'),
-            'phone' => fake()->phoneNumber(),
+            'category_id' => fake()->numberBetween(1, 5), // Adjust range as needed            
         ];
     }
 }

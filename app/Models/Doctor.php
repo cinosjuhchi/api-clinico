@@ -27,4 +27,9 @@ class Doctor extends Authenticatable
     {
         return $this->belongsTo(Clinic::class, 'clinic_id');
     }
+
+    public function room(): BelongsTo
+    {
+        return $this->belongsTo(Room::class, 'room_id');
+    }
 }

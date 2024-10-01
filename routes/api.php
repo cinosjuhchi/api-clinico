@@ -109,6 +109,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/show/{slug}', [AppointmentController::class, 'show']);
                 Route::get('/destroy/{slug}', [AppointmentController::class, 'destroy']);                
                 Route::post('/store', [AppointmentController::class, 'store']);
+                Route::put('/check-in/{appointment}', [AppointmentController::class, 'checkin']);
             });
         });
     });

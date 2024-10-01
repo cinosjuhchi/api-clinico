@@ -16,10 +16,19 @@ class RoomFactory extends Factory
      */
     public function definition(): array
     {
+        $roomNames = [
+            'Ruang Konsultasi', 'Ruang Periksa', 'Ruang Tindakan', 
+            'Ruang UGD', 'Ruang Radiologi', 'Ruang Laboratorium', 
+            'Ruang Kesehatan Gigi', 'Ruang USG', 'Ruang Farmasi', 
+            'Ruang Rehabilitasi', 'Ruang Laktasi'
+        ];
+
+        // Array untuk tipe ruangan
+        $roomTypes = ['ICU', 'General', 'Radiologi', 'Laboratorium', 'Kesehatan Gigi', 'Tindakan'];
+
         return [
-            'name' => $this->faker->unique()->word,
-            'clinic_id' => $this->faker->numberBetween(1, 10),
-            'type' => ['ICU', 'General'][rand(0, 1)],            
+            'name' => $this->faker->randomElement($roomNames), // Pilih secara acak dari nama ruangan
+            'clinic_id' => $this->faker->numberBetween(1, 10),            
         ];
     }
 }

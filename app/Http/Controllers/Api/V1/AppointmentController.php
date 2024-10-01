@@ -24,6 +24,7 @@ class AppointmentController extends Controller
     {
         $user = $request->user();
         $patientId = $request->input('patient_id');
+        $status = $request->input('status'); // Ambil status dari request
 
         if ($patientId) {
             // Jika patient_id diberikan, pastikan pasien milik user yang sedang login
@@ -36,18 +37,26 @@ class AppointmentController extends Controller
                 ], 404);
             }
 
-            // Mendapatkan appointments untuk pasien yang dipilih
-            $appointments = Appointment::where('patient_id', $patient->id)->get();
+            // Query appointments berdasarkan patient_id dan urutkan dari yang terbaru
+            $appointmentsQuery = Appointment::where('patient_id', $patient->id)->orderBy('created_at', 'desc');
         } else {
             // Jika patient_id tidak diberikan, ambil semua pasien milik user
             $patientIds = $user->patients()->pluck('id')->toArray();
 
-            // Mendapatkan semua appointments untuk semua pasien milik user
-            $appointments = Appointment::whereIn('patient_id', $patientIds)->get();
+            // Query appointments berdasarkan semua pasien milik user dan urutkan dari yang terbaru
+            $appointmentsQuery = Appointment::whereIn('patient_id', $patientIds)->orderBy('created_at', 'desc');
         }
 
+        // Jika status diberikan, tambahkan filter status
+        if ($status) {
+            $appointmentsQuery->where('status', $status);
+        }
+
+        // Eksekusi query untuk mendapatkan appointments
+        $appointments = $appointmentsQuery->get();
+
         // Muat relasi untuk appointments
-        $appointments->load(['patient:id,name', 'doctor:id,name', 'clinic:id,name']);
+        $appointments->load(['patient:id,name', 'doctor', 'clinic.schedule']);
 
         if ($appointments->isEmpty()) {
             return response()->json([
@@ -63,6 +72,8 @@ class AppointmentController extends Controller
             'data' => $appointments
         ], 200);
     }
+
+
 
 
     /**
@@ -133,7 +144,7 @@ class AppointmentController extends Controller
      */
     public function show(string $slug)
     {
-        $appointment = Appointment::where('slug', $slug)->first();
+        $appointment = Appointment::with(['doctor.category', 'clinic', 'patient'])->where('slug', $slug)->first();
         if (!$appointment) {
             return response()->json([
                 'status' => 'error',

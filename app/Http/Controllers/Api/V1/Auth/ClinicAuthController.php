@@ -11,15 +11,24 @@ use App\Http\Requests\DoctorAuthLogin;
 class ClinicAuthController extends Controller
 {
     public function login(ClinicAuthLogin $request)
-    {
-        $request->validated();    
-
-        if(Auth::guard('clinic')->attempt(['email' => $request->user, 'password' => $request->password]) || Auth::guard('clinic')->attempt(['name' => $request->user, 'password' => $request->password]))
+    {        
+        $request->validated();            
+        if(Auth::attempt(['email' => $request->user, 'password' => $request->password]) || Auth::attempt(['phone_number' => $request->user, 'password' => $request->password]))
         {
-            $user = Auth::guard('clinic')->user();
-            $token = $user->createToken('Clinico', ['clinic'])->plainTextToken;
-    
-            return response()->json([$user, 'token' => $token], 200);
+            $user = Auth::user();
+            if($user->role == 'clinic')
+            {
+                $token = $user->createToken('Clinico', ['clinic'])->plainTextToken;
+                $role = $user->role;
+                return response()->json([$user, 'role' => $role,'token' => $token], 200);
+
+            }
+            if($user->role == 'doctor')
+            {
+                $token = $user->createToken('Clinico', ['doctor'])->plainTextToken;
+                $role = $user->role;
+                return response()->json([$user, 'role' => $role,'token' => $token], 200);
+            }
         }
         
             return response()->json(["message" => "User didn't exist!"], 401);        

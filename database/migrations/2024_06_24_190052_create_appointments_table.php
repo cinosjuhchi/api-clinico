@@ -25,6 +25,7 @@ return new class extends Migration
             $table->unsignedBigInteger('billing_id')->nullable();
             $table->foreignId('room_id')->nullable()->constrained()->onDelete('set null');
             $table->date('appointment_date');
+            $table->time('time')->nullable();
             $table->softDeletes();
 
             $table->foreign('patient_id')->references('id')->on('patients')->onDelete('cascade');

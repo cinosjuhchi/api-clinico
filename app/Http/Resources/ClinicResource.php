@@ -24,6 +24,8 @@ class ClinicResource extends JsonResource
             'slug' => $this->slug,            
             'address' => $this->address,     
             'appointments' => AppointmentResource::collection($this->whenLoaded('appointments')),
+            'pendingAppointments' => AppointmentResource::collection($this->whenLoaded('pendingAppointments')),
+            'completedAppointments' => AppointmentResource::collection($this->whenLoaded('completedAppointments')),
             'doctors' => DoctorResource::collection($this->whenLoaded('doctors')),
             'rooms' => RoomResource::collection($this->whenLoaded('rooms')),
             'services' => ServiceResource::collection($this->whenLoaded('services')),

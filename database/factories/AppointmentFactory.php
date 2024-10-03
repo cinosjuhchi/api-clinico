@@ -24,7 +24,7 @@ class AppointmentFactory extends Factory
             'visit_purpose' => fake()->sentence(),
             'current_condition' => fake()->sentence(),
             'waiting_number' => fake()->numberBetween(1, 100),
-            'appointment_date' => fake()->dateTimeBetween('now', '+1 year'), // Menghasilkan tanggal antara sekarang hingga 1 tahun ke depan
+            'appointment_date' => fake()->date(), // Menghasilkan tanggal antara sekarang hingga 1 tahun ke depan
         ];
     }
 }

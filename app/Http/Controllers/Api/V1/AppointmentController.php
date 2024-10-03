@@ -8,6 +8,7 @@ use App\Models\Patient;
 use App\Models\Appointment;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -21,7 +22,7 @@ class AppointmentController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {
+    {        
         $user = $request->user();
         $patientId = $request->input('patient_id');
         $status = $request->input('status'); // Ambil status dari request

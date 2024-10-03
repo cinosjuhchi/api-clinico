@@ -21,6 +21,7 @@ class DoctorResource extends JsonResource
             'phone' => $this->phone,
             'category' => new CategoryResource($this->whenLoaded('category')),
             'schedule' => DoctorScheduleResource::collection($this->whenLoaded('schedules')),
+            'clinic' => new ClinicResource($this->whenLoaded('clinic')),
             'clinic_id' => $this->clinic_id,
             'room_id' => $this->room_id,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\ClinicProfileController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\EmergencyContact;
@@ -13,6 +14,7 @@ use App\Http\Controllers\AllergyController;
 use App\Http\Controllers\ChronicController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PhysicalController;
+use App\Http\Controllers\ClinicDataController;
 use App\Http\Controllers\MedicationController;
 use App\Http\Controllers\OccupationController;
 use App\Http\Controllers\Api\V1\AuthController;
@@ -28,6 +30,7 @@ use App\Http\Controllers\Api\V1\User\ProfileController;
 use App\Http\Controllers\PatientNotificationController;
 use App\Http\Controllers\Api\V1\Auth\ClinicAuthController;
 use App\Http\Controllers\Api\V1\Auth\DoctorAuthController;
+use App\Http\Controllers\Api\V1\DoctorProfileController;
 use App\Http\Controllers\DemographicInformationController;
 
 Route::prefix('v1')->group(function () {
@@ -117,15 +120,21 @@ Route::prefix('v1')->group(function () {
     Route::prefix('doctor')->group(function () {
         Route::get('/{doctor}', [DoctorController::class, 'show']);
         Route::middleware(['auth:sanctum', 'abilities:doctor'])->group(function () {
-            
+            Route::prefix('me')->group( function () {
+                Route::get('/user', [DoctorProfileController::class, 'me']);
+                Route::get('/doctor-patient', [DoctorProfileController::class, 'doctorPatient']);
+            });                      
         });
     });
     Route::prefix('clinic')->group(function () {
         Route::get('/', [ClinicController::class, 'index']);
         Route::get('/show/{slug}', [ClinicController::class, 'show']);
-        // Route::middleware(['auth:sanctum', 'abilities:clinic'])->group(function () {
-            
-        // });
+        Route::middleware(['auth:sanctum', 'abilities:clinic'])->group(function () {
+            Route::prefix('me')->group( function () {
+                Route::get('/user', [ClinicDataController::class, 'me']);
+                Route::get('/clinic-patient', [ClinicProfileController::class, 'clinicPatient']);
+            });                      
+        });
     });
     
 });

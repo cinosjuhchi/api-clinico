@@ -48,4 +48,14 @@ class Clinic extends Authenticatable
     {
         return $this->hasMany(Appointment::class, 'clinic_id');
     }
+
+    public function pendingAppointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class, 'clinic_id')->where('status', 'pending');
+    }
+
+    public function completedAppointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class, 'clinic_id')->where('status', 'completed');
+    }
 }

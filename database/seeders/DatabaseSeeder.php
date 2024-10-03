@@ -73,7 +73,8 @@ class DatabaseSeeder extends Seeder
         // Buat data tambahan untuk clinic, doctor, dan patient tertentu
         // Buat data tambahan untuk clinic, doctor, dan patient tertentu
         $userClinic = User::factory()->create([
-            'email' => 'socmed.clinico@gmail.com'
+            'email' => 'socmed.clinico@gmail.com',            
+            'role' => 'clinic'
         ]);
         $clinicMuhara = Clinic::factory()->create([
             'name' => "Clinic Muhara Malaysia",
@@ -89,6 +90,7 @@ class DatabaseSeeder extends Seeder
         // Buat Dokter untuk Clinic Muhara
         $userDoctor = User::factory()->create([
             'email' => 'pacino447@gmail.com',
+            'role' => 'doctor'
         ]);
         $doctor = Doctor::factory()->create([
             'name' => "Muhammad Habibullah Mursalin",

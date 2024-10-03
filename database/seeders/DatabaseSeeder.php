@@ -71,27 +71,48 @@ class DatabaseSeeder extends Seeder
         }
 
         // Buat data tambahan untuk clinic, doctor, dan patient tertentu
-        $userClinic = User::factory()->create();
-        Clinic::factory()->create([
+        // Buat data tambahan untuk clinic, doctor, dan patient tertentu
+        $userClinic = User::factory()->create([
+            'email' => 'socmed.clinico@gmail.com'
+        ]);
+        $clinicMuhara = Clinic::factory()->create([
             'name' => "Clinic Muhara Malaysia",
             'user_id' => $userClinic->id
         ]);
 
+        // Buat Rooms, Services, Schedules, dan Locations untuk Clinic Muhara
+        Room::factory(3)->create(['clinic_id' => $clinicMuhara->id]);
+        ClinicService::factory(5)->create(['clinic_id' => $clinicMuhara->id]);
+        ClinicSchedule::factory()->create(['clinic_id' => $clinicMuhara->id]);
+        ClinicLocation::factory()->create(['clinic_id' => $clinicMuhara->id]);
+
+        // Buat Dokter untuk Clinic Muhara
         $userDoctor = User::factory()->create([
-            'email' => 'pacino447@gmail.com',            
+            'email' => 'pacino447@gmail.com',
         ]);
-        Doctor::factory()->create([
+        $doctor = Doctor::factory()->create([
             'name' => "Muhammad Habibullah Mursalin",
             'user_id' => $userDoctor->id,
-            'clinic_id' => 1,
+            'clinic_id' => $clinicMuhara->id,
+            'room_id' => $clinicMuhara->rooms->first()->id // Hubungkan dengan room pertama yang dibuat
         ]);
 
+        // Buat Doctor Schedules untuk dokter di Clinic Muhara
+        DoctorSchedule::factory(3)->create(['doctor_id' => $doctor->id, 'clinic_id' => $clinicMuhara->id]);
+
+        // Buat Pasien dan Appointment di Clinic Muhara
         $userPatient = User::factory()->create([
-            'email' => 'muhabibullah186@gmail.com',            
+            'email' => 'muhabibullah186@gmail.com',
         ]);
         $family = Family::factory()->create(['user_id' => $userPatient->id]);
-        Patient::factory(3)->create(['user_id' => $userPatient->id, 'family_id' => $family->id])->each(function ($patient) {
+        Patient::factory(3)->create(['user_id' => $userPatient->id, 'family_id' => $family->id])->each(function ($patient) use ($doctor, $clinicMuhara) {
             DemographicInformation::factory()->create(['patient_id' => $patient->id]);
+            Appointment::factory()->create([
+                'patient_id' => $patient->id,
+                'doctor_id' => $doctor->id,
+                'clinic_id' => $clinicMuhara->id,
+            ]);
         });
+
     }
 }

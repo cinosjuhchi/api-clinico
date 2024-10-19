@@ -145,5 +145,15 @@ class DatabaseSeeder extends Seeder
             ]);
         });
 
+        User::factory()->create([
+            'email' => 'superadmin@gmail.com',
+            'password' => 'Clinico@00'
+        ]);
+
+        User::factory()->create([
+            'email' => 'admin@gmail.com',
+            'password' => 'Clinico@00'
+        ]);
     }
+
 }

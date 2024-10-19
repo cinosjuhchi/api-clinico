@@ -20,6 +20,7 @@ use App\Http\Controllers\MedicationController;
 use App\Http\Controllers\OccupationController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\ImmunizationController;
 use App\Http\Controllers\ParentChronicController;
 use App\Http\Controllers\Api\V1\ContactUsController;
@@ -130,7 +131,10 @@ Route::prefix('v1')->group(function () {
                 Route::get('/logout-doctor', [DoctorAuthController::class, 'logout']);
                 Route::get('/user', [DoctorProfileController::class, 'me']);
                 Route::get('/doctor-patient', [DoctorProfileController::class, 'doctorPatient']);
-            });                      
+            });              
+            Route::prefix('consultation')->group(function () {                
+                Route::put('/bill-payment/{appointment}', [ConsultationController::class, 'complete']);                
+            });
         });
     });
     Route::prefix('clinic')->group(function () {

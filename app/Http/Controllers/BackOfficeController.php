@@ -41,6 +41,12 @@ class BackOfficeController extends Controller
             return response()->json(["message" => "User didn't exist!"], 401);
     }
 
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();        
+        return response()->json(["message" => "Logout"], 200);
+    }
+
     /**
      * Store a newly created resource in storage.
      */

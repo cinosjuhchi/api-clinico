@@ -38,6 +38,7 @@ use App\Http\Controllers\DemographicInformationController;
 Route::prefix('v1')->group(function () {
     Route::prefix('back-office')->group(function () {
         Route::post('login', [BackOfficeController::class, 'login']);
+        Route::get('/logout', [BackOfficeController::class, 'logout']);
     });
     Route::prefix('guest')->group(function () {
         Route::get('/user', [UserController::class, 'index']);

@@ -175,8 +175,7 @@ class AppointmentController extends Controller
         ->where('status', 'consultation')    
         ->where('doctor_id', $appointment->doctor_id)
         ->where('room_id', $appointment->room_id)
-        ->latest()->first();
-
+        ->latest('updated_at')->first();
         $waitingNumber = 1;
         if($booked) {
             $waitingNumber += $booked->waiting_number;
@@ -187,7 +186,7 @@ class AppointmentController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Check-In successfully!',
-                'data' => $waitingNumber
+                'data' => $booked
             ], 200);
         }
         $appointment->update([
@@ -221,4 +220,8 @@ class AppointmentController extends Controller
             'message' => 'Appointment cancelled successfully',
         ], 200);
     }
+    public function callPatient(Appointment $appointment)
+    {
+        
+    }    
 }

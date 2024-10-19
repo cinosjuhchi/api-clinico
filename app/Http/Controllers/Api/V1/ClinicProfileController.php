@@ -52,4 +52,6 @@ class ClinicProfileController extends Controller
             'data' => new ClinicResource($clinic),            
         ]);
     }
+
+    
 }

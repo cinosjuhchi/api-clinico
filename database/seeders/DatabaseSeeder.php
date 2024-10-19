@@ -9,7 +9,9 @@ use App\Models\Doctor;
 use App\Models\Family;
 use App\Models\Patient;
 use App\Models\Category;
+use App\Models\Medication;
 use App\Models\Appointment;
+use Faker\Provider\Medical;
 use App\Models\ClinicService;
 use App\Models\ClinicLocation;
 use App\Models\ClinicSchedule;
@@ -17,6 +19,7 @@ use App\Models\DoctorSchedule;
 use Illuminate\Database\Seeder;
 use App\Models\FamilyRelationship;
 use App\Models\DemographicInformation;
+use App\Models\MedicalRecord;
 
 class DatabaseSeeder extends Seeder
 {
@@ -30,7 +33,7 @@ class DatabaseSeeder extends Seeder
         FamilyRelationship::factory(8)->create();
 
         // Buat Users dengan role 'clinic' secara bulk
-        $clinics = User::factory(100)->create(['role' => 'clinic'])->map(function ($user) {
+        $clinics = User::factory(10)->create(['role' => 'clinic'])->map(function ($user) {
             $clinic = Clinic::factory()->create(['user_id' => $user->id]);
 
             // Buat Rooms, Services, Schedules, dan Locations secara bulk
@@ -38,6 +41,9 @@ class DatabaseSeeder extends Seeder
             ClinicService::factory(5)->create(['clinic_id' => $clinic->id]);
             ClinicSchedule::factory()->create(['clinic_id' => $clinic->id]);
             ClinicLocation::factory()->create(['clinic_id' => $clinic->id]);
+            Medication::factory(10)->create([
+                'clinic_id' => $clinic->id
+            ]);
 
             return $clinic;
         });
@@ -52,8 +58,7 @@ class DatabaseSeeder extends Seeder
                     'user_id' => $doctorUser->id,
                     'clinic_id' => $clinic->id,
                     'room_id' => $room->id
-                ]);
-
+                ]);            
                 // Buat Doctor Schedules secara bulk
                 DoctorSchedule::factory(3)->create(['doctor_id' => $doctor->id, 'clinic_id' => $clinic->id]);
 
@@ -64,7 +69,16 @@ class DatabaseSeeder extends Seeder
 
                     DemographicInformation::factory()->create(['patient_id' => $patient->id]);
                     Appointment::factory()->create(['patient_id' => $patient->id, 'doctor_id' => $doctor->id, 'clinic_id' => $clinic->id]);
+                    
+                    return $patient;
+                });
+                $patients = User::factory(5)->create(['role' => 'user'])->map(function ($userPatient) use ($doctor, $clinic) {
+                    $family = Family::factory()->create(['user_id' => $userPatient->id]);
+                    $patient = Patient::factory()->create(['user_id' => $userPatient->id, 'family_id' => $family->id]);
 
+                    DemographicInformation::factory()->create(['patient_id' => $patient->id]);
+                    Appointment::factory()->create(['patient_id' => $patient->id, 'doctor_id' => $doctor->id, 'clinic_id' => $clinic->id, 'status' => 'completed']);
+                    MedicalRecord::factory()->create(['patient_id' => $patient->id, 'doctor_id' => $doctor->id, 'clinic_id' => $clinic->id]);
                     return $patient;
                 });
             });
@@ -86,6 +100,7 @@ class DatabaseSeeder extends Seeder
         ClinicService::factory(5)->create(['clinic_id' => $clinicMuhara->id]);
         ClinicSchedule::factory()->create(['clinic_id' => $clinicMuhara->id]);
         ClinicLocation::factory()->create(['clinic_id' => $clinicMuhara->id]);
+        Medication::factory(5)->create(['clinic_id' => $clinicMuhara->id]);
 
         // Buat Dokter untuk Clinic Muhara
         $userDoctor = User::factory()->create([
@@ -113,6 +128,20 @@ class DatabaseSeeder extends Seeder
                 'patient_id' => $patient->id,
                 'doctor_id' => $doctor->id,
                 'clinic_id' => $clinicMuhara->id,
+            ]);
+        });
+        Patient::factory(3)->create(['user_id' => $userPatient->id, 'family_id' => $family->id])->each(function ($patient) use ($doctor, $clinicMuhara) {
+            DemographicInformation::factory()->create(['patient_id' => $patient->id]);
+            Appointment::factory()->create([
+                'patient_id' => $patient->id,
+                'doctor_id' => $doctor->id,
+                'clinic_id' => $clinicMuhara->id,
+                'status' => 'completed'
+            ]);
+            MedicalRecord::factory()->create([
+                'patient_id' => $patient->id,
+                'doctor_id' => $doctor->id,
+                'clinic_id' => $clinicMuhara->id
             ]);
         });
 

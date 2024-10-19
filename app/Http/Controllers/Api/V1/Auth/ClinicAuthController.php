@@ -18,19 +18,24 @@ class ClinicAuthController extends Controller
             $user = Auth::user();
             if($user->role == 'clinic')
             {
-                $token = $user->createToken('Clinico', ['clinic'])->plainTextToken;
+                $token = $user->createToken('Clinico', ['clinic', 'hasAccessResource'])->plainTextToken;
                 $role = $user->role;
                 return response()->json([$user, 'role' => $role,'token' => $token], 200);
 
             }
             if($user->role == 'doctor')
             {
-                $token = $user->createToken('Clinico', ['doctor'])->plainTextToken;
+                $token = $user->createToken('Clinico', ['doctor', 'hasAccessResource'])->plainTextToken;
                 $role = $user->role;
                 return response()->json([$user, 'role' => $role,'token' => $token], 200);
             }
         }
         
             return response()->json(["message" => "User didn't exist!"], 401);        
+    }
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();        
+        return response()->json(["message" => "Logout"], 200);
     }
 }

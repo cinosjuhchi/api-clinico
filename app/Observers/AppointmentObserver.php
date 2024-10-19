@@ -15,7 +15,7 @@ class AppointmentObserver
         Log::info('Today: ' . $today);
         Log::info('Appointment Date: ' . $appointment->appointment_date);
 
-        if ($appointment->appointment_date < $today && $appointment->status == 'pending') {
+        if ($appointment->appointment_date < $today && ($appointment->status == 'pending' || $appointment->status == 'consultation')) {
             $appointment->status = 'cancelled';
         }
     }

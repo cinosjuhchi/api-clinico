@@ -32,4 +32,17 @@ class Doctor extends Authenticatable
     {
         return $this->belongsTo(Room::class, 'room_id');
     }
+
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class, 'doctor_id');
+    }
+    public function pendingAppointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class, 'doctor_id')->where('status', 'pending');
+    }
+    public function consultationAppointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class, 'doctor_id')->where('status', 'consultation');
+    }
 }

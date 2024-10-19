@@ -58,4 +58,9 @@ class Clinic extends Authenticatable
     {
         return $this->hasMany(Appointment::class, 'clinic_id')->where('status', 'completed');
     }
+
+    public function medications(): HasMany
+    {
+        return $this->hasMany(Medication::class, 'clinic_id');
+    }
 }

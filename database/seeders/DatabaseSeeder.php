@@ -147,12 +147,14 @@ class DatabaseSeeder extends Seeder
 
         User::factory()->create([
             'email' => 'superadmin@gmail.com',
-            'password' => 'Clinico@00'
+            'password' => 'Clinico@00',
+            'role' => 'superadmin'
         ]);
 
         User::factory()->create([
             'email' => 'admin@gmail.com',
-            'password' => 'Clinico@00'
+            'password' => 'Clinico@00',
+            'role' => 'admin'
         ]);
     }
 

@@ -91,7 +91,7 @@ class ClinicAuthController extends Controller
                 Log::error('Notification error: ' . $e->getMessage());
             }                        
         });
-        return response()->json(['status' => 'success', 'message' => 'Register Successful', 'token' => $token ], 201);
+        return response()->json(['status' => 'success', 'message' => 'Register Successful'], 201);
     }
     public function logout(Request $request)
     {

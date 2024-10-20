@@ -19,6 +19,8 @@ class Clinic extends Authenticatable
 {
     use HasFactory, HasApiTokens;
 
+    protected $guarded = ['id'];
+
 
     public function doctors(): HasMany
     {

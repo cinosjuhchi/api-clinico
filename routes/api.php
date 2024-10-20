@@ -50,6 +50,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/doctor-login', [DoctorAuthController::class, 'login']);
         Route::post('/clinic-login', [ClinicAuthController::class, 'login']);
         Route::post('/user-register', [AuthController::class, 'store']);
+        Route::post('/clinic-register', [ClinicAuthController::class, 'store']);
         Route::post('/contact-us', [ContactUsController::class, 'send']);
         Route::get('/email/resend', [AuthController::class, 'resendVerificationEmail'])->middleware('auth:sanctum', 'abilities:user')->name('verification.resend');
     });

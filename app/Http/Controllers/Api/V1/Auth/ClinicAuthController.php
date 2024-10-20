@@ -2,11 +2,22 @@
 
 namespace App\Http\Controllers\Api\V1\Auth;
 
+use App\Models\User;
+use App\Models\Clinic;
+use App\Models\Family;
+use App\Models\Patient;
+use App\Mail\VerifyEmail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\ClinicAuthLogin;
 use App\Http\Requests\DoctorAuthLogin;
+use App\Models\DemographicInformation;
+use App\Notifications\SetUpProfileNotification;
 
 class ClinicAuthController extends Controller
 {
@@ -32,6 +43,51 @@ class ClinicAuthController extends Controller
         }
         
             return response()->json(["message" => "User didn't exist!"], 404);        
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|min:3',
+            'company' => 'required|string|max:255|min:3',
+            'ssm_number' => 'required|number',
+            'registration_number' => 'required|number',
+            'referral_number' => 'required|number',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6',
+            'phone_number' => 'required|string|min:10|unique:users',
+        ]);
+
+        DB::transaction(function () use ($validated, &$token) {
+            $user = User::create([
+                'email' => $validated['email'],
+                'password' => bcrypt($validated['password']),
+                'phone_number' => $validated['phone_number'],
+                'role' => 'clinic',
+            ]);            
+            $verificationUrl = URL::temporarySignedRoute(
+                'verification.verify', now()->addMinutes(60), ['id' => $user->id]
+            );
+
+            $clinic = Clinic::create([
+                'name' => $validated['name'],
+                'company' => $validated['company'],
+                'ssm_number' => $validated['registration_number'],
+                'referral_number' => $validated['referral_number'],                
+            ]);
+
+            Mail::to($user->email)->send(new VerifyEmail([
+                'name' => $clinic->name,
+                'verification_url' => $verificationUrl
+            ]));
+            
+            try {
+                $user->notify(new SetUpProfileNotification());
+            } catch (\Exception $e) {                
+                Log::error('Notification error: ' . $e->getMessage());
+            }                        
+        });
+        return response()->json(['status' => 'success', 'message' => 'Register Successful', 'token' => $token ], 201);
     }
     public function logout(Request $request)
     {

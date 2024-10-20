@@ -13,7 +13,11 @@ return new class extends Migration
     {
         Schema::create('clinics', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 125)->unique();                    
+            $table->string('name', 125)->unique(); 
+            $table->string('company');
+            $table->bigInteger('ssm_number');
+            $table->bigInteger('registration_number');
+            $table->bigInteger('referral_number');
             $table->string('slug');
             $table->text('description')->nullable();
             $table->text('address')->nullable();            

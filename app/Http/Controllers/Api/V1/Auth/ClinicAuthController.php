@@ -7,6 +7,7 @@ use App\Models\Clinic;
 use App\Models\Family;
 use App\Models\Patient;
 use App\Mail\VerifyEmail;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -69,11 +70,14 @@ class ClinicAuthController extends Controller
                 'verification.verify', now()->addMinutes(60), ['id' => $user->id]
             );
 
+            $slug = Str::slug($validated['name']);
+
             $clinic = Clinic::create([
                 'name' => $validated['name'],
                 'company' => $validated['company'],
                 'ssm_number' => $validated['registration_number'],
                 'referral_number' => $validated['referral_number'],                
+                'slug' => $slug
             ]);
 
             Mail::to($user->email)->send(new VerifyEmail([

@@ -21,6 +21,10 @@ class ClinicFactory extends Factory
         return [
             'name' => $name, // Menyimpan nama ke dalam array            
             'slug' => Str::slug($name), // Menggunakan nama untuk membuat slug
+            'company' => fake()->company(),
+            'referral_number' => fake()->numberBetween(1000000, 9999999),
+            'ssm_number' => fake()->numberBetween(1000000, 9999999),
+            'registration_number' => fake()->numberBetween(1000000, 9999999),            
             'description' => fake()->paragraph(),
             'address' => fake()->address(),            
         ];

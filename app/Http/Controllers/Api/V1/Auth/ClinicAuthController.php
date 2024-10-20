@@ -51,15 +51,15 @@ class ClinicAuthController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255|min:3',
             'company' => 'required|string|max:255|min:3',
-            'ssm_number' => 'required|number',
-            'registration_number' => 'required|number',
-            'referral_number' => 'required|number',
+            'ssm_number' => 'required|integer',
+            'registration_number' => 'required|integer',
+            'referral_number' => 'required|integer',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
             'phone_number' => 'required|string|min:10|unique:users',
         ]);
 
-        DB::transaction(function () use ($validated, &$token) {
+        DB::transaction(function () use ($validated) {
             $user = User::create([
                 'email' => $validated['email'],
                 'password' => bcrypt($validated['password']),

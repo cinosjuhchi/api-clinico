@@ -25,14 +25,14 @@ class BackOfficeController extends Controller
             $user = Auth::user();
             if($user->role == 'superadmin')
             {
-                $token = $user->createToken('Clinico', ['superadmin', 'hasAccessResource'])->plainTextToken;
+                $token = $user->createToken('Clinico', ['superadmin', 'hasAccessResource', 'backOffice'])->plainTextToken;
                 $role = $user->role;
                 return response()->json([$user, 'role' => $role,'token' => $token], 200);
 
             }
             if($user->role == 'admin')
             {
-                $token = $user->createToken('Clinico', ['admin', 'hasAccessResource'])->plainTextToken;
+                $token = $user->createToken('Clinico', ['admin', 'hasAccessResource', 'backOffice'])->plainTextToken;
                 $role = $user->role;
                 return response()->json([$user, 'role' => $role,'token' => $token], 200);
             }

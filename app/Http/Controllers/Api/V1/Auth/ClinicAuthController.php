@@ -77,6 +77,7 @@ class ClinicAuthController extends Controller
                 'company' => $validated['company'],
                 'ssm_number' => $validated['registration_number'],
                 'referral_number' => $validated['referral_number'],                
+                'registration_number' => $validated['registration_number'],
                 'slug' => $slug
             ]);
 

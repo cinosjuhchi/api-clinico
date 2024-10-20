@@ -38,7 +38,7 @@ class BackOfficeController extends Controller
             }
         }
         
-            return response()->json(["message" => "User didn't exist!"], 401);
+            return response()->json(["message" => "User didn't exist!"], 404);
     }
 
     public function logout(Request $request)

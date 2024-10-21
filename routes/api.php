@@ -6,6 +6,7 @@ use App\Models\EmergencyContact;
 use App\Models\ChronicHealthRecord;
 use Illuminate\Support\Facades\Route;
 use App\Models\DemographicInformation;
+use App\Http\Controllers\BillController;
 use App\Http\Controllers\ClinicController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\FamilyController;
@@ -42,6 +43,10 @@ Route::prefix('v1')->group(function () {
         Route::middleware(['auth:sanctum', 'abilities:backOffice'])->group(function () {
             Route::get('/logout', [BackOfficeController::class, 'logout']);
         });
+    });
+    Route::prefix('bill')->group(function () {
+        Route::post('/store', [BillController::class, 'store']);
+        Route::post('/callback', [BillController::class, 'callback']);
     });
     Route::prefix('guest')->group(function () {
         Route::get('/user', [UserController::class, 'index']);

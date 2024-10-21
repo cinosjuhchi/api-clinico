@@ -146,13 +146,13 @@ class DatabaseSeeder extends Seeder
         });
 
         User::factory()->create([
-            'email' => 'superadmin@gmail.com',
+            'email' => 'superadmin@clinico.com.my',
             'password' => 'Clinico@00',
             'role' => 'superadmin'
         ]);
 
         User::factory()->create([
-            'email' => 'admin@gmail.com',
+            'email' => 'admin@clinico.com.my',
             'password' => 'Clinico@00',
             'role' => 'admin'
         ]);

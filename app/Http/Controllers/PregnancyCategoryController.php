@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\PregnancyCategory;
+use Illuminate\Routing\Controller;
+use App\Http\Resources\PregnancyCategoryResource;
 use App\Http\Requests\StorePregnancyCategoryRequest;
 use App\Http\Requests\UpdatePregnancyCategoryRequest;
 
@@ -11,10 +14,12 @@ class PregnancyCategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $pregnancyCategories = PregnancyCategory::all();
+        return response()->json(PregnancyCategoryResource::collection($pregnancyCategories));
     }
+
 
     /**
      * Show the form for creating a new resource.

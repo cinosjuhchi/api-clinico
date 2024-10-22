@@ -28,6 +28,7 @@ use App\Http\Controllers\ImmunizationController;
 use App\Http\Controllers\ParentChronicController;
 use App\Http\Controllers\Api\V1\ContactUsController;
 use App\Http\Controllers\EmergencyContactController;
+use App\Http\Controllers\PregnancyCategoryController;
 use App\Http\Controllers\Api\V1\AppointmentController;
 use App\Http\Controllers\FamilyRelationshipController;
 use App\Http\Controllers\Api\V1\Doctor\IndexController;
@@ -181,6 +182,9 @@ Route::prefix('v1')->group(function () {
                 Route::get('/consultation-entry', [DoctorDataController::class, 'consultationEntry']);
                 Route::delete('/cancel-appointment/{slug}', [AppointmentController::class, 'destroy']);                
             });            
+        });
+        Route::prefix('pregnancy-category')->group(function () {
+            Route::get('/', [PregnancyCategoryController::class, 'index']);
         });
     });
 

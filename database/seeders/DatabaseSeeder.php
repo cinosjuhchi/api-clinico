@@ -35,7 +35,7 @@ class DatabaseSeeder extends Seeder
         Category::factory(6)->create();
         FamilyRelationship::factory(8)->create();
 
-        PregnancyCategory::factory()->create([
+        pregnancyCategories = [
             [
                 'code' => 'A',
                 'description' => 'Generally acceptable. Controlled studies in pregnant women show no evidence of fatal risk.'
@@ -53,18 +53,19 @@ class DatabaseSeeder extends Seeder
                 'description' => 'Use in LIFE-THREATENING emergencies when no safer drug available. Positive evidence of human fatal risk.'
             ],
             [
-                'code' => 'D',
-                'description' => 'Use in LIFE-THREATENING emergencies when no safer drug available. Positive evidence of human fatal risk.'
-            ],
-            [
                 'code' => 'X',
                 'description' => 'Do not use in pregnancy. Risk involved outweigh potential benefits. Safer alternatives exist.'
             ],
             [
                 'code' => 'N/A',
                 'description' => 'Information Not Available.'
-            ],
-        ]);
+            ]
+        ];
+    
+        foreach ($pregnancyCategories as $category) {
+            PregnancyCategory::create($category);
+        }
+    
 
         // Buat Users dengan role 'clinic' secara bulk
         $clinics = User::factory(10)->create(['role' => 'clinic'])->map(function ($user) {

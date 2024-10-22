@@ -26,7 +26,7 @@ class MedicationController extends Controller
                 'message' => 'user not found'
             ]);
         }        
-        $medicines = $clinic->medications()->paginate(10);        
+        $medicines = $clinic->medications()->with(['pregnancyCategory'])->paginate(10);        
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully fetch data',

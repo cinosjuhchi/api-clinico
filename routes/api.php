@@ -157,10 +157,10 @@ Route::prefix('v1')->group(function () {
                 Route::get('/clinic-patient', [ClinicProfileController::class, 'clinicPatient']);                
             });                                  
             Route::prefix('procedure')->group(function () {
-                Route::post('/store', [ProcedureController::class, 'store']);
+                Route::post('store', [ProcedureController::class, 'store']);
             });
             Route::prefix('injection')->group(function () {
-                Route::post('/store', [InjectionController::class, 'store']);
+                Route::post('store', [InjectionController::class, 'store']);
             });
         });
     });

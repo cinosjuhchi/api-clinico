@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Procedure;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\DemographicInformation;
-use Illuminate\Support\Facades\Request;
 use App\Http\Requests\StoreProcedureRequest;
 use App\Http\Requests\UpdateProcedureRequest;
 

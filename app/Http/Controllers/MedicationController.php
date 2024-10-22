@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Medication;
 use Illuminate\Http\Request;
 use App\Models\MedicationRecord;
 use Illuminate\Routing\Controller;
@@ -37,7 +38,7 @@ class MedicationController extends Controller
         try {
             // Menggunakan DB transaction untuk menjaga integritas data
             DB::transaction(function () use ($validated) {
-                MedicationRecord::create($validated);
+                Medication::create($validated);
             });
 
             return response()->json([

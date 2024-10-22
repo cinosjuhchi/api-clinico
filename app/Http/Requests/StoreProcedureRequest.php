@@ -23,7 +23,7 @@ class StoreProcedureRequest extends FormRequest
     {
         return [
             'name' => 'string|required|max:255|min:3',
-            'price' => 'integer|required',
+            'price' => 'numeric|required',
             'description' => 'string|required',
             'clinic_id' => 'required|exists:clinics,id'
         ];

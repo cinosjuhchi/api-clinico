@@ -92,7 +92,7 @@ class ProcedureController extends Controller
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255|min:3',
             'description' => 'sometimes|string',
-            'price' => 'integer|sometimes'
+            'price' => 'numeric|sometimes'
         ]);
 
         $procedure->fill($validated);

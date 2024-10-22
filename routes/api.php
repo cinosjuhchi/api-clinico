@@ -159,6 +159,7 @@ Route::prefix('v1')->group(function () {
             });      
             Route::prefix('medicines')->group(function () {
                 Route::get('/', [MedicationController::class, 'index']);
+                Route::get('/information', [MedicationController::class, 'information']);
                 Route::post('/store', [MedicationController::class, 'store']);
                 Route::put('/add-batch/{medication}', [MedicationController::class, 'addBatch']);
                 Route::put('/update/{medication}', [MedicationController::class, 'update']);

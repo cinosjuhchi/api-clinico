@@ -140,6 +140,28 @@ class MedicationController extends Controller
         }
     }
 
+    public function information(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = $user->clinic;
+        if(!$clinic)
+        {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'user not found'
+            ]);
+        }        
+        $medicines = $clinic->medications();
+        $totalMedicines = $medicines->count();
+        $totalStock = $medicines->sum('total_amount');
+        $totalPrice = $medicines->sum('price');
+        return response()->json([
+            'total_medicine' => $totalMedicines,
+            'total_stock' => $totalStock,
+            'total_price' => $totalPrice
+        ], 200);
+    }
+
     /**
      * Remove the specified resource from storage.
      */

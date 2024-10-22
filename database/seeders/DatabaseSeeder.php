@@ -9,17 +9,19 @@ use App\Models\Doctor;
 use App\Models\Family;
 use App\Models\Patient;
 use App\Models\Category;
+use App\Models\Injection;
 use App\Models\Medication;
 use App\Models\Appointment;
 use Faker\Provider\Medical;
 use App\Models\ClinicService;
+use App\Models\MedicalRecord;
 use App\Models\ClinicLocation;
 use App\Models\ClinicSchedule;
 use App\Models\DoctorSchedule;
 use Illuminate\Database\Seeder;
 use App\Models\FamilyRelationship;
 use App\Models\DemographicInformation;
-use App\Models\MedicalRecord;
+use App\Models\Procedure;
 
 class DatabaseSeeder extends Seeder
 {
@@ -42,6 +44,12 @@ class DatabaseSeeder extends Seeder
             ClinicSchedule::factory()->create(['clinic_id' => $clinic->id]);
             ClinicLocation::factory()->create(['clinic_id' => $clinic->id]);
             Medication::factory(10)->create([
+                'clinic_id' => $clinic->id
+            ]);
+            Injection::factory(10)->create([
+                'clinic_id' => $clinic->id
+            ]);
+            Procedure::factory(10)->create([
                 'clinic_id' => $clinic->id
             ]);
 

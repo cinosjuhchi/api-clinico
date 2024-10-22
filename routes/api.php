@@ -14,6 +14,8 @@ use App\Http\Controllers\AllergyController;
 use App\Http\Controllers\ChronicController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PhysicalController;
+use App\Http\Controllers\InjectionController;
+use App\Http\Controllers\ProcedureController;
 use App\Http\Controllers\BackOfficeController;
 use App\Http\Controllers\ClinicDataController;
 use App\Http\Controllers\DoctorDataController;
@@ -154,6 +156,12 @@ Route::prefix('v1')->group(function () {
                 Route::get('/user', [ClinicDataController::class, 'me']);
                 Route::get('/clinic-patient', [ClinicProfileController::class, 'clinicPatient']);                
             });                                  
+            Route::prefix('procedure')->group(function () {
+                Route::post('store', [ProcedureController::class, 'store']);
+            });
+            Route::prefix('injection')->group(function () {
+                Route::post('store', [InjectionController::class, 'store']);
+            });
         });
     });
 

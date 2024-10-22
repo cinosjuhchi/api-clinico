@@ -157,9 +157,11 @@ Route::prefix('v1')->group(function () {
                 Route::get('/clinic-patient', [ClinicProfileController::class, 'clinicPatient']);                
             });                                  
             Route::prefix('procedure')->group(function () {
+                Route::get('/', [ProcedureController::class, 'index']);
                 Route::post('store', [ProcedureController::class, 'store']);
             });
             Route::prefix('injection')->group(function () {
+                Route::get('/', [InjectionController::class, 'index']);
                 Route::post('store', [InjectionController::class, 'store']);
             });
         });

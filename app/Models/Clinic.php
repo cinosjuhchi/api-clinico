@@ -65,4 +65,13 @@ class Clinic extends Authenticatable
     {
         return $this->hasMany(Medication::class, 'clinic_id');
     }
+
+    public function procedures(): HasMany
+    {
+        return $this->hasMany(Procedure::class, 'clinic_id');
+    }
+    public function injections(): HasMany
+    {
+        return $this->hasMany(Injection::class, 'clinic_id');
+    }
 }

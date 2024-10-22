@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Procedure;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use App\Models\DemographicInformation;
+use Illuminate\Support\Facades\Request;
 use App\Http\Requests\StoreProcedureRequest;
 use App\Http\Requests\UpdateProcedureRequest;
 
@@ -14,9 +16,23 @@ class ProcedureController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $user = Auth::user();
+        $clinic = $user->clinic;
+        if(!$clinic)
+        {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'user not found'
+            ]);
+        }        
+        $procedure = $clinic->procedures()->paginate(10);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully fetch data',
+            'data' => $procedure
+        ]);
     }
 
     /**

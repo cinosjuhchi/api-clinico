@@ -72,9 +72,72 @@ class MedicationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, MedicationRecord $medicationRecord)
+    public function update(Request $request, Medication $medication)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'string|sometimes|max:255|min:3',
+            'price' => 'numeric|sometimes',            
+            'brand' => 'string|sometimes|max:255|min:3',
+            'pregnancy_category_id' => 'sometimes|exists:pregnancy_categories,id',
+            'sku_code' => 'string|sometimes|max:255|min:5',
+            'paediatric_dose' => 'integer|sometimes',
+            'unit' => 'string|sometimes|max:255',            
+            'expired_date' => 'date|sometimes',                    
+            'for' => 'string|sometimes|max:255|min:3',                    
+            'manufacture' => 'string|sometimes|max:255|min:3',                    
+            'supplier' => 'string|sometimes|max:255|min:3',                    
+        ]);
+
+        $medication->fill($validated);
+
+        if ($medication->isDirty()) {
+            try {
+                DB::transaction(function () use ($medication) {
+                    $medication->save();
+                });
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Update successfully!'
+                ], 200);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Failed to store data.',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+        }
+
+        return response()->json([
+            'status' => 'info',
+            'message' => 'No changes made.'
+        ], 200);
+    }
+
+    public function addBatch(Request $request, Medication $medication)
+    {
+        $validated = $request->validate([            
+            'total_amount' => 'integer|required'
+        ]);
+        $medication->total_amount += $validated['total_amount'];
+        $medication->batch += 1;
+        try {            
+            DB::transaction(function () use ($medication) {
+                $medication->save();
+            });
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Successfully restock'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to restock data.',
+                'error' => $e->getMessage(),
+            ], 500);  
+        }
     }
 
     /**

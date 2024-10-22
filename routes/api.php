@@ -160,6 +160,7 @@ Route::prefix('v1')->group(function () {
             Route::prefix('medicines')->group(function () {
                 Route::get('/', [MedicationController::class, 'index']);
                 Route::post('/store', [MedicationController::class, 'store']);
+                Route::put('/update/{medication}', [MedicationController::class, 'update']);
             });                            
             Route::prefix('procedure')->group(function () {
                 Route::get('/', [ProcedureController::class, 'index']);

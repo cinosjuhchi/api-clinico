@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Injection;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreInjectionRequest;
 use App\Http\Requests\UpdateInjectionRequest;
 
@@ -13,9 +15,23 @@ class InjectionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $user = Auth::user();
+        $clinic = $user->clinic;
+        if(!$clinic)
+        {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'user not found'
+            ]);
+        }        
+        $injections = $clinic->injections()->paginate(10);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully fetch data',
+            'data' => $injections
+        ]);
     }
 
     /**
@@ -69,9 +85,38 @@ class InjectionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateInjectionRequest $request, Injection $injection)
+    public function update(Request $request, Injection $injection)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255|min:3',
+            'description' => 'sometimes|string',
+            'price' => 'numeric|sometimes'
+        ]);
+
+        $injection->fill($validated);
+
+        if ($injection->isDirty()) {
+            try {
+                DB::transaction(function () use ($injection) {
+                    $injection->save();
+                });
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Update successfully!'
+                ], 200);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Failed to store data.',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+        }
+
+        return response()->json([
+            'status' => 'info',
+            'message' => 'No changes made.'
+        ], 200);
     }
 
     /**
@@ -79,6 +124,21 @@ class InjectionController extends Controller
      */
     public function destroy(Injection $injection)
     {
-        //
+        try {
+            // Hapus pasien dari database
+            $injection->delete();
+
+            // Mengembalikan respons sukses
+            return response()->json([
+                'success' => true,
+                'message' => 'Injection deleted successfully.',
+            ], 200);
+        } catch (\Exception $e) {
+            // Menangani kesalahan yang mungkin terjadi saat penghapusan
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while deleting the procedure: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

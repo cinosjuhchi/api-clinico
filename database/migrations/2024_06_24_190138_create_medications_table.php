@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('for');
-            $table->string('manufactur');
+            $table->string('manufacture');
             $table->string('supplier');
             $table->string('brand');
             $table->string('sku_code');

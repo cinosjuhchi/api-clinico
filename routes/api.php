@@ -188,6 +188,7 @@ Route::prefix('v1')->group(function () {
         });
         Route::prefix('pregnancy-category')->group(function () {
             Route::get('/', [PregnancyCategoryController::class, 'index']);
+            Route::get('/show/{pregnancyCategory}', [PregnancyCategoryController::class, 'show']);
         });
 
     });

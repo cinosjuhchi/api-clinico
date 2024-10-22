@@ -42,7 +42,7 @@ class PregnancyCategoryController extends Controller
      */
     public function show(PregnancyCategory $pregnancyCategory)
     {
-        //
+        return response()->json($pregnancyCategory);
     }
 
     /**

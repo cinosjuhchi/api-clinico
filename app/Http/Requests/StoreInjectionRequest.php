@@ -23,8 +23,15 @@ class StoreInjectionRequest extends FormRequest
     {
         return [
             'name' => 'string|required|max:255|min:3',
-            'price' => 'integer|required',
-            'description' => 'string|required',
+            'price' => 'numeric|required',            
+            'brand' => 'string|required|max:255|min:3',
+            'pregnancy_category_id' => 'required|exists:pregnancy_categories,id',
+            'sku_code' => 'string|required|max:255|min:5',
+            'paediatric_dose' => 'integer|required',
+            'unit' => 'string|required|max:255',
+            'batch' => 'integer|required',
+            'expired_date' => 'date|required',
+            'total_amount' => 'integer|required',            
             'clinic_id' => 'required|exists:clinics,id'
         ];
     }

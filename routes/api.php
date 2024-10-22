@@ -6,6 +6,7 @@ use App\Models\EmergencyContact;
 use App\Models\ChronicHealthRecord;
 use Illuminate\Support\Facades\Route;
 use App\Models\DemographicInformation;
+use App\Http\Controllers\BillController;
 use App\Http\Controllers\ClinicController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\FamilyController;
@@ -13,6 +14,8 @@ use App\Http\Controllers\AllergyController;
 use App\Http\Controllers\ChronicController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PhysicalController;
+use App\Http\Controllers\InjectionController;
+use App\Http\Controllers\ProcedureController;
 use App\Http\Controllers\BackOfficeController;
 use App\Http\Controllers\ClinicDataController;
 use App\Http\Controllers\DoctorDataController;
@@ -42,6 +45,10 @@ Route::prefix('v1')->group(function () {
         Route::middleware(['auth:sanctum', 'abilities:backOffice'])->group(function () {
             Route::get('/logout', [BackOfficeController::class, 'logout']);
         });
+    });
+    Route::prefix('bill')->group(function () {
+        Route::post('/store', [BillController::class, 'store']);
+        Route::post('/callback', [BillController::class, 'callback']);
     });
     Route::prefix('guest')->group(function () {
         Route::get('/user', [UserController::class, 'index']);
@@ -149,6 +156,12 @@ Route::prefix('v1')->group(function () {
                 Route::get('/user', [ClinicDataController::class, 'me']);
                 Route::get('/clinic-patient', [ClinicProfileController::class, 'clinicPatient']);                
             });                                  
+            Route::prefix('procedure')->group(function () {
+                Route::post('store', [ProcedureController::class, 'store']);
+            });
+            Route::prefix('injection')->group(function () {
+                Route::post('store', [InjectionController::class, 'store']);
+            });
         });
     });
 

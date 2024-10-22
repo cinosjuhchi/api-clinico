@@ -17,12 +17,8 @@ return new class extends Migration
             $table->unsignedBigInteger('doctor_id')->nullable();
             $table->unsignedBigInteger('clinic_id')->nullable();
             $table->text('patient_condition');
-            $table->string('diagnosis', 255);
-            $table->string('procedure');
-            $table->string('injection');            
-            $table->text('consultation_note');
-            $table->string('medicine');
-            $table->string('frequency');
+            $table->string('diagnosis', 255);                  
+            $table->text('consultation_note');                        
             $table->text('physical_examination');
             $table->string('blood_pressure');
             $table->integer('sp02');

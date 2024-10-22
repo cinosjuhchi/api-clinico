@@ -29,11 +29,7 @@ class MedicalRecordFactory extends Factory
         ];
         return [
             'patient_condition' => $this->faker->sentence(),
-            'diagnosis' => $this->faker->name(),
-            'procedure' => $this->faker->sentence(),
-            'injection' => $this->faker->sentence(),
-            'medicine' => $this->faker->randomElement($names),
-            'frequency' => '2 Tablets / 3 Times Daily',
+            'diagnosis' => $this->faker->name(),                                    
             'consultation_note' => $this->faker->sentence(),
             'physical_examination' => $this->faker->sentence(),
             'blood_pressure' => $this->faker->sentence(),

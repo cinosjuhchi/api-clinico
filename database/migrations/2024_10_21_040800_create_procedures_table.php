@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('billings', function (Blueprint $table) {
+        Schema::create('procedures', function (Blueprint $table) {
             $table->id();
-            $table->string('billz_id');
-            $table->dateTime('transaction_date');
-            $table->decimal('total', 8, 2);
-            $table->boolean('is_paid')->default(false);
+            $table->string('name');
+            $table->text('description');
+            $table->decimal('price', 8, 2);
+            $table->foreignId('clinic_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('billings');
+        Schema::dropIfExists('procedures');
     }
 };

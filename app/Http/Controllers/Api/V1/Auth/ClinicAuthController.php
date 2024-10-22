@@ -49,7 +49,7 @@ class ClinicAuthController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|min:3',
+            'name' => 'required|string|max:255|min:3|unique:clinic',
             'company' => 'required|string|max:255|min:3',
             'ssm_number' => 'required|integer',
             'registration_number' => 'required|integer',
@@ -68,7 +68,7 @@ class ClinicAuthController extends Controller
             ]);            
             $verificationUrl = URL::temporarySignedRoute(
                 'verification.verify', now()->addMinutes(60), ['id' => $user->id]
-            );
+            );  
 
             $slug = Str::slug($validated['name']);
 

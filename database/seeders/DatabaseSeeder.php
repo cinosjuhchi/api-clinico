@@ -35,7 +35,7 @@ class DatabaseSeeder extends Seeder
         Category::factory(6)->create();
         FamilyRelationship::factory(8)->create();
 
-        pregnancyCategories = [
+        $pregnancyCategories = [
             [
                 'code' => 'A',
                 'description' => 'Generally acceptable. Controlled studies in pregnant women show no evidence of fatal risk.'

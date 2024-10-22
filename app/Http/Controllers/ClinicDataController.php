@@ -52,4 +52,9 @@ class ClinicDataController extends Controller
 
         return response()->json($appointments);
     }
+
+    public function storeDoctor(Request $request)
+    {
+        
+    }
 }

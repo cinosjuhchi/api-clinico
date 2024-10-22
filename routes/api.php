@@ -169,6 +169,9 @@ Route::prefix('v1')->group(function () {
                 Route::put('/update/{injection}', [InjectionController::class, 'update']);
                 Route::delete('/delete/{injection}', [InjectionController::class, 'destroy']);
             });
+            Route::prefix('doctor')->group(function () {
+                Route::post('/store', [ClinicDataController::class, 'store']);                
+            });
         });
     });
 
@@ -186,6 +189,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('pregnancy-category')->group(function () {
             Route::get('/', [PregnancyCategoryController::class, 'index']);
         });
+
     });
 
     

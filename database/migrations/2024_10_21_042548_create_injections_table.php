@@ -18,9 +18,9 @@ return new class extends Migration
             $table->string('sku_code');
             $table->integer('paediatric_dose');
             $table->string('unit');
-            $table->integer('batch');
+            $table->bigInteger('batch');
             $table->date('expired_date');
-            $table->integer('total_amount');
+            $table->bigInteger('total_amount');
             $table->decimal('price', 8, 2);            
             $table->foreignId('clinic_id')->constrained()->cascadeOnDelete();
             $table->foreignId('pregnancy_category_id')->constrained()->cascadeOnDelete();

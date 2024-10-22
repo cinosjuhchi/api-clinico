@@ -26,7 +26,13 @@ class MedicationFactory extends Factory
             'Hydrocodone', 'Oxycodone', 'Pantoprazole', 'Esomeprazole', 'Citalopram', 'Spironolactone',
             'Zolpidem', 'Propranolol', 'Meloxicam', 'Tamsulosin', 'Mirtazapine', 'Valsartan', 'Naproxen', 
             'Lorazepam'
-        ];
+        ];        
+         $randomCode = [
+            '#001', '#002', '#003', '#004', '#005', '#006', '#007', '#008', '#009', '#010'
+         ];
+         $randomWord = [
+            'MKO', 'NOS', 'MCS', 'SWE', 'FDS', 'MCS', 'SWE', 'FDS'
+         ];
 
         $gram = [
             '100mg', '200mg', '300mg', '400mg', '500mg',
@@ -35,9 +41,18 @@ class MedicationFactory extends Factory
 
         return [
             'name' => $this->faker->randomElement($names) . ' ' . $this->faker->randomElement($gram),
-            'description' => $this->faker->sentence,
-            'stock' => $this->faker->numberBetween(10, 500), // Stok lebih realistis untuk apotek/klinik
-            'price' => $this->faker->randomFloat(2, 5, 200) // Harga dalam rentang yang lebih masuk akal, misal Rp 5 - Rp 200
+            'brand' => fake()->name(),
+            'sku_code' => fake()->randomElement($randomCode) . fake()->randomElement($randomWord),  
+            'paediatric_dose' => fake()->numberBetween(1, 100),
+            'unit' => 'mg/kg',
+            'batch' => fake()->numberBetween(1, 100),
+            'expired_date' => fake()->date(),
+            'total_amount' => fake()->numberBetween(1, 100),
+            'pregnancy_category_id' => fake()->numberBetween(1, 6),         
+            'price' => fake()->randomFloat(2, 100, 1000),
+            'manufacture' => fake()->name(),
+            'supplier' => fake()->name(),
+            'for' => fake()->name(),
         ];
     }
 }

@@ -14,11 +14,19 @@ return new class extends Migration
         Schema::create('medications', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->text('description')->nullable();
-            $table->bigInteger('stock');
-            $table->decimal('price');
-            $table->boolean('is_active')->default(true);
-            $table->foreignId('clinic_id')->constrained()->onDelete('cascade');
+            $table->string('for');
+            $table->string('manufactur');
+            $table->string('supplier');
+            $table->string('brand');
+            $table->string('sku_code');
+            $table->integer('paediatric_dose');
+            $table->string('unit');
+            $table->bigInteger('batch');
+            $table->date('expired_date');
+            $table->bigInteger('total_amount');
+            $table->decimal('price', 8, 2);            
+            $table->foreignId('clinic_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('pregnancy_category_id')->constrained()->cascadeOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });

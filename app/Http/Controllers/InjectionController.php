@@ -58,6 +58,7 @@ class InjectionController extends Controller
                 'message' => 'Data successfully stored.',
             ], 201);
         } catch(\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to store data.',
@@ -105,6 +106,7 @@ class InjectionController extends Controller
                     'message' => 'Update successfully!'
                 ], 200);
             } catch (\Exception $e) {
+                DB::rollBack();
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Failed to store data.',
@@ -117,6 +119,31 @@ class InjectionController extends Controller
             'status' => 'info',
             'message' => 'No changes made.'
         ], 200);
+    }
+
+    public function addBatch(Request $request, Injection $injection)
+    {
+        $validated = $request->validate([            
+            'total_amount' => 'integer|required'
+        ]);
+        $injection->total_amount += $validated['total_amount'];
+        $injection->batch += 1;
+        try {            
+            DB::transaction(function () use ($injection) {
+                $injection->save();
+            });
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Successfully restock'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to restock data.',
+                'error' => $e->getMessage(),
+            ], 500);  
+        }
     }
 
     /**

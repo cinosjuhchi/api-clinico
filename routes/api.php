@@ -168,6 +168,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('store', [InjectionController::class, 'store']);
                 Route::put('/update/{injection}', [InjectionController::class, 'update']);
                 Route::delete('/delete/{injection}', [InjectionController::class, 'destroy']);
+                Route::put('/add-batch/{injection}', [InjectionController::class, 'addBatch']);
             });
             Route::prefix('doctor')->group(function () {
                 Route::post('/store', [ClinicDataController::class, 'store']);                

@@ -96,6 +96,21 @@ class ProcedureController extends Controller
      */
     public function destroy(Procedure $procedure)
     {
-        //
+        try {
+            // Hapus pasien dari database
+            $procedure->delete();
+
+            // Mengembalikan respons sukses
+            return response()->json([
+                'success' => true,
+                'message' => 'Procedure deleted successfully.',
+            ], 200);
+        } catch (\Exception $e) {
+            // Menangani kesalahan yang mungkin terjadi saat penghapusan
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while deleting the procedure: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

@@ -89,9 +89,14 @@ class InjectionController extends Controller
     public function update(Request $request, Injection $injection)
     {
         $validated = $request->validate([
-            'name' => 'sometimes|string|max:255|min:3',
-            'description' => 'sometimes|string',
-            'price' => 'numeric|sometimes'
+            'name' => 'string|sometimes|max:255|min:3',
+            'price' => 'numeric|sometimes',            
+            'brand' => 'string|sometimes|max:255|min:3',
+            'pregnancy_category_id' => 'sometimes|exists:pregnancy_categories,id',
+            'sku_code' => 'string|sometimes|max:255|min:5',
+            'paediatric_dose' => 'integer|sometimes',
+            'unit' => 'string|sometimes|max:255',            
+            'expired_date' => 'date|sometimes',                    
         ]);
 
         $injection->fill($validated);

@@ -158,6 +158,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/clinic-patient', [ClinicProfileController::class, 'clinicPatient']);                
             });      
             Route::prefix('medicines')->group(function () {
+                Route::get('/', [MedicationController::class, 'index']);
                 Route::post('/store', [MedicationController::class, 'store']);
             });                            
             Route::prefix('procedure')->group(function () {

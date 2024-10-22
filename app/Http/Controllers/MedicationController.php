@@ -2,20 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreMedicationRequest;
 use Illuminate\Http\Request;
 use App\Models\MedicationRecord;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\StoreMedicationRequest;
 
 class MedicationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $user = Auth::user();
+        $clinic = $user->clinic;
+        $medicines = $clinic->medications->paginate(10);        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully fetch data',
+            'data' => $medicines
+        ]);
     }
 
     /**

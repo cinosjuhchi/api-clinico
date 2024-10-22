@@ -143,8 +143,23 @@ class MedicationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(MedicationRecord $medicationRecord)
+    public function destroy(Medication $medication)
     {
-        //
+        try {
+            // Hapus pasien dari database
+            $medication->delete();
+
+            // Mengembalikan respons sukses
+            return response()->json([
+                'success' => true,
+                'message' => 'Injection deleted successfully.',
+            ], 200);
+        } catch (\Exception $e) {
+            // Menangani kesalahan yang mungkin terjadi saat penghapusan
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while deleting the procedure: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

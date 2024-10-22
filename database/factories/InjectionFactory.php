@@ -26,9 +26,22 @@ class InjectionFactory extends Factory
          'Varicella (Chickenpox)', 
          'Pneumococcal', 
          'Meningococcal'];
+         $randomCode = [
+            '#001', '#002', '#003', '#004', '#005', '#006', '#007', '#008', '#009', '#010'
+         ];
+         $randomWord = [
+            'MKO', 'NOS', 'MCS', 'SWE', 'FDS', 'MCS', 'SWE', 'FDS'
+         ];
         return [
             'name' => fake()->randomElement($name),
-            'description' => fake()->sentence(),
+            'brand' => fake()->name(),
+            'sku_code' => fake()->randomElement($randomCode) . fake()->randomElement($randomWord),  
+            'paediatric_dose' => fake()->numberBetween(1, 100),
+            'unit' => 'mg/kg',
+            'batch' => fake()->numberBetween(1, 100),
+            'expired_date' => fake()->date(),
+            'total_amount' => fake()->numberBetween(1, 100),
+            'pregnancy_category_id' => fake()->numberBetween(1, 6),         
             'price' => fake()->randomFloat(2, 100, 1000)
         ];
     }

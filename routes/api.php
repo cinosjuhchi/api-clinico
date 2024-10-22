@@ -162,7 +162,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('/store', [MedicationController::class, 'store']);
                 Route::put('/add-batch/{medication}', [MedicationController::class, 'addBatch']);
                 Route::put('/update/{medication}', [MedicationController::class, 'update']);
-                Route::delete('/delete/{medication}', [MedicationController::class, 'delete']);
+                Route::delete('/delete/{medication}', [MedicationController::class, 'destroy']);
             });                            
             Route::prefix('procedure')->group(function () {
                 Route::get('/', [ProcedureController::class, 'index']);

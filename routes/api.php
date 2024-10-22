@@ -159,12 +159,13 @@ Route::prefix('v1')->group(function () {
             Route::prefix('procedure')->group(function () {
                 Route::get('/', [ProcedureController::class, 'index']);
                 Route::post('store', [ProcedureController::class, 'store']);
+                Route::put('/update/{procedure}', [ProcedureController::class, 'update']);
                 Route::delete('/delete/{procedure}', [ProcedureController::class, 'destroy']);
             });
             Route::prefix('injection')->group(function () {
                 Route::get('/', [InjectionController::class, 'index']);
                 Route::post('store', [InjectionController::class, 'store']);
-                Route::put('update', [InjectionController::class, 'update']);
+                Route::put('/update/{injection}', [InjectionController::class, 'update']);
                 Route::delete('delete', [InjectionController::class, 'destroy']);
             });
         });

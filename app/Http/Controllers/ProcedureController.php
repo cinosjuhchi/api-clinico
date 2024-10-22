@@ -59,6 +59,7 @@ class ProcedureController extends Controller
                 'message' => 'Data successfully stored.',
             ], 201);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to store data.',
@@ -86,10 +87,40 @@ class ProcedureController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateProcedureRequest $request, Procedure $procedure)
+    public function update(Request $request, Procedure $procedure)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255|min:3',
+            'description' => 'sometimes|string',
+            'price' => 'integer|sometimes'
+        ]);
+
+        $procedure->fill($validated);
+
+        if ($procedure->isDirty()) {
+            try {
+                DB::transaction(function () use ($procedure) {
+                    $procedure->save();
+                });
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Update successfully!'
+                ], 200);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Failed to store data.',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+        }
+
+        return response()->json([
+            'status' => 'info',
+            'message' => 'No changes made.'
+        ], 200);
     }
+
 
     /**
      * Remove the specified resource from storage.

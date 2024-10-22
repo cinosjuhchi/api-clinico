@@ -10,6 +10,7 @@ use App\Models\Family;
 use App\Models\Patient;
 use App\Models\Category;
 use App\Models\Injection;
+use App\Models\Procedure;
 use App\Models\Medication;
 use App\Models\Appointment;
 use Faker\Provider\Medical;
@@ -19,9 +20,9 @@ use App\Models\ClinicLocation;
 use App\Models\ClinicSchedule;
 use App\Models\DoctorSchedule;
 use Illuminate\Database\Seeder;
+use App\Models\PregnancyCategory;
 use App\Models\FamilyRelationship;
 use App\Models\DemographicInformation;
-use App\Models\Procedure;
 
 class DatabaseSeeder extends Seeder
 {
@@ -33,6 +34,37 @@ class DatabaseSeeder extends Seeder
         // Buat Category dan FamilyRelationship secara bulk
         Category::factory(6)->create();
         FamilyRelationship::factory(8)->create();
+
+        PregnancyCategory::factory()->create([
+            [
+                'code' => 'A',
+                'description' => 'Generally acceptable. Controlled studies in pregnant women show no evidence of fatal risk.'
+            ],
+            [
+                'code' => 'B',
+                'description' => 'May be acceptable. Either animal studies show no risk but human studies not available or animal studies showed minor risks and human studies done and showed no risk.'
+            ],
+            [
+                'code' => 'C',
+                'description' => 'Use with caution if benefits outweigh risk. Animal studies show risk and human studies not available or neither animal nor human studies done.'
+            ],
+            [
+                'code' => 'D',
+                'description' => 'Use in LIFE-THREATENING emergencies when no safer drug available. Positive evidence of human fatal risk.'
+            ],
+            [
+                'code' => 'D',
+                'description' => 'Use in LIFE-THREATENING emergencies when no safer drug available. Positive evidence of human fatal risk.'
+            ],
+            [
+                'code' => 'X',
+                'description' => 'Do not use in pregnancy. Risk involved outweigh potential benefits. Safer alternatives exist.'
+            ],
+            [
+                'code' => 'N/A',
+                'description' => 'Information Not Available.'
+            ],
+        ]);
 
         // Buat Users dengan role 'clinic' secara bulk
         $clinics = User::factory(10)->create(['role' => 'clinic'])->map(function ($user) {

@@ -14,9 +14,16 @@ return new class extends Migration
         Schema::create('injections', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->text('description');
-            $table->decimal('price', 8, 2);
+            $table->string('brand');
+            $table->string('sku_code');
+            $table->integer('paediatric_dose');
+            $table->string('unit');
+            $table->integer('batch');
+            $table->date('expired_date');
+            $table->integer('total_amount');
+            $table->decimal('price', 8, 2);            
             $table->foreignId('clinic_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('pregnancy_category_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

@@ -15,4 +15,9 @@ class Injection extends Model
     {
         return $this->belongsTo(Clinic::class, 'clinic_id');
     }
+
+    public function pregnancyCategory()
+    {
+        return $this->belongsTo(PregnancyCategory::class, 'pregnancy_category_id');
+    }
 }

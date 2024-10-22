@@ -19,7 +19,14 @@ class MedicationController extends Controller
     {
         $user = Auth::user();
         $clinic = $user->clinic;
-        $medicines = $clinic->medications->paginate(10);        
+        if(!$clinic)
+        {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'user not found'
+            ]);
+        }        
+        $medicines = $clinic->medications()->paginate(10);        
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully fetch data',

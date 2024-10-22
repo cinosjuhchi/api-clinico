@@ -26,7 +26,7 @@ class InjectionController extends Controller
                 'message' => 'user not found'
             ]);
         }        
-        $injections = $clinic->injections()->paginate(10);
+        $injections = $clinic->injections()->with(['pregnancyCategory'])->paginate(10);
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully fetch data',

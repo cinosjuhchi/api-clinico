@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreMedicationRequest;
 use Illuminate\Http\Request;
 use App\Models\MedicationRecord;
 use Illuminate\Routing\Controller;
@@ -20,15 +21,10 @@ class MedicationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreMedicationRequest $request)
     {
         // Validasi data yang dikirim dari request
-        $validated = $request->validate([
-            'medicine' => 'nullable|string|max:255',
-            'frequency' => 'nullable|string|max:255',
-            'allergy' => 'nullable|string|max:255',
-            'patient_id' => 'required|exists:patients,id',
-        ]);
+        $validated = $request->validated();
 
         try {
             // Menggunakan DB transaction untuk menjaga integritas data

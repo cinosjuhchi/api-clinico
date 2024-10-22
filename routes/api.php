@@ -156,7 +156,10 @@ Route::prefix('v1')->group(function () {
                 Route::get('/logout-clinic', [ClinicAuthController::class, 'logout']);
                 Route::get('/user', [ClinicDataController::class, 'me']);
                 Route::get('/clinic-patient', [ClinicProfileController::class, 'clinicPatient']);                
-            });                                  
+            });      
+            Route::prefix('medicines')->group(function () {
+                Route::post('/store', [MedicationController::class, 'store']);
+            });                            
             Route::prefix('procedure')->group(function () {
                 Route::get('/', [ProcedureController::class, 'index']);
                 Route::post('store', [ProcedureController::class, 'store']);

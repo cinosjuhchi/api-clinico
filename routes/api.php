@@ -166,7 +166,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/', [InjectionController::class, 'index']);
                 Route::post('store', [InjectionController::class, 'store']);
                 Route::put('/update/{injection}', [InjectionController::class, 'update']);
-                Route::delete('delete', [InjectionController::class, 'destroy']);
+                Route::delete('/delete/{injection}', [InjectionController::class, 'destroy']);
             });
         });
     });

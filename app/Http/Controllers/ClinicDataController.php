@@ -144,7 +144,7 @@ class ClinicDataController extends Controller
             $newDoctor->spouseInformation()->create([
                 'name' => $validated['spouse_name'],
                 'contact' => $validated['spouse_phone'],
-                'occupation' => $validated['spouse_occupation'],
+                'occupation' => $validated['spouse_phone'],
             ]);
 
             if (!empty($validated['childs'])) {

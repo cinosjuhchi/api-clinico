@@ -29,6 +29,7 @@ use App\Http\Controllers\ImmunizationController;
 use App\Http\Controllers\ParentChronicController;
 use App\Http\Controllers\Api\V1\ContactUsController;
 use App\Http\Controllers\EmergencyContactController;
+use App\Http\Controllers\MedicationRecordController;
 use App\Http\Controllers\PregnancyCategoryController;
 use App\Http\Controllers\Api\V1\AppointmentController;
 use App\Http\Controllers\FamilyRelationshipController;
@@ -109,7 +110,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('/store', [PhysicalController::class, 'store']);
             });
             Route::prefix('medicines')->group(function () {
-                Route::post('/store', [MedicationController::class, 'store']);
+                Route::post('store', [MedicationRecordController::class, 'store']);
             });
             Route::prefix('immunization')->group(function () {
                 Route::post('/store', [ImmunizationController::class, 'store']);

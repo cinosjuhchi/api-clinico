@@ -23,6 +23,7 @@ use Illuminate\Database\Seeder;
 use App\Models\PregnancyCategory;
 use App\Models\FamilyRelationship;
 use App\Models\DemographicInformation;
+use App\Models\Employee;
 
 class DatabaseSeeder extends Seeder
 {
@@ -65,67 +66,7 @@ class DatabaseSeeder extends Seeder
         foreach ($pregnancyCategories as $category) {
             PregnancyCategory::create($category);
         }
-    
-
-        // Buat Users dengan role 'clinic' secara bulk
-        $clinics = User::factory(10)->create(['role' => 'clinic'])->map(function ($user) {
-            $clinic = Clinic::factory()->create(['user_id' => $user->id]);
-
-            // Buat Rooms, Services, Schedules, dan Locations secara bulk
-            Room::factory(3)->create(['clinic_id' => $clinic->id]);
-            ClinicService::factory(5)->create(['clinic_id' => $clinic->id]);
-            ClinicSchedule::factory()->create(['clinic_id' => $clinic->id]);
-            ClinicLocation::factory()->create(['clinic_id' => $clinic->id]);
-            Medication::factory(10)->create([
-                'clinic_id' => $clinic->id
-            ]);
-            Injection::factory(10)->create([
-                'clinic_id' => $clinic->id
-            ]);
-            Procedure::factory(10)->create([
-                'clinic_id' => $clinic->id
-            ]);
-
-            return $clinic;
-        });
-
-        // Buat Doctors dan relasinya
-        foreach ($clinics as $clinic) {
-            $rooms = $clinic->rooms; // Ambil rooms dari clinic
-
-            $rooms->each(function ($room) use ($clinic) {
-                $doctorUser = User::factory()->create(['role' => 'doctor']);
-                $doctor = Doctor::factory()->create([
-                    'user_id' => $doctorUser->id,
-                    'clinic_id' => $clinic->id,
-                    'room_id' => $room->id
-                ]);            
-                // Buat Doctor Schedules secara bulk
-                DoctorSchedule::factory(3)->create(['doctor_id' => $doctor->id, 'clinic_id' => $clinic->id]);
-
-                // Buat Patients dan Appointment secara bulk
-                $patients = User::factory(5)->create(['role' => 'user'])->map(function ($userPatient) use ($doctor, $clinic) {
-                    $family = Family::factory()->create(['user_id' => $userPatient->id]);
-                    $patient = Patient::factory()->create(['user_id' => $userPatient->id, 'family_id' => $family->id]);
-
-                    DemographicInformation::factory()->create(['patient_id' => $patient->id]);
-                    Appointment::factory()->create(['patient_id' => $patient->id, 'doctor_id' => $doctor->id, 'clinic_id' => $clinic->id]);
-                    
-                    return $patient;
-                });
-                $patients = User::factory(5)->create(['role' => 'user'])->map(function ($userPatient) use ($doctor, $clinic) {
-                    $family = Family::factory()->create(['user_id' => $userPatient->id]);
-                    $patient = Patient::factory()->create(['user_id' => $userPatient->id, 'family_id' => $family->id]);
-
-                    DemographicInformation::factory()->create(['patient_id' => $patient->id]);
-                    Appointment::factory()->create(['patient_id' => $patient->id, 'doctor_id' => $doctor->id, 'clinic_id' => $clinic->id, 'status' => 'completed']);
-                    MedicalRecord::factory()->create(['patient_id' => $patient->id, 'doctor_id' => $doctor->id, 'clinic_id' => $clinic->id]);
-                    return $patient;
-                });
-            });
-        }
-
-        // Buat data tambahan untuk clinic, doctor, dan patient tertentu
+                                            
         // Buat data tambahan untuk clinic, doctor, dan patient tertentu
         $userClinic = User::factory()->create([
             'email' => 'socmed.clinico@gmail.com',            
@@ -142,6 +83,7 @@ class DatabaseSeeder extends Seeder
         ClinicSchedule::factory()->create(['clinic_id' => $clinicMuhara->id]);
         ClinicLocation::factory()->create(['clinic_id' => $clinicMuhara->id]);
         Medication::factory(5)->create(['clinic_id' => $clinicMuhara->id]);
+        $employeeDoctor = Employee::factory()->create();
 
         // Buat Dokter untuk Clinic Muhara
         $userDoctor = User::factory()->create([
@@ -152,6 +94,7 @@ class DatabaseSeeder extends Seeder
             'name' => "Muhammad Habibullah Mursalin",
             'user_id' => $userDoctor->id,
             'clinic_id' => $clinicMuhara->id,
+            'employee_id' => $employeeDoctor->id,
             'room_id' => $clinicMuhara->rooms->first()->id // Hubungkan dengan room pertama yang dibuat
         ]);
 

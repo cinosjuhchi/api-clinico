@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Clinic extends Authenticatable
@@ -73,5 +74,10 @@ class Clinic extends Authenticatable
     public function injections(): HasMany
     {
         return $this->hasMany(Injection::class, 'clinic_id');
+    }
+
+    public function employments(): HasManyThrough
+    {
+        return $this->hasManyThrough(Employee::class, Doctor::class);
     }
 }

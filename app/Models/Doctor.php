@@ -98,7 +98,7 @@ class Doctor extends Authenticatable
         return $this->hasOne(DoctorEmergencyContact::class);
     }
 
-    public function spouseInformartion(): HasOne
+    public function spouseInformation(): HasOne
     {
         return $this->hasOne(DoctorSpouse::class);
     }

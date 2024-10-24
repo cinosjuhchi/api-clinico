@@ -144,7 +144,7 @@ class ClinicDataController extends Controller
             $newDoctor->spouseInformation()->create([
                 'name' => $validated['spouse_name'],
                 'contact' => $validated['spouse_phone'],
-                'occupation' => $validated['spouse_phone'],
+                'occupation' => $validated['spouse_occupation'],
             ]);
 
             if (!empty($validated['childs'])) {
@@ -168,7 +168,7 @@ class ClinicDataController extends Controller
             $newDoctor->reference()->create([
                 'name' => $validated['reference_name'],
                 'company' => $validated['reference_company'],
-                'phone_number' => $validated['reference_phone'],
+                'number_phone' => $validated['reference_phone'],
                 'position' => $validated['reference_position'],
                 'email' => $validated['reference_email'],
             ]);

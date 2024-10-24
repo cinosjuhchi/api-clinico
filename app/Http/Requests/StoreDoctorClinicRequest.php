@@ -78,7 +78,7 @@ class StoreDoctorClinicRequest extends FormRequest
             'emergency_contact_relation' => 'required|string',
             // Spouse Information
             'spouse_name' => 'nullable|string',
-            'spouse_occupation ' => 'nullable|string',
+            'spouse_occupation' => 'nullable|string',
             'spouse_phone' => 'nullable|string',
             // Child Information
             'childs' => 'array|nullable',

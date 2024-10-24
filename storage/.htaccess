@@ -1,0 +1,25 @@
+<IfModule Litespeed>
+    Options +FollowSymLinks
+    DirectoryIndex disabled
+    Options -Indexes
+    
+    SetEnv noabort 1
+    RewriteEngine Off
+    
+    # Allow all files
+    <Files *>
+        Options +FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Files>
+    
+    # Set correct MIME types
+    AddType image/jpeg .jpg .jpeg
+    AddType image/png .png
+    AddType image/gif .gif
+    
+    # Enable CORS for media files
+    <IfModule mod_headers.c>
+        Header set Access-Control-Allow-Origin "*"
+    </IfModule>
+</IfModule>

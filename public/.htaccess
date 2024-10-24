@@ -1,26 +1,36 @@
-<IfModule mod_rewrite.c>
-    Options +FollowSymLinks
-    <IfModule mod_negotiation.c>
-        Options -MultiViews -Indexes
-    </IfModule>
-
+<IfModule Litespeed>
+    DirectoryIndex index.php
     RewriteEngine On
-
+    
+    # Disable Directory Browsing
+    Options All -Indexes
+    
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-
-    # Allow direct access to storage files
+    
+    # Allow direct access to storage
     RewriteCond %{REQUEST_URI} ^/storage/(.*)$
-    RewriteRule ^storage/(.*)$ storage/$1 [L]
-
-    # Redirect Trailing Slashes If Not A Folder...
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_URI} (.+)/$
-    RewriteRule ^ %1 [L,R=301]
-
-    # Send Requests To Front Controller...
+    RewriteRule ^storage/(.*)$ storage/$1 [NC,L]
+    
+    # Handle Front Controller
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+    
+    # Disable server signature
+    ServerSignature Off
+    
+    # Enable FollowSymLinks
+    Options +FollowSymLinks
+    
+    # Set default charset
+    AddDefaultCharset UTF-8
+    
+    # Enable CORS
+    <IfModule mod_headers.c>
+        Header set Access-Control-Allow-Origin "*"
+        Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Header set Access-Control-Allow-Headers "X-Requested-With, Content-Type, X-Token-Auth, Authorization"
+    </IfModule>
 </IfModule>

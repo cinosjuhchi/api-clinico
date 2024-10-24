@@ -227,7 +227,19 @@ class ClinicDataController extends Controller
 
     public function showDoctor(Doctor $doctor)
     {
-        $doctor->with(['employmentInformation', 'educational', 'demographic', 'contributionInfo', 'emergencyContact', 'spouseInformation', 'childsInformation', 'parentInformation', 'reference', 'basicSkills', 'financialInformation']);
+        $doctor->load([
+            'employmentInformation', 
+            'educational', 
+            'demographic', 
+            'contributionInfo', 
+            'emergencyContact', 
+            'spouseInformation', 
+            'childsInformation', 
+            'parentInformation', 
+            'reference', 
+            'basicSkills', 
+            'financialInformation'
+        ]);
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully fetch data',

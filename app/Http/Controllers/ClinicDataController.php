@@ -88,6 +88,7 @@ class ClinicDataController extends Controller
                     ? $validated['image_signature']->store('image_signature') 
                     : 'path/to/default_signature_image.jpg',
                 'branch' => $validated['branch'],
+                'apc' => $validated['apc'],
                 'mmc' => $validated['mmc'],
                 'position' => $validated['position'],
                 'staff_id' => $validated['staff_id'],

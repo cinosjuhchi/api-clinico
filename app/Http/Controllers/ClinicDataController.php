@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Clinic;
+use App\Models\Doctor;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -221,6 +222,16 @@ class ClinicDataController extends Controller
             'status' => 'success',
             'message' => 'Successfully fetch data',
             'data' => $doctors            
+        ], 200);
+    }
+
+    public function showDoctor(Doctor $doctor)
+    {
+        $doctor->with(['employmentInformation', 'educational', 'demographic', 'contributionInfo', 'emergencyContact', 'spouseInformation', 'childsInformation', 'parentInformation', 'reference', 'basicSkills', 'financialInformation']);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully fetch data',
+            'data' => $doctor
         ], 200);
     }
 

@@ -48,7 +48,7 @@ class StoreDoctorClinicRequest extends FormRequest
             'reference_email' => 'required|email',
             // Basic Skill Information
             'languange_spoken_skill' => 'required|string',
-            'languange_written_skil' => 'required|string',
+            'languange_written_skill' => 'required|string',
             'microsoft_office_skill' => 'required|string',
             'others_skill' => 'required|string',
             // Employment Information

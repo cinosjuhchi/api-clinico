@@ -11,6 +11,5 @@ Route::get('/', function (){
         'file_exists' => Storage::disk('public')->exists('image_profile/rrjiSHxPY7VBbQMzW1bFxVOrUiletjbIRmh3eBWJ.png'),
         'full_path' => storage_path('app/public/image_profile/rrjiSHxPY7VBbQMzW1bFxVOrUiletjbIRmh3eBWJ.png'),
         'storage_url' => Storage::url('image_profile/rrjiSHxPY7VBbQMzW1bFxVOrUiletjbIRmh3eBWJ.png')
-    ]);
-    return view('welcome');
+    ]);    
 });

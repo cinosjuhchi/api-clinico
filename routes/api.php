@@ -13,6 +13,7 @@ use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\AllergyController;
 use App\Http\Controllers\ChronicController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PhysicalController;
 use App\Http\Controllers\InjectionController;
 use App\Http\Controllers\ProcedureController;
@@ -46,6 +47,9 @@ Route::prefix('v1')->group(function () {
         Route::middleware(['auth:sanctum', 'abilities:backOffice'])->group(function () {
             Route::get('/logout', [BackOfficeController::class, 'logout']);
         });
+    });
+    Route::prefix('doctor-category')->group(function () {
+        Route::get('/', [CategoryController::class, 'index']);
     });
     Route::prefix('bill')->group(function () {
         Route::post('/store', [BillController::class, 'store']);

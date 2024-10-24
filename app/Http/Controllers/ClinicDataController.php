@@ -188,6 +188,8 @@ class ClinicDataController extends Controller
                 'account_number' => $validated['account_number'],
             ]);
 
+            DB::commit(); // Ensure all changes are saved to the database
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Doctor created successfully'

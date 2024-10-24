@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Clinic;
+use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -79,11 +80,28 @@ class ClinicDataController extends Controller
                 'role' => 'doctor',
             ]);
 
+            $newEmployee = Employee::create([
+                'image_profile' => $validated['image_profile'] 
+                    ? $validated['image_profile']->store('image_profile') 
+                    : 'path/to/default_profile_image.jpg',
+                'image_signature' => $validated['image_signature'] 
+                    ? $validated['image_signature']->store('image_signature') 
+                    : 'path/to/default_signature_image.jpg',
+                'branch' => $validated['branch'],
+                'mmc' => $validated['mmc'],
+                'position' => $validated['position'],
+                'staff_id' => $validated['staff_id'],
+                'tenure' => $validated['tenure'],
+                'basic_salary' => $validated['basic_salary'],
+                'elaun' => $validated['elaun'],
+            ]);
+
             // Create doctor profile
             $newDoctor = $clinic->doctors()->create([
                 'user_id' => $newUser->id,
                 'name' => $validated['name'],
                 'category_id' => $validated['category_id'],
+                'employee_id' => $newEmployee->id,
             ]);
 
             // Create related information
@@ -156,21 +174,7 @@ class ClinicDataController extends Controller
                 'others' => $validated['others_skill'],
             ]);
 
-            $newDoctor->employmentInformation()->create([
-                'image_profile' => $validated['image_profile'] 
-                    ? $validated['image_profile']->store('image_profile') 
-                    : 'path/to/default_profile_image.jpg',
-                'image_signature' => $validated['image_signature'] 
-                    ? $validated['image_signature']->store('image_signature') 
-                    : 'path/to/default_signature_image.jpg',
-                'branch' => $validated['branch'],
-                'mmc' => $validated['mmc'],
-                'position' => $validated['position'],
-                'staff_id' => $validated['staff_id'],
-                'tenure' => $validated['tenure'],
-                'basic_salary' => $validated['basic_salary'],
-                'elaun' => $validated['elaun'],
-            ]);
+            
 
             $newDoctor->financialInformation()->create([
                 'bank_name' => $validated['bank_name'],

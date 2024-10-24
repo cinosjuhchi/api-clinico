@@ -82,6 +82,7 @@ class ClinicDataController extends Controller
             // Create doctor profile
             $newDoctor = $clinic->doctors()->create([
                 'user_id' => $newUser->id,
+                'name' => $validated['name'],
                 'category_id' => $validated['category_id'],
             ]);
 

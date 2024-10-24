@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreDoctorClinicRequest;
-use App\Http\Resources\ClinicResource;
-use App\Models\Clinic;
 use App\Models\User;
+use App\Models\Clinic;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\ClinicResource;
+use App\Http\Requests\StoreDoctorClinicRequest;
 
 class ClinicDataController extends Controller
 {
@@ -69,6 +70,7 @@ class ClinicDataController extends Controller
         }
 
         try {
+            DB::beginTransaction();
             // Create user
             $newUser = User::create([
                 'email' => $validated['email'],
@@ -180,6 +182,7 @@ class ClinicDataController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to create doctor',

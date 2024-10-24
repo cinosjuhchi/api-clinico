@@ -238,7 +238,8 @@ class ClinicDataController extends Controller
             'parentInformation', 
             'reference', 
             'basicSkills', 
-            'financialInformation'
+            'financialInformation',
+            'category',
         ]);
         return response()->json([
             'status' => 'success',

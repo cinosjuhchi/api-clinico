@@ -214,7 +214,7 @@ class ClinicDataController extends Controller
                 'message' => 'user not found'
             ]);
         }        
-        $doctors = $clinic->doctors->with(['employmentInformation', 'educational', 'demographic'])->paginate(5);
+        $doctors = $clinic->doctors()->with(['employmentInformation', 'educational', 'demographic'])->paginate(10);
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully fetch data',

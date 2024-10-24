@@ -26,6 +26,8 @@ class Doctor extends Authenticatable
 {
     use HasFactory, HasApiTokens;
 
+    protected $guarded = ['id'];
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'category_id');

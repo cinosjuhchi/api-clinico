@@ -111,6 +111,7 @@ class ClinicDataController extends Controller
                 'nric' => $validated['nric'],
                 'birth_date' => $validated['birth_date'],
                 'place_of_birth' => $validated['place_of_birth'],
+                'marital_status' => $validated['marital_status'],
                 'address' => $validated['address'],
                 'country' => $validated['country'],
                 'postal_code' => $validated['postal_code'],

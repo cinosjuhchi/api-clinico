@@ -107,6 +107,7 @@ class ClinicDataController extends Controller
 
             // Create related information
             $newDoctor->demographic()->create([
+                'name' => $validated['name'],
                 'nric' => $validated['nric'],
                 'birth_date' => $validated['birth_date'],
                 'address' => $validated['address'],

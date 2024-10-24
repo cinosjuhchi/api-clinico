@@ -184,6 +184,7 @@ Route::prefix('v1')->group(function () {
                 Route::put('/add-batch/{injection}', [InjectionController::class, 'addBatch']);
             });
             Route::prefix('doctor')->group(function () {
+                Route::get('/', [ClinicDataController::class, 'doctors']);
                 Route::post('store', [ClinicDataController::class, 'storeDoctor']);                
             });
         });

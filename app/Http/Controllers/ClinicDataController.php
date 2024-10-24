@@ -14,6 +14,7 @@ use App\Http\Requests\StoreDoctorClinicRequest;
 
 class ClinicDataController extends Controller
 {
+
     public function me(Request $request)
     {
         $user = Auth::user();        
@@ -200,6 +201,25 @@ class ClinicDataController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function doctors(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = $user->clinic;
+        if(!$clinic)
+        {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'user not found'
+            ]);
+        }        
+        $doctors = $clinic->doctors->with(['employmentInformation', 'educational', 'demographic'])->paginate(5);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully fetch data',
+            'data' => $doctors            
+        ], 200);
     }
 
 }

@@ -19,8 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'abilities' => CheckAbilities::class,
             'ability' => CheckForAnyAbility::class,
-        ]);
-        $middleware->append(Cors::class);
+        ]);        
     })
     ->withCommands([
         CancelExpiredAppointments::class

@@ -238,8 +238,8 @@ class ClinicDataController extends Controller
             'microsoft_office_skill' => 'required|string',
             'others_skill' => 'required|string',
             // Employment Information
-            'image_profile' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|string',
-            'image_signature' => 'nullable|image|mimes:jpeg,png,jpg|max:2048|string',
+            'image_profile' => 'nullable|image|string|mimes:jpeg,png,jpg,gif|max:2048',
+            'image_signature' => 'nullable|image|string|mimes:jpeg,png,jpg|max:2048',
             'branch' => 'required|string',
             'position' => 'required|string',
             'mmc' => 'required|integer',

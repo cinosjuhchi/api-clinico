@@ -186,7 +186,7 @@ Route::prefix('v1')->group(function () {
             Route::prefix('doctor')->group(function () {
                 Route::get('/', [ClinicDataController::class, 'doctors']);
                 Route::get('/show/{doctor}', [ClinicDataController::class, 'showDoctor']);
-                Route::get('/update/{doctor}', [ClinicDataController::class, 'updateDoctor']);
+                Route::put('/update/{doctor}', [ClinicDataController::class, 'updateDoctor']);
                 Route::post('store', [ClinicDataController::class, 'storeDoctor']);                            
             });
         });

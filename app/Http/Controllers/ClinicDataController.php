@@ -212,7 +212,7 @@ class ClinicDataController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $doctor,
-            'request' => $request
+            'request' => $request->name
         ]);   
         // $validated = $request->validated();
         // $user = Auth::user();

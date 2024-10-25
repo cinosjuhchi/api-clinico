@@ -15,6 +15,7 @@ use App\Http\Controllers\AllergyController;
 use App\Http\Controllers\ChronicController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PhysicalController;
 use App\Http\Controllers\InjectionController;
 use App\Http\Controllers\ProcedureController;
@@ -190,6 +191,9 @@ Route::prefix('v1')->group(function () {
                 Route::post('/store', [ClinicDataController::class, 'storeDoctor']);                
                 Route::put('/update/{doctor}', [ClinicDataController::class, 'updateDoctor']);
                 Route::delete('/delete/{doctor}', [ClinicDataController::class, 'destroyDoctor']);
+            });
+            Route::prefix('employee')->group(function () {
+                Route::delete('/delete/{employee}', [EmployeeController::class, 'destroy']);
             });
         });
     });

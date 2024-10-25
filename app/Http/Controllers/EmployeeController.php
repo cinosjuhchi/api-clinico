@@ -61,6 +61,21 @@ class EmployeeController extends Controller
      */
     public function destroy(Employee $employee)
     {
-        //
+        try {
+            // Hapus employee dari database
+            $employee->delete();
+
+            // Mengembalikan respons sukses
+            return response()->json([
+                'success' => true,
+                'message' => 'Employee deleted successfully.',
+            ], 200);
+        } catch (\Exception $e) {
+            // Menangani kesalahan yang mungkin terjadi saat penghapusan
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while deleting the employee: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

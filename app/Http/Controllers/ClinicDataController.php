@@ -381,6 +381,13 @@ class ClinicDataController extends Controller
         // }
     }
 
+    public function updateDoc(Request $request)
+    {
+        return response()->json([
+            'request' => $request
+        ]);
+    }
+
     public function doctors(Request $request)
     {
         $user = Auth::user();

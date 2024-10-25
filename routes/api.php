@@ -7,6 +7,7 @@ use App\Models\ChronicHealthRecord;
 use Illuminate\Support\Facades\Route;
 use App\Models\DemographicInformation;
 use App\Http\Controllers\BillController;
+use App\Http\Controllers\ImageController;
 use App\Http\Controllers\ClinicController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\FamilyController;
@@ -209,8 +210,12 @@ Route::prefix('v1')->group(function () {
             Route::get('/show/{pregnancyCategory}', [PregnancyCategoryController::class, 'show']);
         });
 
+        
     });
-
+    
+    Route::prefix('image')->group(function () {
+        Route::get('/show/{filename}', [ImageController::class, 'show']);
+    });
     
     
 });

@@ -42,7 +42,12 @@ class AuthController extends Controller
 
         if(Auth::attempt(['email' => $request->user, 'password' => $request->password]) || Auth::attempt(['phone_number' => $request->user, 'password' => $request->password]))
         {
-            $user = auth()->user();                        
+            $user = Auth::user();
+            if($user->role == 'clinic')
+            {                
+                return response()->json(["message" => "User didn't exist!"], status: 404);
+
+            }            
             $token = $user->createToken('Clinico', ['user']);
             return response()->json(['status' => 'Success', 'message' => 'Login Success', 'user' => $user, 'token' => $token], 200);
         }else{

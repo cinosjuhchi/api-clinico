@@ -86,7 +86,7 @@ class ClinicDataController extends Controller
             $newEmployee = Employee::create([
                 'image_profile' => $validated['image_profile'] 
                     ? $validated['image_profile']->store('image_profile') 
-                    : 'path/to/default_profile_image.jpg',
+                    : 'image_profile/default.png',
                 'image_signature' => $validated['image_signature'] 
                     ? $validated['image_signature']->store('image_signature') 
                     : 'path/to/default_signature_image.jpg',
@@ -239,10 +239,10 @@ class ClinicDataController extends Controller
             $employeeFieldsToUpdate = [
                 'image_profile' => $validated['image_profile'] 
                     ? $validated['image_profile']->store('image_profile') 
-                    : 'path/to/default_profile_image.jpg',
+                    : 'image_profile/default.png',
                 'image_signature' => $validated['image_signature'] 
                     ? $validated['image_signature']->store('image_signature') 
-                    : 'path/to/default_signature_image.jpg',
+                    : 'image_signature/default.png',
                 'branch' => $validated['branch'],
                 'apc' => $validated['apc'],
                 'mmc' => $validated['mmc'],

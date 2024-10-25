@@ -13,8 +13,13 @@ return new class extends Migration
     {
         Schema::create('physical_examinations', function (Blueprint $table) {
             $table->id();
-            $table->decimal('height')->nullable();
-            $table->decimal('weight')->nullable();
+            $table->decimal('height');
+            $table->decimal('weight');
+            $table->enum('blood_type', ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Unknown']);
+            $table->string('blood_pressure')->nullable();
+            $table->integer('sp02')->nullable();
+            $table->integer('temperature')->nullable();
+            $table->integer('pulse_rate')->nullable();
             $table->foreignId('patient_id')->constrained()->onDelete('cascade');
 
             $table->timestamps();

@@ -43,7 +43,7 @@ class AuthController extends Controller
         if(Auth::attempt(['email' => $request->user, 'password' => $request->password]) || Auth::attempt(['phone_number' => $request->user, 'password' => $request->password]))
         {
             $user = Auth::user();
-            if($user->role == 'clinic')
+            if($user->role != 'user')
             {                
                 return response()->json(["message" => "User didn't exist!"], status: 404);
 

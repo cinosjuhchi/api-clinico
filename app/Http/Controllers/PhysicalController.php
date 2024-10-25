@@ -26,9 +26,9 @@ class PhysicalController extends Controller
         $validated = $request->validate([
             'height' => 'nullable|numeric|min:0',
             'weight' => 'nullable|numeric|min:0',
-            'blood_type' => 'nullable|enum:A+,A-,B+,B-,AB+,AB-,O+,O-,Unknown',
+            'blood_type' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-,Unknown',
             'patient_id' => 'required|exists:patients,id',
-        ]);
+        ]);        
 
         try {
             // Jalankan transaksi database

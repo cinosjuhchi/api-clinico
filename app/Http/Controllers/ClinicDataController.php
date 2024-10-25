@@ -208,16 +208,11 @@ class ClinicDataController extends Controller
     }
 
     public function updateDoctor(Request $request, Doctor $doctor)
-    {
-        $validate = $request->validate(
-            [
-                'cino' => 'string|required'
-            ]
-        );
+    {        
         return response()->json([
             'status' => 'success',
             'data' => $doctor,
-            'request' => $validate
+            'request' => $request
         ]);   
         // $validated = $request->validated();
         // $user = Auth::user();

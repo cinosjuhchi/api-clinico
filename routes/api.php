@@ -213,9 +213,6 @@ Route::prefix('v1')->group(function () {
         
     });
     
-    Route::prefix('image')->group(function () {
-        Route::get('/show/{filename}', [ImageController::class, 'show']);
-    });
     
     
 });

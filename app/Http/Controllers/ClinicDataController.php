@@ -211,13 +211,13 @@ class ClinicDataController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string',
-            'phone_number' => 'required|string|min:10',            
-            'category_id' => 'required|exists:categories,id',      
+            'phone_number' => 'required|string|min:10',
+            'category_id' => 'required|exists:categories,id',
             // Demographic Information
             'nric' => 'required|string|min:5',
-            'birth_date' => 'required|date:before:today',
+            'birth_date' => 'required|date|before:today',
             'place_of_birth' => 'required|string',
-            'marital_status' => 'required|string',            
+            'marital_status' => 'required|string',
             'address' => 'required|string',
             'country' => 'required|string',
             'postal_code' => 'required|numeric|digits_between:4,10',
@@ -238,10 +238,10 @@ class ClinicDataController extends Controller
             'microsoft_office_skill' => 'required|string',
             'others_skill' => 'required|string',
             // Employment Information
-            'image_profile' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'image_signature' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'image_profile' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|string',
+            'image_signature' => 'nullable|image|mimes:jpeg,png,jpg|max:2048|string',
             'branch' => 'required|string',
-            'position' => 'required|string',                
+            'position' => 'required|string',
             'mmc' => 'required|integer',
             'apc' => 'required|string',
             'staff_id' => 'required|string',
@@ -249,7 +249,7 @@ class ClinicDataController extends Controller
             'basic_salary' => 'required|numeric',
             'elaun' => 'required|numeric',
             // Financial Information
-            'bank_name' => 'required|string',            
+            'bank_name' => 'required|string',
             'account_number' => 'required|string|max:20',
             // Contribution Info
             'kwsp_number' => 'required|integer',
@@ -278,6 +278,7 @@ class ClinicDataController extends Controller
             'father_contact' => 'required|string|min:10',
             'mother_contact' => 'required|string|min:10',
         ]);
+
         $user = Auth::user();
         $clinic = $user->clinic;
 
@@ -288,56 +289,44 @@ class ClinicDataController extends Controller
             ]);
         }
 
-
         try {
-                DB::beginTransaction();
-                $fieldsToUpdate = [];
+            DB::beginTransaction();
 
-                foreach (['name', 'category_id'] as $field) {
-                    if ($doctor->isDirty($field)) {
-                        $fieldsToUpdate[$field] = $validated[$field];
-                    }
-                }
+            // Update main doctor information
+            $fieldsToUpdate = [
+                'name' => $validated['name'],
+                'category_id' => $validated['category_id'],
+            ];
+            $doctor->update($fieldsToUpdate);
 
-                if (!empty($fieldsToUpdate)) {
-                    $doctor->update($fieldsToUpdate);
-                }
-                
-                
+            // Employee information updates with conditional checks
             $employeeFieldsToUpdate = [
-                'image_profile' => $validated['image_profile'] 
-                    ? $validated['image_profile']->store('image_profile') 
-                    : 'image_profile/default.png',
-                'image_signature' => $validated['image_signature'] 
-                    ? $validated['image_signature']->store('image_signature') 
-                    : 'image_signature/default.png',
                 'branch' => $validated['branch'],
+                'position' => $validated['position'],
                 'apc' => $validated['apc'],
                 'mmc' => $validated['mmc'],
-                'position' => $validated['position'],
                 'staff_id' => $validated['staff_id'],
                 'tenure' => $validated['tenure'],
                 'basic_salary' => $validated['basic_salary'],
                 'elaun' => $validated['elaun']
             ];
 
-            foreach ($employeeFieldsToUpdate as $key => $value) {
-                if ($doctor->employee->$key !== $value) {
-                    $doctor->employee->$key = $value;
-                }
+            if ($request->hasFile('image_profile')) {
+                $employeeFieldsToUpdate['image_profile'] = $request->file('image_profile')->store('image_profile');
             }
 
-            $doctor->employee->save();
+            if ($request->hasFile('image_signature')) {
+                $employeeFieldsToUpdate['image_signature'] = $request->file('image_signature')->store('image_signature');
+            }
 
-            $doctor->demographic()->delete();
-            // Create related information
-            $doctor->demographic()->create([
-                'name' => $validated['name'],
+            $doctor->employee()->update($employeeFieldsToUpdate);
+
+            // Update related information (demographic, educational, etc.)
+            $doctor->demographic()->updateOrCreate([], [
                 'nric' => $validated['nric'],
                 'birth_date' => $validated['birth_date'],
                 'place_of_birth' => $validated['place_of_birth'],
                 'marital_status' => $validated['marital_status'],
-                'email' => $validated['email'],
                 'phone_number' => $validated['phone_number'],
                 'address' => $validated['address'],
                 'country' => $validated['country'],
@@ -345,15 +334,13 @@ class ClinicDataController extends Controller
                 'gender' => $validated['gender'],
             ]);
 
-            $doctor->educational()->delete();
-            $doctor->educational()->create([
+            $doctor->educational()->updateOrCreate([], [
                 'graduated_from' => $validated['graduated_from'],
                 'bachelor' => $validated['bachelor'],
                 'graduation_year' => $validated['graduation_year'],
             ]);
 
-            $doctor->employmentInformation()->delete();
-            $doctor->contributionInfo()->create([
+            $doctor->contributionInfo()->updateOrCreate([], [
                 'kwsp_number' => $validated['kwsp_number'],
                 'kwsp_amount' => $validated['kwsp_amount'],
                 'perkeso_number' => $validated['perkeso_number'],
@@ -362,28 +349,23 @@ class ClinicDataController extends Controller
                 'tax_amount' => $validated['tax_amount'],
             ]);
 
-            $doctor->emergencyContact()->delete();
-            $doctor->emergencyContact()->create([
+            $doctor->emergencyContact()->updateOrCreate([], [
                 'name' => $validated['emergency_contact'],
                 'relationship' => $validated['emergency_contact_relation'],
                 'phone_number' => $validated['emergency_contact_number'],
             ]);
-            if($doctor->spouseInformation)
-            {
-                $doctor->spouseInformation()->delete();
-            }
-            if(isset($validated['spouse_name']))
-            {
-                $doctor->spouseInformation()->create([
+
+            // Optional spouse information
+            if (!empty($validated['spouse_name'])) {
+                $doctor->spouseInformation()->updateOrCreate([], [
                     'name' => $validated['spouse_name'],
-                    'contact' => $validated['spouse_phone'],
                     'occupation' => $validated['spouse_occupation'],
+                    'contact' => $validated['spouse_phone'],
                 ]);
             }
-            if($doctor->childsInformation)
-            {
-                $doctor->childsInformation()->delete();
-            }
+
+            // Child information
+            $doctor->childsInformation()->delete();
             if (!empty($validated['childs'])) {
                 foreach ($validated['childs'] as $child) {
                     $doctor->childsInformation()->create([
@@ -393,18 +375,18 @@ class ClinicDataController extends Controller
                 }
             }
 
-            $doctor->parentInformation()->delete();
-            $doctor->parentInformation()->create([
+            // Parent information
+            $doctor->parentInformation()->updateOrCreate([], [
                 'father_name' => $validated['father_name'],
-                'father_occupation' => $validated['father_occupation'],
                 'mother_name' => $validated['mother_name'],
+                'father_occupation' => $validated['father_occupation'],
                 'mother_occupation' => $validated['mother_occupation'],
                 'father_contact' => $validated['father_contact'],
                 'mother_contact' => $validated['mother_contact'],
             ]);
 
-            $doctor->reference()->delete();
-            $doctor->reference()->create([
+            // Reference information
+            $doctor->reference()->updateOrCreate([], [
                 'name' => $validated['reference_name'],
                 'company' => $validated['reference_company'],
                 'number_phone' => $validated['reference_phone'],
@@ -412,37 +394,37 @@ class ClinicDataController extends Controller
                 'email' => $validated['reference_email'],
             ]);
 
-            $doctor->basicSkills()->delete();
-            $doctor->basicSkills()->create([
+            // Basic skills information
+            $doctor->basicSkills()->updateOrCreate([], [
                 'languange_spoken' => $validated['languange_spoken_skill'],
                 'languange_written' => $validated['languange_written_skill'],
                 'microsoft_office' => $validated['microsoft_office_skill'],
                 'others' => $validated['others_skill'],
             ]);
 
-            
-            $doctor->financialInformation()->delete();
-            $doctor->financialInformation()->create([
+            // Financial information
+            $doctor->financialInformation()->updateOrCreate([], [
                 'bank_name' => $validated['bank_name'],
                 'account_number' => $validated['account_number'],
             ]);
 
-            DB::commit(); // Ensure all changes are saved to the database
+            DB::commit();
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Doctor created successfully'
-            ], 201);
+                'message' => 'Doctor updated successfully'
+            ], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to create doctor',
+                'message' => 'Failed to update doctor',
                 'error' => $e->getMessage(),
             ], 500);
         }
     }
+
 
     public function doctors(Request $request)
     {

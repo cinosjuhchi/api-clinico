@@ -319,7 +319,7 @@ class ClinicDataController extends Controller
                 $employeeFieldsToUpdate['image_signature'] = $request->file('image_signature')->store('image_signature');
             }
 
-            $doctor->employee()->update($employeeFieldsToUpdate);
+            $doctor->employmentInformation()->update($employeeFieldsToUpdate);
 
             // Update related information (demographic, educational, etc.)
             $doctor->demographic()->updateOrCreate([], [

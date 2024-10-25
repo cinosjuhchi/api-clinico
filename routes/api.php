@@ -178,7 +178,7 @@ Route::prefix('v1')->group(function () {
             });
             Route::prefix('injection')->group(function () {
                 Route::get('/', [InjectionController::class, 'index']);
-                Route::post('store', [InjectionController::class, 'store']);
+                Route::post('/store', [InjectionController::class, 'store']);
                 Route::put('/update/{injection}', [InjectionController::class, 'update']);
                 Route::delete('/delete/{injection}', [InjectionController::class, 'destroy']);
                 Route::put('/add-batch/{injection}', [InjectionController::class, 'addBatch']);
@@ -186,7 +186,7 @@ Route::prefix('v1')->group(function () {
             Route::prefix('doctor')->group(function () {
                 Route::get('/', [ClinicDataController::class, 'doctors']);
                 Route::get('/show/{doctor}', [ClinicDataController::class, 'showDoctor']);
-                Route::post('store', [ClinicDataController::class, 'storeDoctor']);                
+                Route::post('/store', [ClinicDataController::class, 'storeDoctor']);                
                 Route::put('/update/{doctor}', [ClinicDataController::class, 'updateDoctor']);
                 Route::delete('/delete/{doctor}', [ClinicDataController::class, 'destroyDoctor']);
             });

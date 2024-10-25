@@ -30,12 +30,13 @@ class ImageController extends Controller
     public function show(string $filename)
     {
         // Mengambil file menggunakan Storage
-        if (!Storage::disk('public')->exists($filename)) {
+        $path = 'image_profile/' . $filename; // Folder yang lebih spesifik
+        if (!Storage::disk('public')->exists($path)) {
             return response()->json(['error' => 'Image not found'], 404);
         }
 
         // Kembalikan file sebagai respons
-        return response()->file(Storage::disk('public')->path($filename));
+        return response()->file(Storage::disk('public')->path($path));
     }
 
     /**

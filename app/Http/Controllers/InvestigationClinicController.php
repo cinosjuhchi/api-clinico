@@ -50,7 +50,7 @@ class InvestigationClinicController extends Controller
             ]);
             foreach ($validated['items'] as $item) {
                 $investigation->items()->create([
-                    'name' => $item['name'],                    
+                    'name' => $item['item_name'],                    
                     'price' => $item['price']
                 ]);
             }

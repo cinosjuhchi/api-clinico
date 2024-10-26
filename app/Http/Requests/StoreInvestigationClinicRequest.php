@@ -25,7 +25,7 @@ class StoreInvestigationClinicRequest extends FormRequest
             'name' => 'string|required|max:255|min:3',
             'description' => 'string|nullable|max:255|min:3',
             'items' => 'array|required',
-            'items.*.name' => 'string|required|max:255|min:3',
+            'items.*.item_name' => 'string|required|max:255|min:3',
             'items.*.price' => 'numeric|required',
         ];
     }

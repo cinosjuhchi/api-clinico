@@ -52,6 +52,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/logout', [BackOfficeController::class, 'logout']);
             Route::prefix('clinic')->group(function () {
                 Route::get('/request-clinic', [RequestClinicController::class, 'index']);
+                Route::put('/accept-request/{clinic}', [RequestClinicController::class, 'update']);
             });
         });
     });

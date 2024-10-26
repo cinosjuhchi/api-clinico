@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Clinic;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 use App\Http\Resources\ClinicResource;
 
 class RequestClinicController extends Controller
@@ -14,7 +15,7 @@ class RequestClinicController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = 3; // Set the number of clinics per page
+        $perPage = 5; // Set the number of clinics per page
         $page = $request->input('page', 1); // Get the page number from the request
         $clinics = Clinic::with([
             'doctors.category',
@@ -35,12 +36,14 @@ class RequestClinicController extends Controller
             ]);
     }
 
+
+
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        //
+        
     }
 
     /**
@@ -56,7 +59,25 @@ class RequestClinicController extends Controller
      */
     public function update(Request $request, Clinic $clinic)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $clinic->update([
+                'status' => true
+            ]);
+
+            DB::commit();            
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Success to update clinic data.',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update clinic data.',
+            ]);
+        }
     }
 
     /**

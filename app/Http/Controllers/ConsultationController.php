@@ -73,6 +73,17 @@ class ConsultationController extends Controller
                 'total_cost' => $validated['total_cost'],
             ]);
 
+            $patient = $appointment->patient;
+
+            $patient->physicalExaminations()->updateOrCreate([
+                'blood_pressure' => $validated['blood_pressure'],
+                'pulse_rate' => $validated['pulse_rate'],
+                'temperature' => $validated['temperature'],
+                'sp02' => $validated['sp02'],
+                'weight' => $validated['weight'],
+                'height' => $validated['height'],                
+            ]);
+
             $medicalRecord = MedicalRecord::create([
                 'patient_id' => $appointment->patient_id,
                 'clinic_id' => $appointment->clinic_id,
@@ -87,6 +98,8 @@ class ConsultationController extends Controller
                 'pulse_rate' => $validated['pulse_rate'],            
                 'pain_score' => $validated['pain_score'],
             ]);      
+
+
 
             foreach($validated['diagnosis'] as $diagnosis) {
                 $medicalRecord->diagnosisRecord()->create([

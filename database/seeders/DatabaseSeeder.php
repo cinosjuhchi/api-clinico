@@ -100,7 +100,9 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Buat Doctor Schedules untuk dokter di Clinic Muhara
-        DoctorSchedule::factory(3)->create(['doctor_id' => $doctor->id, 'clinic_id' => $clinicMuhara->id]);
+        DoctorSchedule::factory()->create(['doctor_id' => $doctor->id, 'clinic_id' => $clinicMuhara->id, 'day' => 'saturday']);
+        DoctorSchedule::factory()->create(['doctor_id' => $doctor->id, 'clinic_id' => $clinicMuhara->id, 'day' => 'monday']);
+        DoctorSchedule::factory()->create(['doctor_id' => $doctor->id, 'clinic_id' => $clinicMuhara->id, 'day' => 'sunday']);
 
         // Buat Pasien dan Appointment di Clinic Muhara
         $userPatient = User::factory()->create([

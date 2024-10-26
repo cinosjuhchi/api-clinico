@@ -22,10 +22,15 @@ class ProcedureController extends Controller
         $clinic = $user->clinic;
         if(!$clinic)
         {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'user not found'
-            ]);
+            $clinic = $user->doctor->clinic;
+            if(!$clinic)
+            {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'user not found'
+                ]);                
+            }
+            
         }        
         $query = $request->input('q');
         $procedure = $clinic->procedures()

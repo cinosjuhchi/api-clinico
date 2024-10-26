@@ -113,21 +113,7 @@ class DatabaseSeeder extends Seeder
                 'doctor_id' => $doctor->id,
                 'clinic_id' => $clinicMuhara->id,
             ]);
-        });
-        Patient::factory(3)->create(['user_id' => $userPatient->id, 'family_id' => $family->id])->each(function ($patient) use ($doctor, $clinicMuhara) {
-            DemographicInformation::factory()->create(['patient_id' => $patient->id]);
-            Appointment::factory()->create([
-                'patient_id' => $patient->id,
-                'doctor_id' => $doctor->id,
-                'clinic_id' => $clinicMuhara->id,
-                'status' => 'completed'
-            ]);
-            MedicalRecord::factory()->create([
-                'patient_id' => $patient->id,
-                'doctor_id' => $doctor->id,
-                'clinic_id' => $clinicMuhara->id
-            ]);
-        });
+        });                
 
         User::factory()->create([
             'email' => 'superadmin@clinico.com.my',

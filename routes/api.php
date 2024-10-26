@@ -170,7 +170,9 @@ Route::prefix('v1')->group(function () {
                 Route::get('/logout-clinic', [ClinicAuthController::class, 'logout']);
                 Route::get('/user', [ClinicDataController::class, 'me']);
                 Route::get('/clinic-patient', [ClinicProfileController::class, 'clinicPatient']);                
-            });      
+            });                  
+        });
+        Route::middleware(['auth:sanctum', 'abilities:hasAccessResource'])->group(function () {
             Route::prefix('medicines')->group(function () {
                 Route::get('/', [MedicationController::class, 'index']);
                 Route::get('/information', [MedicationController::class, 'information']);
@@ -215,6 +217,7 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/delete/{investigationClinic}', [InvestigationClinicController::class, 'destroy']);
             });
         });
+
     });
 
     Route::middleware(['auth:sanctum', 'abilities:hasAccessResource'])->group(function () {

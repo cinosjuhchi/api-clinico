@@ -24,8 +24,7 @@ class StoreClinicServiceRequest extends FormRequest
         return [
             'name' => 'string|required|max:255|min:3',
             'price' => 'numeric|required',
-            'description' => 'string|nullable',
-            'clinic_id' => 'required|exists:clinics,id',
+            'description' => 'string|nullable',            
             'category_id' => 'required|exists:categories,id'
         ];
     }

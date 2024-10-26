@@ -63,11 +63,17 @@ class ClinicServiceController extends Controller
     public function store(StoreClinicServiceRequest $request)
     {
         $validated = $request->validated();
-
+        $user = Auth::user();
+        $clinic = $user->clinic;
+        if (!$clinic) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Clinic not found.',
+            ], 403);
+        }
         try {
-            DB::transaction(function () use ($validated) {
-
-                ClinicService::create($validated);                
+            DB::transaction(function () use ($validated, $clinic) {
+                $clinic->services()->create($validated);                                          
             });
             return response()->json([
                 'success' => true,

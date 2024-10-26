@@ -16,13 +16,16 @@ return new class extends Migration
             $table->unsignedBigInteger('patient_id');
             $table->unsignedBigInteger('doctor_id')->nullable();
             $table->unsignedBigInteger('clinic_id')->nullable();
-            $table->text('patient_condition');
-            $table->string('diagnosis', 255);                  
-            $table->text('consultation_note');                        
-            $table->text('physical_examination');
-            $table->string('blood_pressure');
+            $table->text('patient_condition')->nullable();                          
+            $table->text('consultation_note')->default('No Record');                        
+            $table->text('physical_examination')->default('No Record');
+            $table->integer('blood_pressure');
+            $table->text('plan')->default('No Record');
             $table->integer('sp02');
             $table->integer('temperature');
+            $table->integer('pulse_rate');            
+            $table->integer('pain_score')->default(0);
+
             $table->softDeletes();
 
             $table->foreign('patient_id')->references('id')->on('patients')->onDelete('cascade');

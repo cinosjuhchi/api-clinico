@@ -9,4 +9,13 @@ class InjectionRecord extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
+    public function medicalRecord()
+    {
+        return $this->belongsTo(MedicalRecord::class);
+    }
+
+    public function patient()
+    {
+        return $this->belongsTo(Patient::class);
+    }
 }

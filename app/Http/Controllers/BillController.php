@@ -25,20 +25,9 @@ class BillController extends Controller
         if (!$this->isValidSignature($signature, $request->all())) {
             return response()->json(['error' => 'Invalid signature.'], 403);
         }
+        
 
-        $payment = Billing::where('bill_id', $billId)->first();
-
-        if ($payment) {
-            if ($paid == 'true') {
-                $payment->update(['status' => 'success']);
-            } else {
-                $payment->update(['status' => 'failed']);
-            }
-
-            return response()->json(['status' => 'success'], 200);
-        } else {
-            return response()->json(['error' => 'Payment not found.'], 404);
-        }
+        return response()->json(['status' => 'success'], 200);
     }
 
     protected function isValidSignature($signature, $payload)
@@ -63,12 +52,13 @@ class BillController extends Controller
 
         $billData = [
             'collection_id' => env('BILLPLZ_COLLECTION'),
+            'name' => 'Cino',
             'email' => $validated['email'],
             'amount' => $validated['amount'] * 100,
             'description' => $validated['description'],
-            'due_at' => $validated['due_date'],
-            'redirect_url' => env('BILLPLZ_REDIRECT_URL'),
-            'callback_url' => env('BILLPLZ_CALLBACK_URL')
+            'due_at' => $validated['due_date'],         
+            'deliver' => true,   
+            'callback_url' => env('BILLPLZ_CALLBACK')
         ];
 
         $response = Http::withBasicAuth(env('BILLPLZ_KEY'), '')
@@ -76,25 +66,15 @@ class BillController extends Controller
 
         if ($response->successful()) {
             $responseData = $response->json();
-
-            // Create a new payment record
-            $payment = Billing::create([
-                'amount' => $validated['amount'],
-                'description' => $validated['description'],
-                'due_date' => $validated['due_date'],
-                'email' => $validated['email'],
-                'status' => 'pending',
-                'billz_id' => $responseData['id']
-            ]);
-
+                        
             return response()->json([
                 'status' => 'success',
                 'message' => 'Bill created successfully.',
-                'data' => $payment,
+                'data' => $responseData,
                 'bill_url' => $responseData['url']
             ], 201);
         } else {
-            return response()->json(['error' => 'Failed to create bill.'], $response->status());
+            return response()->json(['error' => $response->json()], $response->status());
         }
     }
 

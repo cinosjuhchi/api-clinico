@@ -38,5 +38,19 @@ class MedicalRecord extends Model
     {
         return $this->belongsTo(Clinic::class, 'clinic_id');
     }
+
+    public function serviceRecord()
+    {
+        return $this->hasMany(ServiceRecord::class, 'medical_record_id');
+    }
     
+    public function investigationRecord()
+    {
+        return $this->hasMany(InvestigationRecord::class, 'medical_record_id');
+    }
+
+    public function diagnosisRecord()
+    {
+        return $this->hasMany(DiagnosisRecord::class, 'medical_record_id');
+    }
 }

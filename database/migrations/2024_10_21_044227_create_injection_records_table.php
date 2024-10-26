@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('injection_records', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->decimal('price', 8,2);
+            $table->decimal('cost', 12,2);
             $table->foreignId('medical_record_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('patient_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('billing_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

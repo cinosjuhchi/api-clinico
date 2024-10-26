@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('slug')->unique();
             $table->string('visit_purpose');
-            $table->enum('status', ['pending', 'consultation', 'take-medicine', 'completed', 'cancelled']);
+            $table->enum('status', ['pending', 'consultation', 'take-medicine', 'completed', 'cancelled', 'waiting-payment']);
             $table->text('current_condition');
             $table->integer('waiting_number')->nullable();
             $table->unsignedBigInteger('patient_id');

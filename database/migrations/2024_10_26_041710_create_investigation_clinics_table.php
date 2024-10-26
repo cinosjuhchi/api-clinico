@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('billings', function (Blueprint $table) {
+        Schema::create('investigation_clinics', function (Blueprint $table) {
             $table->id();
-            $table->string('billz_id')->nullable();
-            $table->dateTime('transaction_date');
-            $table->decimal('total_cost', 12, 2);
-            $table->boolean('is_paid')->default(false);
             $table->timestamps();
         });
     }
@@ -26,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('billings');
+        Schema::dropIfExists('investigation_clinics');
     }
 };

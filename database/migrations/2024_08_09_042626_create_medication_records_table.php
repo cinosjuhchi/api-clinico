@@ -14,9 +14,11 @@ return new class extends Migration
         Schema::create('medication_records', function (Blueprint $table) {
             $table->id();
             $table->string('medicine', 255)->nullable();
-            $table->string('frequency', 255)->nullable();            
+            $table->string('frequency', 255)->nullable();         
+            $table->decimal('price', 8, 2)->nullable();   
             $table->foreignId('patient_id')->constrained()->onDelete('cascade');
             $table->foreignId('medical_record_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('billing_id')->nullable()->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

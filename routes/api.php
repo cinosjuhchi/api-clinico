@@ -150,8 +150,8 @@ Route::prefix('v1')->group(function () {
                 Route::get('/user', [DoctorProfileController::class, 'me']);
                 Route::get('/doctor-patient', [DoctorProfileController::class, 'doctorPatient']);
             });              
-            Route::prefix('consultation')->group(function () {                
-                Route::put('/bill-payment/{appointment}', [ConsultationController::class, 'complete']);                
+            Route::prefix('consultation')->group(function () {    
+                Route::put('/complete/{appointment}', [ConsultationController::class, 'complete']);                            
             });
         });
     });

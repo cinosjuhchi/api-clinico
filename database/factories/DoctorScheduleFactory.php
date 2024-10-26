@@ -19,14 +19,14 @@ class DoctorScheduleFactory extends Factory
         $day = [
             'sunday',
             'monday',
-            'tuesday',
-            'wednesday',
-            'thursday',
-            'friday',
+            // 'tuesday',
+            // 'wednesday',
+            // 'thursday',
+            // 'friday',
             'saturday',            
         ];
         return [
-        'day' => $this->faker->randomElement($day),
+        'day' => $this->faker->randomElement('saturday'),
         'start_time' => $startTime = $this->faker->time(),
         'end_time' => function() use ($startTime) {
             do {

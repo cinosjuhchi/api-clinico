@@ -49,7 +49,7 @@ class ClinicAuthController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|min:3|unique:clinics',
+            'name' => 'required|string|max:255|min:3|unique:clinics,name',
             'company' => 'required|string|max:255|min:3',
             'ssm_number' => 'required|integer',
             'registration_number' => 'required|integer',

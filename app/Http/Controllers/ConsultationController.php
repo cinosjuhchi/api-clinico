@@ -49,7 +49,7 @@ class ConsultationController extends Controller
                 'diagnosis.*' => 'required|string',
                 'plan' => 'required|string',
                 // Treatment
-                'procedure' => 'required|array',
+                'procedure' => 'nullable|array',
                 'procedure.*.name' => 'required|string',            
                 'procedure.*.cost' => 'required|numeric',
 
@@ -109,13 +109,15 @@ class ConsultationController extends Controller
                 ]);
             }
 
-            foreach($validated['procedure'] as $procedure) {
-                $medicalRecord->procedureRecords()->create([
-                    'name' => $procedure['name'],
-                    'cost' => $procedure['cost'],
-                    'patient_id' => $appointment->patient_id,
-                    'billing_id' => $bill->id
-                ]);
+            if(!empty($validated['procedure'])) {
+                foreach($validated['procedure'] as $procedure) {
+                    $medicalRecord->procedureRecords()->create([
+                        'name' => $procedure['name'],
+                        'cost' => $procedure['cost'],
+                        'patient_id' => $appointment->patient_id,
+                        'billing_id' => $bill->id
+                    ]);
+                }                
             }
             if(!empty($validated['injection'])) {
                 foreach($validated['injection'] as $injection) {

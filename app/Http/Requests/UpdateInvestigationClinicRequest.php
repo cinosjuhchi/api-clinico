@@ -22,7 +22,11 @@ class UpdateInvestigationClinicRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => ['sometimes', 'string', 'max:255'],
+            'description' => ['sometimes', 'string'],
+            'items' => ['required', 'array'],
+            'items.*.item_name' => ['required', 'string', 'max:255'],
+            'items.*.price' => ['required', 'numeric'],
         ];
     }
 }

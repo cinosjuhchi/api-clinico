@@ -211,8 +211,8 @@ Route::prefix('v1')->group(function () {
             Route::prefix('investigations')->group(function () {
                 Route::get('/', [InvestigationClinicController::class, 'index']);
                 Route::post('/store', [InvestigationClinicController::class, 'store']);
-                Route::put('/update/{clinicService}', [InvestigationClinicController::class, 'update']);
-                Route::delete('/delete/{clinicService}', [InvestigationClinicController::class, 'destroy']);
+                Route::put('/update/{investigationClinic}', [InvestigationClinicController::class, 'update']);
+                Route::delete('/delete/{investigationClinic}', [InvestigationClinicController::class, 'destroy']);
             });
         });
     });

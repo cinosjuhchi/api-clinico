@@ -110,7 +110,34 @@ class InvestigationClinicController extends Controller
      */
     public function update(UpdateInvestigationClinicRequest $request, InvestigationClinic $investigationClinic)
     {
-        //
+        $validated = $request->validated();
+        
+        DB::beginTransaction();
+        try {
+            $investigationClinic->update([
+                'name' => $validated['name'],
+                'description' => $validated['description'],            
+            ]);
+    
+            $investigationClinic->items()->delete();
+            foreach ($validated['items'] as $item) {
+                $investigationClinic->items()->create([
+                    'name' => $item['item_name'],                
+                    'price' => $item['price']
+                ]);
+            }
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Investigation clinic updated successfully.'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update investigation clinic. Please try again later.'
+            ], 500);
+        }
     }
 
     /**
@@ -118,6 +145,21 @@ class InvestigationClinicController extends Controller
      */
     public function destroy(InvestigationClinic $investigationClinic)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $investigationClinic->delete();
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Investigation clinic deleted successfully.'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            //throw $th;
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete investigation clinic. Please try again later.'
+            ], 500);
+        }
     }
 }

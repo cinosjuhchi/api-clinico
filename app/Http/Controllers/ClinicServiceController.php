@@ -65,16 +65,19 @@ class ClinicServiceController extends Controller
         $validated = $request->validated();
         $user = Auth::user();
         $clinic = $user->clinic;
+
         if (!$clinic) {
             return response()->json([
                 'success' => false,
                 'message' => 'Clinic not found.',
             ], 403);
         }
+
         try {
             DB::transaction(function () use ($validated, $clinic) {
-                $clinic->services()->create($validated);                                          
+                $clinic->services()->create($validated);
             });
+
             return response()->json([
                 'success' => true,
                 'message' => 'Clinic service created successfully.',
@@ -83,9 +86,11 @@ class ClinicServiceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create clinic service. Please try again later.',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
+
 
     /**
      * Display the specified resource.

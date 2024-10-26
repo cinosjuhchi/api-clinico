@@ -20,12 +20,18 @@ class MedicationController extends Controller
         $user = Auth::user();
         $clinic = $user->clinic;
 
-        if (!$clinic) {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'User not found'
-            ]);
-        }
+        if(!$clinic)
+        {
+            $clinic = $user->doctor->clinic;
+            if(!$clinic)
+            {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'user not found'
+                ]);                
+            }
+            
+        }        
 
         // Mengambil parameter pencarian dari 'q'
         $query = $request->input('q');

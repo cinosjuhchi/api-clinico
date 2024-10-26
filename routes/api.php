@@ -175,6 +175,7 @@ Route::prefix('v1')->group(function () {
         Route::middleware(['auth:sanctum', 'abilities:hasAccessResource'])->group(function () {
             Route::prefix('medicines')->group(function () {
                 Route::get('/', [MedicationController::class, 'index']);
+                Route::get('/doctor-resource', [MedicationController::class, 'doctorResource']);
                 Route::get('/information', [MedicationController::class, 'information']);
                 Route::post('/store', [MedicationController::class, 'store']);
                 Route::put('/add-batch/{medication}', [MedicationController::class, 'addBatch']);
@@ -183,19 +184,21 @@ Route::prefix('v1')->group(function () {
             });                            
             Route::prefix('procedure')->group(function () {
                 Route::get('/', [ProcedureController::class, 'index']);
+                Route::get('/doctor-resource', [ProcedureController::class, 'doctorResource']);
                 Route::post('store', [ProcedureController::class, 'store']);
                 Route::put('/update/{procedure}', [ProcedureController::class, 'update']);
                 Route::delete('/delete/{procedure}', [ProcedureController::class, 'destroy']);
             });
             Route::prefix('injection')->group(function () {
                 Route::get('/', [InjectionController::class, 'index']);
+                Route::get('/doctor-resource', [InjectionController::class, 'doctorResource']);
                 Route::post('/store', [InjectionController::class, 'store']);
                 Route::put('/update/{injection}', [InjectionController::class, 'update']);
                 Route::delete('/delete/{injection}', [InjectionController::class, 'destroy']);
                 Route::put('/add-batch/{injection}', [InjectionController::class, 'addBatch']);
             });
             Route::prefix('doctor')->group(function () {
-                Route::get('/', [ClinicDataController::class, 'doctors']);
+                Route::get('/', [ClinicDataController::class, 'doctors']);                
                 Route::get('/show/{doctor}', [ClinicDataController::class, 'showDoctor']);
                 Route::post('/store', [ClinicDataController::class, 'storeDoctor']);                
                 Route::put('/update/{doctor}', [ClinicDataController::class, 'updateDoctor']);
@@ -206,12 +209,14 @@ Route::prefix('v1')->group(function () {
             });
             Route::prefix('services')->group(function () {
                 Route::get('/', [ClinicServiceController::class, 'index']);
+                Route::get('/doctor-resource', [ClinicServiceController::class, 'doctorResource']);
                 Route::post('/store', [ClinicServiceController::class, 'store']);
                 Route::put('/update/{clinicService}', [ClinicServiceController::class, 'update']);
                 Route::delete('/delete/{clinicService}', [ClinicServiceController::class, 'destroy']);
             });
             Route::prefix('investigations')->group(function () {
                 Route::get('/', [InvestigationClinicController::class, 'index']);
+                Route::get('/doctor-resource', [InvestigationClinicController::class, 'doctorResource']);
                 Route::post('/store', [InvestigationClinicController::class, 'store']);
                 Route::put('/update/{investigationClinic}', [InvestigationClinicController::class, 'update']);
                 Route::delete('/delete/{investigationClinic}', [InvestigationClinicController::class, 'destroy']);

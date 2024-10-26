@@ -15,6 +15,33 @@ class InvestigationClinicController extends Controller
     /**
      * Display a listing of the resource.
      */
+
+     public function doctorResource(Request $request)
+    {
+        $user = Auth::user();
+        $doctor = $user->doctor;
+
+        if(!$doctor)
+        {
+                        
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'user not found'
+            ]);                        
+            
+        }        
+
+        $clinic = $doctor->clinic;
+                        
+        // Mengambil data obat berdasarkan clinic dan melakukan pencarian jika parameter 'q' ada
+        $investigations = $clinic->investigations()->with(['items'])->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully fetched data',
+            'data' => $investigations
+        ]);
+    }
     public function index(Request $request)
     {
         $user = Auth::user();

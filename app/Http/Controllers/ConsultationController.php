@@ -95,7 +95,7 @@ class ConsultationController extends Controller
             }
 
             foreach($validated['procedure'] as $procedure) {
-                $medicalRecord->procedureRecord()->create([
+                $medicalRecord->procedureRecords()->create([
                     'name' => $procedure['name'],
                     'cost' => $procedure['cost'],
                     'patient_id' => $appointment->patient_id,

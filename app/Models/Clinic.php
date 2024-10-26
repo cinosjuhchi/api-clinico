@@ -22,6 +22,8 @@ class Clinic extends Authenticatable
 
     protected $guarded = ['id'];
 
+    protected $table = 'clinics';
+
 
     public function doctors(): HasMany
     {

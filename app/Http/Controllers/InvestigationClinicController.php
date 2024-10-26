@@ -123,7 +123,7 @@ class InvestigationClinicController extends Controller
             $investigationClinic->items()->delete();
             foreach ($validated['items'] as $item) {
                 $investigationClinic->items()->create([
-                    'name' => $item['item_name'],                
+                    'name' => $item['name'],                
                     'price' => $item['price']
                 ]);
             }

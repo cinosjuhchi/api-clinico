@@ -68,12 +68,14 @@ class ConsultationController extends Controller
                 'transaction_date' => 'required|date',
             ]);
 
+            $patient = $appointment->patient;
+            $user = $patient->user_id;
             $bill = Billing::create([
                 'transaction_date' => $validated['transaction_date'],
                 'total_cost' => $validated['total_cost'],
+                'user_id' => $user
             ]);
 
-            $patient = $appointment->patient;
 
             $patient->physicalExaminations()->updateOrCreate([
                 'blood_pressure' => $validated['blood_pressure'],

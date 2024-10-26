@@ -30,9 +30,8 @@ class ProcedureController extends Controller
         $query = $request->input('q');
         $procedure = $clinic->procedures()
         ->when($query, function ($q, $query) {
-            $q->where('name', 'like', "%{$query}%")
-            ->orWhere('sku', 'like', "%{$query}%")
-            ->orWhere('expired_date', 'like', "%{$query}%");
+            $q->where('name', 'like', "%{$query}%")            
+            ->orWhere('price', 'like', "%{$query}%");
         })
         ->paginate(10);
         return response()->json([

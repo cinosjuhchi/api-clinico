@@ -19,20 +19,34 @@ class MedicationController extends Controller
     {
         $user = Auth::user();
         $clinic = $user->clinic;
-        if(!$clinic)
-        {
+
+        if (!$clinic) {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'user not found'
+                'message' => 'User not found'
             ]);
-        }        
-        $medicines = $clinic->medications()->with(['pregnancyCategory'])->paginate(10);        
+        }
+
+        // Mengambil parameter pencarian dari 'q'
+        $query = $request->input('q');
+        
+        // Mengambil data obat berdasarkan clinic dan melakukan pencarian jika parameter 'q' ada
+        $medicines = $clinic->medications()->with(['pregnancyCategory'])
+            ->when($query, function ($q, $query) {
+                $q->where('name', 'like', "%{$query}%")
+                ->orWhere('sku', 'like', "%{$query}%")
+                ->orWhere('price', 'like', "%{$query}%")
+                ->orWhere('expired_date', 'like', "%{$query}%");
+            })
+            ->paginate(10);
+
         return response()->json([
             'status' => 'success',
-            'message' => 'Successfully fetch data',
+            'message' => 'Successfully fetched data',
             'data' => $medicines
         ]);
     }
+
 
     /**
      * Store a newly created resource in storage.

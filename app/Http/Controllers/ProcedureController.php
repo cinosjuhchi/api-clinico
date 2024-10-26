@@ -27,7 +27,14 @@ class ProcedureController extends Controller
                 'message' => 'user not found'
             ]);
         }        
-        $procedure = $clinic->procedures()->paginate(10);
+        $query = $request->input('q');
+        $procedure = $clinic->procedures()
+        ->when($query, function ($q, $query) {
+            $q->where('name', 'like', "%{$query}%")
+            ->orWhere('sku', 'like', "%{$query}%")
+            ->orWhere('expired_date', 'like', "%{$query}%");
+        })
+        ->paginate(10);
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully fetch data',

@@ -26,14 +26,14 @@ class StoreMedicationRequest extends FormRequest
             'price' => 'numeric|required',            
             'brand' => 'string|required|max:255|min:3',
             'pregnancy_category_id' => 'required|exists:pregnancy_categories,id',
-            'sku_code' => 'string|required|max:255|min:5',
+            'sku_code' => 'string|required|max:255|min:3',
             'paediatric_dose' => 'integer|required',
             'unit' => 'string|required|max:255',
             'batch' => 'integer|required',
             'expired_date' => 'date|required',
             'total_amount' => 'integer|required',      
             'manufacture' => 'string|required',
-            'for' => 'string|required|max:125|min:5',
+            'for' => 'string|required|max:125|min:3',
             'supplier' => 'string|required|max:255|min:3',      
             'clinic_id' => 'required|exists:clinics,id'
         ];

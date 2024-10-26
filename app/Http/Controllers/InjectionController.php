@@ -25,8 +25,16 @@ class InjectionController extends Controller
                 'status' => 'failed',
                 'message' => 'user not found'
             ]);
-        }        
-        $injections = $clinic->injections()->with(['pregnancyCategory'])->paginate(10);
+        } 
+        $query = $request->input('q');       
+        $injections = $clinic->injections()->with(['pregnancyCategory'])
+        ->when($query, function ($q, $query) {
+            $q->where('name', 'like', "%{$query}%")
+            ->orWhere('sku', 'like', "%{$query}%")
+            ->orWhere('price', 'like', "%{$query}%")
+            ->orWhere('expired_date', 'like', "%{$query}%");
+        })
+        ->paginate(10);
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully fetch data',

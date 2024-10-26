@@ -41,7 +41,8 @@ class ClinicServiceFactory extends Factory
         ];
 
         return [
-            'name' => $this->faker->randomElement($services),        
+            'name' => $this->faker->randomElement($services),  
+            'price' => $this->faker->numberBetween(1000, 10000),   
         ];
     }
 }

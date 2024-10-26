@@ -34,7 +34,7 @@ class MedicationController extends Controller
         $medicines = $clinic->medications()->with(['pregnancyCategory'])
             ->when($query, function ($q, $query) {
                 $q->where('name', 'like', "%{$query}%")
-                ->orWhere('sku', 'like', "%{$query}%")
+                ->orWhere('sku_code', 'like', "%{$query}%")
                 ->orWhere('price', 'like', "%{$query}%")
                 ->orWhere('expired_date', 'like', "%{$query}%");
             })

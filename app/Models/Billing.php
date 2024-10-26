@@ -10,4 +10,9 @@ class Billing extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
+
+    public function billing()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

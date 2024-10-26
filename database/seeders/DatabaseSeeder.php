@@ -74,7 +74,8 @@ class DatabaseSeeder extends Seeder
         ]);
         $clinicMuhara = Clinic::factory()->create([
             'name' => "Clinic Muhara Malaysia",
-            'user_id' => $userClinic->id
+            'user_id' => $userClinic->id,
+            'status' => true
         ]);
 
         // Buat Rooms, Services, Schedules, dan Locations untuk Clinic Muhara

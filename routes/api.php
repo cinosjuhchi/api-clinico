@@ -29,6 +29,7 @@ use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\ImmunizationController;
 use App\Http\Controllers\ParentChronicController;
+use App\Http\Controllers\RequestClinicController;
 use App\Http\Controllers\Api\V1\ContactUsController;
 use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\MedicationRecordController;
@@ -49,6 +50,9 @@ Route::prefix('v1')->group(function () {
         Route::post('login', [BackOfficeController::class, 'login']);
         Route::middleware(['auth:sanctum', 'abilities:backOffice'])->group(function () {
             Route::get('/logout', [BackOfficeController::class, 'logout']);
+            Route::prefix('clinic')->group(function () {
+                Route::get('/request-clinic', [RequestClinicController::class, 'index']);
+            });
         });
     });
     Route::prefix('doctor-category')->group(function () {

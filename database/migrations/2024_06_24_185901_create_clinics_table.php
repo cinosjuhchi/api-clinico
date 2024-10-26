@@ -20,7 +20,8 @@ return new class extends Migration
             $table->bigInteger('referral_number');
             $table->string('slug');
             $table->text('description')->nullable();
-            $table->text('address')->nullable();            
+            $table->text('address')->nullable();        
+            $table->boolean('status')->default(false);    
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });

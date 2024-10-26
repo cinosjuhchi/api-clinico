@@ -29,6 +29,7 @@ class InvestigationClinicController extends Controller
         }
         $query = $request->input('q');
         $investigations = $clinic->investigations()
+        ->with('items')
         ->withCount('items') // Count the related items
         ->when($query, function ($q) use ($query) {
             $q->where('name', 'like', "%{$query}%") // Search by investigation name

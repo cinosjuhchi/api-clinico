@@ -136,7 +136,8 @@ class InvestigationClinicController extends Controller
             DB::rollBack();
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to update investigation clinic. Please try again later.'
+                'message' => 'Failed to update investigation clinic. Please try again later.',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

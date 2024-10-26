@@ -15,12 +15,12 @@ class MedicalRecord extends Model
         return $this->hasMany(MedicationRecord::class, 'medical_record_id');
     }
 
-    public function injectRecords()
+    public function injectionRecords()
     {
         return $this->hasMany(InjectionRecord::class, 'medical_record_id');
     }
 
-    public function procedureRecord()
+    public function procedureRecords()
     {
         return $this->hasMany(ProcedureRecord::class, 'medical_record_id');
     }

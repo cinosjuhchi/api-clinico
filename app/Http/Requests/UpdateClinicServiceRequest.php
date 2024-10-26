@@ -22,7 +22,10 @@ class UpdateClinicServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'sometimes|string|max:255|min:3',
+            'price' => 'sometimes|numeric',
+            'description' => 'sometimes|string',
+            'category_id' => 'sometimes|exists:categories,id'
         ];
     }
 }

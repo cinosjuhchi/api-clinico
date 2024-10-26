@@ -42,7 +42,9 @@ class ClinicServiceFactory extends Factory
 
         return [
             'name' => $this->faker->randomElement($services),  
-            'price' => $this->faker->numberBetween(1000, 10000),   
+            'price' => $this->faker->numberBetween(1000, 10000),
+            'category_id' => $this->faker->numberBetween(1, 6),
+            'description' => $this->faker->sentence(),
         ];
     }
 }

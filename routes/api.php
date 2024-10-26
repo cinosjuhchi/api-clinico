@@ -28,6 +28,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\ImmunizationController;
+use App\Http\Controllers\ClinicServiceController;
 use App\Http\Controllers\ParentChronicController;
 use App\Http\Controllers\RequestClinicController;
 use App\Http\Controllers\Api\V1\ContactUsController;
@@ -199,6 +200,12 @@ Route::prefix('v1')->group(function () {
             });
             Route::prefix('employee')->group(function () {
                 Route::delete('/delete/{employee}', [EmployeeController::class, 'destroy']);
+            });
+            Route::prefix('services')->group(function () {
+                Route::get('/', [ClinicServiceController::class, 'index']);
+                Route::post('/store', [ClinicServiceController::class, 'store']);
+                Route::put('/update/{clinicService}', [ClinicServiceController::class, 'update']);
+                Route::delete('/delete/{clinicService}', [ClinicServiceController::class, 'destroy']);
             });
         });
     });

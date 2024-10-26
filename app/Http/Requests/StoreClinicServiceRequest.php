@@ -22,7 +22,11 @@ class StoreClinicServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'string|required|max:255|min:3',
+            'price' => 'numeric|required',
+            'description' => 'string|nullable',
+            'clinic_id' => 'required|exists:clinics,id',
+            'category_id' => 'required|exists:categories,id'
         ];
     }
 }

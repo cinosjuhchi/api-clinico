@@ -26,6 +26,7 @@ class AppointmentController extends Controller
         $user = $request->user();
         $patientId = $request->input('patient_id');
         $status = $request->input('status'); // Ambil status dari request
+        $date = $request->input('date'); // Ambil status dari request
 
         if ($patientId) {
             // Jika patient_id diberikan, pastikan pasien milik user yang sedang login
@@ -51,6 +52,10 @@ class AppointmentController extends Controller
         // Jika status diberikan, tambahkan filter status
         if ($status) {
             $appointmentsQuery->where('status', $status);
+        }
+
+        if ($date) {
+            $appointmentsQuery->where('appointment_date', $date);
         }
 
         // Eksekusi query untuk mendapatkan appointments

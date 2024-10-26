@@ -209,10 +209,10 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/delete/{clinicService}', [ClinicServiceController::class, 'destroy']);
             });
             Route::prefix('investigations')->group(function () {
-                Route::get('/', [InvestigationClinicController::class::class, 'index']);
-                Route::post('/store', [InvestigationClinicController::class::class, 'store']);
-                Route::put('/update/{clinicService}', [InvestigationClinicController::class::class, 'update']);
-                Route::delete('/delete/{clinicService}', [InvestigationClinicController::class::class, 'destroy']);
+                Route::get('/', [InvestigationClinicController::class, 'index']);
+                Route::post('/store', [InvestigationClinicController::class, 'store']);
+                Route::put('/update/{clinicService}', [InvestigationClinicController::class, 'update']);
+                Route::delete('/delete/{clinicService}', [InvestigationClinicController::class, 'destroy']);
             });
         });
     });

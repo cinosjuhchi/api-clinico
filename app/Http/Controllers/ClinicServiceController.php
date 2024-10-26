@@ -20,12 +20,18 @@ class ClinicServiceController extends Controller
         $user = Auth::user();
         $clinic = $user->clinic;
         
-        if (!$clinic) {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'user not found'
-            ], 404);
-        }
+        if(!$clinic)
+        {
+            $clinic = $user->doctor->clinic;
+            if(!$clinic)
+            {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'user not found'
+                ]);                
+            }
+            
+        }        
 
         $query = $request->input('q');
         

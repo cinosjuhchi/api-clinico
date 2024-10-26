@@ -22,11 +22,16 @@ class InvestigationClinicController extends Controller
 
         if(!$clinic)
         {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'Clinic not found'
-            ], 403);
-        }
+            $clinic = $user->doctor->clinic;
+            if(!$clinic)
+            {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'user not found'
+                ]);                
+            }
+            
+        }        
         $query = $request->input('q');
         $investigations = $clinic->investigations()
         ->with('items')

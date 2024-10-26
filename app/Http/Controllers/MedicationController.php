@@ -160,11 +160,16 @@ class MedicationController extends Controller
         $clinic = $user->clinic;
         if(!$clinic)
         {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'user not found'
-            ]);
-        }        
+            $clinic = $user->doctor->clinic;
+            if(!$clinic)
+            {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'user not found'
+                ]);                
+            }
+            
+        }               
         $medicines = $clinic->medications();
         $totalMedicines = $medicines->count();
         $totalStock = $medicines->sum('total_amount');

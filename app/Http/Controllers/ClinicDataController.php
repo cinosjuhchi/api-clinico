@@ -432,11 +432,16 @@ class ClinicDataController extends Controller
         $clinic = $user->clinic;
         if(!$clinic)
         {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'user not found'
-            ]);
-        }        
+            $clinic = $user->doctor->clinic;
+            if(!$clinic)
+            {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'user not found'
+                ]);                
+            }
+            
+        }               
         $doctors = $clinic->doctors()->with(['employmentInformation', 
             'educational', 
             'demographic', 

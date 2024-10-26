@@ -39,6 +39,7 @@ use App\Http\Controllers\Api\V1\AppointmentController;
 use App\Http\Controllers\FamilyRelationshipController;
 use App\Http\Controllers\Api\V1\Doctor\IndexController;
 use App\Http\Controllers\Api\V1\User\ProfileController;
+use App\Http\Controllers\InvestigationClinicController;
 use App\Http\Controllers\PatientNotificationController;
 use App\Http\Controllers\Api\V1\ClinicProfileController;
 use App\Http\Controllers\Api\V1\DoctorProfileController;
@@ -206,6 +207,12 @@ Route::prefix('v1')->group(function () {
                 Route::post('/store', [ClinicServiceController::class, 'store']);
                 Route::put('/update/{clinicService}', [ClinicServiceController::class, 'update']);
                 Route::delete('/delete/{clinicService}', [ClinicServiceController::class, 'destroy']);
+            });
+            Route::prefix('investigations')->group(function () {
+                Route::get('/', [InvestigationClinicController::class::class, 'index']);
+                Route::post('/store', [InvestigationClinicController::class::class, 'store']);
+                Route::put('/update/{clinicService}', [InvestigationClinicController::class::class, 'update']);
+                Route::delete('/delete/{clinicService}', [InvestigationClinicController::class::class, 'destroy']);
             });
         });
     });

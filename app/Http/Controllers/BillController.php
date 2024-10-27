@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Billing;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 
 class BillController extends Controller
@@ -21,16 +23,19 @@ class BillController extends Controller
         $billId = $request->input('id');
         $paid = $request->input('paid');
         $signature = $request->header('X-Signature');
-
-        $billing = Billing::where('billz_id', $billId)->first();
+        $data = $request->all();
+        $xSignature = $data['x_signature'] ?? null;
         
+        // Hapus x_signature dari data untuk validasi
+        unset($data['x_signature']);
         
-
-        
-        if (!$this->isValidSignature($signature, $request->all())) {
-            return response()->json(['error' => 'Invalid signature.'], 403);
+        // Validasi signature
+        if (!$this->validateSignature($data, $xSignature)) {
+            Log::error('Invalid Billplz signature');
+            return response()->json(['error' => 'Invalid signature'], 401);
         }
-
+        
+        $billing = Billing::where('billz_id', $billId)->first();            
         $billing->update([
             'is_paid' => true
         ]);
@@ -44,11 +49,36 @@ class BillController extends Controller
         return response()->json(['status' => 'success'], 200);
     }
 
-    protected function isValidSignature($signature, $payload)
+    private function validateSignature(array $data, ?string $xSignature): bool
     {
-        $computedSignature = hash_hmac('sha256', http_build_query($payload), env('BILLPLZ_KEY'));
+        if (!$xSignature) {
+            return false;
+        }
 
-        return hash_equals($computedSignature, $signature);
+        // 1. Buat array source strings
+        $sourceStrings = [];
+        foreach ($data as $key => $value) {
+            // Convert empty values to empty string
+            if ($value === null || $value === '') {
+                $value = '';
+            }
+            $sourceStrings[] = $key . $value;
+        }
+
+        // 2. Sort array secara case-insensitive
+        sort($sourceStrings, SORT_STRING | SORT_FLAG_CASE);
+
+        // 3. Gabungkan string dengan pipe
+        $combinedString = implode('|', $sourceStrings);
+
+        // 4. Generate signature menggunakan HMAC-SHA256
+        $generatedSignature = hash_hmac('sha256', 
+            $combinedString, 
+            env('BILLPLZ_SIGNATURE')
+        );
+
+        // 5. Bandingkan dengan x_signature dari request
+        return hash_equals($xSignature, $generatedSignature);
     }
 
 

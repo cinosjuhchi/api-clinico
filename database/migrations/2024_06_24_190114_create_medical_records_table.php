@@ -28,10 +28,10 @@ return new class extends Migration
 
             $table->softDeletes();
 
+            $table->foreignId('appointment_id')->constrained()->cascadeOnDelete();
             $table->foreign('patient_id')->references('id')->on('patients')->onDelete('cascade');
             $table->foreign('doctor_id')->references('id')->on('doctors')->onDelete('set null');
             $table->foreign('clinic_id')->references('id')->on('clinics')->onDelete('set null');
-            $table->foreign('appointment_id')->references('id')->on('appointments')->onDelete('cascade');
             
             $table->timestamps();
         });

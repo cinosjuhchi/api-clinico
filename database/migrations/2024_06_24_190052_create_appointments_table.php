@@ -30,8 +30,7 @@ return new class extends Migration
 
             $table->foreign('patient_id')->references('id')->on('patients')->onDelete('cascade');
             $table->foreign('doctor_id')->references('id')->on('doctors')->onDelete('set null');
-            $table->foreign('clinic_id')->references('id')->on('clinics')->onDelete('set null');
-            $table->foreign('billing_id')->references('id')->on('billings')->onDelete('cascade');
+            $table->foreign('clinic_id')->references('id')->on('clinics')->onDelete('set null');            
             $table->timestamps();
         });
     }

@@ -22,11 +22,19 @@ class BillController extends Controller
         $paid = $request->input('paid');
         $signature = $request->header('X-Signature');
 
+        $billing = Billing::where('billz_id', $billId)->first();
+        
+        
+
+        
         if (!$this->isValidSignature($signature, $request->all())) {
             return response()->json(['error' => 'Invalid signature.'], 403);
         }
-        
 
+        $billing->update([
+            'is_paid' => true
+        ]);
+                        
         return response()->json(['status' => 'success'], 200);
     }
 
@@ -55,7 +63,7 @@ class BillController extends Controller
             'collection_id' => env('BILLPLZ_COLLECTION'),
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'amount' => 2,
+            'amount' => 2.00,
             'description' => $validated['description'],
             'due_at' => $validated['due_date'],         
             'deliver' => true,   

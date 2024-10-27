@@ -43,8 +43,7 @@ class BillController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'amount' => 'required|numeric',
+        $validated = $request->validate([            
             'name' => 'required|string',
             'description' => 'required|string',
             'due_date' => 'required|date',
@@ -56,7 +55,7 @@ class BillController extends Controller
             'collection_id' => env('BILLPLZ_COLLECTION'),
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'amount' => $validated['amount'] * 100,
+            'amount' => 2,
             'description' => $validated['description'],
             'due_at' => $validated['due_date'],         
             'deliver' => true,   
@@ -72,7 +71,7 @@ class BillController extends Controller
             $bill->update([
                 'billz_id' => $responseData['id'],
             ]);
-            
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Bill created successfully.',

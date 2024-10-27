@@ -36,7 +36,7 @@ class BillController extends Controller
         ]);
 
         $appointment = $billing->appointment;
-        
+
         $appointment->update([
             'status' => 'completed',
         ]);
@@ -69,7 +69,7 @@ class BillController extends Controller
             'collection_id' => env('BILLPLZ_COLLECTION'),
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'amount' => 2.00,
+            'amount' => 2.00 * 100,
             'description' => $validated['description'],
             'due_at' => $validated['due_date'],         
             'deliver' => true,   

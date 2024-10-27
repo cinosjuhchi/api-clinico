@@ -145,6 +145,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/destroy/{slug}', [AppointmentController::class, 'destroy']);                
                 Route::post('/store', [AppointmentController::class, 'store']);
                 Route::put('/check-in/{appointment}', [AppointmentController::class, 'checkin']);
+                Route::put('/take-medicine/{appointment}', [AppointmentController::class, 'takeMedicine']);
             });
         });
     });

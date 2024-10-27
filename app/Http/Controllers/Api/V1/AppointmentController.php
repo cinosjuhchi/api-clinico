@@ -143,6 +143,23 @@ class AppointmentController extends Controller
         }
     }
 
+    public function takeMedicine(Appointment $appointment)
+    {
+        if($appointment->status == 'consultation' || $appointment->status == 'cancelled' || $appointment->status == 'completed') 
+        {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Appointment has been check-in!'                
+            ], 403);
+        } 
+        $appointment->status = 'waiting-payment';
+        $appointment->save();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Appointment in-progress successfully',
+        ], 200);
+    }
+
 
 
     /**

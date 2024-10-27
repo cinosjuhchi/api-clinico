@@ -62,10 +62,7 @@ class AppointmentController extends Controller
         $appointments = $appointmentsQuery->get();
 
         // Muat relasi untuk appointments
-        $appointments->load(['patient:id,name', 'doctor', 'clinic.schedule']);
-        if ($appointments->status === 'waiting-payment') {
-            $appointments->load(['bill', 'medicalRecord']);
-        }
+        $appointments->load(['patient:id,name', 'doctor', 'clinic.schedule', 'bill', 'medicalRecord']);        
 
         if ($appointments->isEmpty()) {
             return response()->json([

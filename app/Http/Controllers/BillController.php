@@ -45,14 +45,16 @@ class BillController extends Controller
     {
         $validated = $request->validate([
             'amount' => 'required|numeric',
+            'name' => 'required|string',
             'description' => 'required|string',
             'due_date' => 'required|date',
-            'email' => 'required|email'
+            'email' => 'required|email',
+            'bill_id' => 'required|exists:billings,id',
         ]);
 
         $billData = [
             'collection_id' => env('BILLPLZ_COLLECTION'),
-            'name' => 'Cino',
+            'name' => $validated['name'],
             'email' => $validated['email'],
             'amount' => $validated['amount'] * 100,
             'description' => $validated['description'],
@@ -66,7 +68,11 @@ class BillController extends Controller
 
         if ($response->successful()) {
             $responseData = $response->json();
-                        
+            $bill = Billing::find($validated['bill_id']);
+            $bill->update([
+                'billz_id' => $responseData['id'],
+            ]);
+            
             return response()->json([
                 'status' => 'success',
                 'message' => 'Bill created successfully.',

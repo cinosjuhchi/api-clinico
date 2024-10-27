@@ -69,8 +69,9 @@ class ConsultationController extends Controller
             ]);
 
             $patient = $appointment->patient;
-            $user = $patient->user_id;
-            $bill = Billing::create([
+            $user = $patient->user_id;            
+
+            $bill = $appointment->bill()->create([
                 'transaction_date' => $validated['transaction_date'],
                 'total_cost' => $validated['total_cost'],
                 'user_id' => $user
@@ -86,7 +87,7 @@ class ConsultationController extends Controller
                 'height' => $validated['height'],                
             ]);
 
-            $medicalRecord = MedicalRecord::create([
+            $medicalRecord = $appointment->medicalRecord()->create([
                 'patient_id' => $appointment->patient_id,
                 'clinic_id' => $appointment->clinic_id,
                 'doctor_id' => $appointment->doctor_id,
@@ -98,10 +99,8 @@ class ConsultationController extends Controller
                 'sp02' => $validated['sp02'],
                 'temperature' => $validated['temperature'],
                 'pulse_rate' => $validated['pulse_rate'],            
-                'pain_score' => $validated['pain_score'],
-            ]);      
-
-
+                'pain_score' => $validated['pain_score'],    
+            ]);        
 
             foreach($validated['diagnosis'] as $diagnosis) {
                 $medicalRecord->diagnosisRecord()->create([

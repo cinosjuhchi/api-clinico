@@ -34,6 +34,12 @@ class BillController extends Controller
         $billing->update([
             'is_paid' => true
         ]);
+
+        $appointment = $billing->appointment;
+        
+        $appointment->update([
+            'status' => 'completed',
+        ]);
                         
         return response()->json(['status' => 'success'], 200);
     }

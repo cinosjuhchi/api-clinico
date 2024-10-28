@@ -94,37 +94,53 @@ class BillController extends Controller
             'email' => 'required|email',
             'bill_id' => 'required|exists:billings,id',
         ]);
+        $bill = Billing::find($validated['bill_id']);
 
-        $billData = [
-            'collection_id' => env('BILLPLZ_COLLECTION'),
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'amount' => 2.00 * 100,
-            'description' => $validated['description'],
-            'due_at' => $validated['due_date'],         
-            'deliver' => true,   
-            'callback_url' => env('BILLPLZ_CALLBACK')
-        ];
+        $bill->update([            
+            'is_paid' => true
+        ]);
 
-        $response = Http::withBasicAuth(env('BILLPLZ_KEY'), '')
-            ->post('https://www.billplz.com/api/v3/bills', $billData);
+        $appointment = $bill->appointment;
 
-        if ($response->successful()) {
-            $responseData = $response->json();
-            $bill = Billing::find($validated['bill_id']);
-            $bill->update([
-                'billz_id' => $responseData['id'],
-            ]);
+        $appointment->update([
+            'status' => 'completed',
+        ]);
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Bill created successfully.',
-                'data' => $responseData,
-                'bill_url' => $responseData['url']
-            ], 201);
-        } else {
-            return response()->json(['error' => $response->json()], $response->status());
-        }
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Bill created successfully.',            
+        ], 201);
+
+        // $billData = [
+        //     'collection_id' => env('BILLPLZ_COLLECTION'),
+        //     'name' => $validated['name'],
+        //     'email' => $validated['email'],
+        //     'amount' => 2.00 * 100,
+        //     'description' => $validated['description'],
+        //     'due_at' => $validated['due_date'],         
+        //     'deliver' => true,   
+        //     'callback_url' => env('BILLPLZ_CALLBACK')
+        // ];
+
+        // $response = Http::withBasicAuth(env('BILLPLZ_KEY'), '')
+        //     ->post('https://www.billplz.com/api/v3/bills', $billData);
+
+        // if ($response->successful()) {
+        //     $responseData = $response->json();
+        //     $bill = Billing::find($validated['bill_id']);
+        //     $bill->update([
+        //         'billz_id' => $responseData['id'],
+        //     ]);
+
+        //     return response()->json([
+        //         'status' => 'success',
+        //         'message' => 'Bill created successfully.',
+        //         'data' => $responseData,
+        //         'bill_url' => $responseData['url']
+        //     ], 201);
+        // } else {
+        //     return response()->json(['error' => $response->json()], $response->status());
+        // }
     }
 
     /**

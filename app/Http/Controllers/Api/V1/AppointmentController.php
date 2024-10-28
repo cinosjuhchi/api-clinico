@@ -120,7 +120,7 @@ class AppointmentController extends Controller
                 Appointment::create([
                     'title' => $title,
                     'slug' => $slug,
-                    'visit_purpose' => $validated['visit_purpose'],
+                    'clinic_service_id' => $validated['visit_purpose'],
                     'current_condition' => $validated['current_condition'],
                     'status' => 'pending',
                     'room_id' => $validated['room_id'],

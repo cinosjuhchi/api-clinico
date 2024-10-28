@@ -21,8 +21,8 @@ return new class extends Migration
             $table->integer('waiting_number')->nullable();
             $table->unsignedBigInteger('patient_id');
             $table->unsignedBigInteger('doctor_id')->nullable();
-            $table->unsignedBigInteger('clinic_id')->nullable();
-            $table->unsignedBigInteger('billing_id')->nullable();
+            $table->unsignedBigInteger('clinic_id')->nullable();            
+            $table->unsignedBigInteger('clinic_service_id')->nullable();
             $table->foreignId('room_id')->nullable()->constrained()->onDelete('set null');
             $table->date('appointment_date');
             $table->time('time')->nullable();
@@ -31,6 +31,7 @@ return new class extends Migration
             $table->foreign('patient_id')->references('id')->on('patients')->onDelete('cascade');
             $table->foreign('doctor_id')->references('id')->on('doctors')->onDelete('set null');
             $table->foreign('clinic_id')->references('id')->on('clinics')->onDelete('set null');            
+            $table->foreign('clinic_service_id')->references('id')->on('clinic_services')->onDelete('set null');
             $table->timestamps();
         });
     }

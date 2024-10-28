@@ -17,10 +17,10 @@ return new class extends Migration
             $table->unsignedBigInteger('doctor_id')->nullable();
             $table->unsignedBigInteger('clinic_id')->nullable();
             $table->text('patient_condition')->nullable();                          
-            $table->text('consultation_note')->default('No Record');                        
-            $table->text('physical_examination')->default('No Record');
+            $table->text('consultation_note')->nullable();                        
+            $table->text('physical_examination')->nullable();
             $table->integer('blood_pressure');
-            $table->text('plan')->default('No Record');
+            $table->text('plan')->nullable();
             $table->integer('sp02');
             $table->integer('temperature');
             $table->integer('pulse_rate');            

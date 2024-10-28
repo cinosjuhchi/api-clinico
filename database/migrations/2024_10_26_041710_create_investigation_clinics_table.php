@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('investigation_clinics', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->text('description')->default('No Record');
+            $table->text('description')->nullable();
             $table->foreignId('clinic_id')->constrained()->cascadeOnDelete();            
             $table->timestamps();
         });

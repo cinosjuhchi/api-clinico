@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->decimal('cost', 12,2);
-            $table->foreignId('medical_record_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('medical_record_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('patient_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('billing_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('billing_id')->nullable()->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

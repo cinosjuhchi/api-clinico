@@ -65,7 +65,31 @@ class PhysicalController extends Controller
      */
     public function update(Request $request, PhysicalExamination $physicalExamination)
     {
-        //
+        $validated = $request->validate([
+            'height' => 'required|numeric',
+            'weight' => 'required|numeric',
+            'blood_type' => 'required|in:A+,A-,B+,B-,AB+,AB-,O+,O-,Unknown',
+            'blood_pressure' => 'sometimes|string',
+            'sp02' => 'sometimes|integer',
+            'temperature' => 'sometimes|integer',
+            'pulse_rate' => 'sometimes|integer'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $physicalExamination->update($validated);
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Success to update data.'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Fail to update the data'
+            ], 500);
+        }
     }
 
     /**

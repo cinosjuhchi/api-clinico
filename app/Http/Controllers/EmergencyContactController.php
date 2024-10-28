@@ -51,7 +51,31 @@ class EmergencyContactController extends Controller
      */
     public function update(Request $request, EmergencyContact $emergencyContact)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'phone_number' => 'required|string',
+            'relationship' => 'required|string'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $emergencyContact->update([
+                'name' => $validated['name'],
+                'phone_number' => $validated['phone_number'],
+                'relationship' => $validated['relationship']
+            ]);
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Success to update data.'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Fail to update the data.'
+            ], 500);
+        }
     }
 
     /**

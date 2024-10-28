@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Patient;
 use Illuminate\Http\Request;
 use App\Models\MedicationRecord;
 use Illuminate\Routing\Controller;
@@ -59,9 +60,39 @@ class MedicationRecordController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, MedicationRecord $medicationRecord)
+    public function update(Request $request, Patient $patient)
     {
-        //
+        $validated = $request->validate([
+            'medications' => 'required|array',
+            'medications.*.medicine' => 'required|string',            
+            'medications.*.frequency' => 'required|string',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $patient->medications()->delete();
+            foreach($validated as $item) 
+            {
+                $patient->medications()->create([
+                    'medicine' => $item['medicine'],
+                    'frequency' => $item['frequency']
+                ]);
+            }
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Success to update data.'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update data.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+        
+        
     }
 
     /**

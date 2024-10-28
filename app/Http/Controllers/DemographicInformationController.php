@@ -29,7 +29,7 @@ class DemographicInformationController extends Controller
             'nric' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
             'country' => 'nullable|string|max:255',
-            'postal_code' => 'nullable|string|max:255',
+            'postal_code' => 'nullable|integer',
             'patient_id' => 'required|exists:patients,id',
         ]);
 
@@ -62,9 +62,41 @@ class DemographicInformationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, DemographicInformation $demographicInformation)
     {
-        //
+        $validated = $request->validate([
+            'mrn' => 'required|string',
+            'date_birth' => 'required|date|before:today',
+            'gender' => 'in:male,female',
+            'nric' => 'required|string',
+            'address' => 'required|string|max:1000',
+            'country' => 'required|string',
+            'postal_code' => 'required|integer'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $demographicInformation->update([
+                'mrn' => $validated['mrn'],
+                'date_birth' => $validated['date_birth'],
+                'gender' => $validated['gender'],
+                'nric' => $validated['nric'],
+                'address' => $validated['address'],
+                'country' => $validated['country'],
+                'postal_code' => $validated['postal_code']
+            ]);
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Success to update data.'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Fail to update the data.'
+            ]);
+        }
     }
 
     /**

@@ -61,7 +61,31 @@ class OccupationController extends Controller
      */
     public function update(Request $request, OccupationRecord $occupationRecord)
     {
-        //
+        $validated = $request->validate([
+            'job_position' => 'required|string',
+            'company' => 'required|string',
+            'panel' => 'required|string'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $occupationRecord->update([
+                'job_position' => $validated['job_position'],
+                'company' => $validated['company'],
+                'panel' => $validated['panel']
+            ]);
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Success to update data.'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Failed to update the data'
+            ], 500);
+        }
     }
 
     /**

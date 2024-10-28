@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('patient_condition')->nullable();                          
             $table->text('consultation_note')->nullable();                        
             $table->text('physical_examination')->nullable();
-            $table->integer('blood_pressure');
+            $table->string('blood_pressure');            
             $table->text('plan')->nullable();
             $table->integer('sp02');
             $table->integer('temperature');
@@ -29,6 +29,7 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->foreignId('appointment_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('clinic_service_id')->nullable()->constrained()->onDelete('set null');
             $table->foreign('patient_id')->references('id')->on('patients')->onDelete('cascade');
             $table->foreign('doctor_id')->references('id')->on('doctors')->onDelete('set null');
             $table->foreign('clinic_id')->references('id')->on('clinics')->onDelete('set null');

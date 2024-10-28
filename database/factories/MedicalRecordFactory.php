@@ -32,7 +32,7 @@ class MedicalRecordFactory extends Factory
             'diagnosis' => $this->faker->name(),                                    
             'consultation_note' => $this->faker->sentence(),
             'physical_examination' => $this->faker->sentence(),
-            'blood_pressure' => $this->faker->sentence(),
+            'blood_pressure' => '120/80',
             'sp02' => $this->faker->numberBetween(70, 100),
             'temperature' => $this->faker->numberBetween(32, 45)
         ];

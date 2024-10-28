@@ -33,7 +33,7 @@ class ConsultationController extends Controller
 
         try {
             $validated = $request->validate([                            
-                'blood_pressure' => 'required|numeric',
+                'blood_pressure' => 'required|string',
                 'pulse_rate' => 'required|numeric',
                 'temperature' => 'required|numeric',
                 'weight' => 'required|numeric',
@@ -66,6 +66,7 @@ class ConsultationController extends Controller
                 // Bill
                 'total_cost' => 'required|numeric',
                 'transaction_date' => 'required|date',
+                'service_id' => 'required|exists:clinic_services,id'
             ]);
 
             $patient = $appointment->patient;
@@ -100,6 +101,7 @@ class ConsultationController extends Controller
                 'temperature' => $validated['temperature'],
                 'pulse_rate' => $validated['pulse_rate'],            
                 'pain_score' => $validated['pain_score'],    
+                'clinic_service_id' => $validated['service_id']
             ]);        
 
             foreach($validated['diagnosis'] as $diagnosis) {

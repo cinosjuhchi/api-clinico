@@ -167,7 +167,7 @@ class AppointmentController extends Controller
      */
     public function show(string $slug)
     {
-        $appointment = Appointment::with(['doctor.category', 'clinic', 'patient'])->where('slug', $slug)->first();
+        $appointment = Appointment::with(['doctor.category', 'clinic', 'patient', 'service'])->where('slug', $slug)->first();
         if (!$appointment) {
             return response()->json([
                 'status' => 'error',

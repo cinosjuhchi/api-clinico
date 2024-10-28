@@ -30,7 +30,7 @@ class DoctorDataController extends Controller
                 'message' => 'user not found'
             ]);
         }
-        $appointments = $doctor->consultationAppointments()->with(['patient', 'doctor.category', 'clinic'])->orderBy('waiting_number')->paginate(5);
+        $appointments = $doctor->consultationAppointments()->with(['patient', 'doctor.category', 'clinic', 'service'])->orderBy('waiting_number')->paginate(5);
 
         return response()->json($appointments);
     }
@@ -59,7 +59,8 @@ class DoctorDataController extends Controller
             'clinic', 
             'patient.allergy', 
             'patient.demographics',
-            'patient.occupation'
+            'patient.occupation',
+            'service'
             ]
             )->where('slug', $slug)->first();
         if (!$appointment) {

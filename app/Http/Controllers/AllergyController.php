@@ -71,7 +71,26 @@ class AllergyController extends Controller
      */
     public function update(UpdateAllergyRequest $request, Allergy $allergy)
     {
-        //
+        $validated = $request->validated();
+
+        DB::beginTransaction();
+        try {
+            $allergy->update([
+                'name' => $validated['name']
+            ]);
+
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Success to update data.'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Failed to update the data.'
+            ], 500);
+        }
     }
 
     /**

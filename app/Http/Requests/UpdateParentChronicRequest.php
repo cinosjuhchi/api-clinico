@@ -11,7 +11,7 @@ class UpdateParentChronicRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,8 @@ class UpdateParentChronicRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'father_chronic_medical' => 'required|string',
+            'mother_chronic_medical' => 'required|string'
         ];
     }
 }

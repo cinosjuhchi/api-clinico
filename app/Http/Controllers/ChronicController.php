@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use App\Models\ChronicHealthRecord;
+use App\Models\Patient;
 
 class ChronicController extends Controller
 {
@@ -63,9 +64,33 @@ class ChronicController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ChronicHealthRecord $chronicHealthRecord)
+    public function update(Request $request, Patient $patient)
     {
-        //
+        $validated = $request->validate([
+            'chronics' => 'required|array',
+            'chronics.*.chronic_medical' => 'required|string'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $patient->chronics()->delete();
+            foreach ($validated as $item) {
+                $patient->chronics()->create([
+                    'chronic_medical' => $item['chronic_medical']
+                ]);
+            }
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Success update data.'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Fail update the data.'
+            ], 500);
+        }
     }
 
     /**

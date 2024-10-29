@@ -111,30 +111,40 @@ Route::prefix('v1')->group(function () {
 
             Route::prefix('demographic')->group(function () {
                 Route::post('/store', [DemographicInformationController::class, 'store']);
+                Route::put('/update/{demographic}', [DemographicInformationController::class, 'update']);
             });
-            Route::prefix('chronic')->group(function () {
-                Route::post('/store', [ChronicController::class, 'store']);
-            });
+            
             Route::prefix('physical')->group(function () {
                 Route::post('/store', [PhysicalController::class, 'store']);
+                Route::post('/update/{physicalExamination}', [PhysicalController::class, 'update']);
             });
             Route::prefix('medicines')->group(function () {
-                Route::post('store', [MedicationRecordController::class, 'store']);
+                Route::post('/store', [MedicationRecordController::class, 'store']);
+                Route::put('/update/{patient}', [MedicationRecordController::class, 'update']);
             });
             Route::prefix('immunization')->group(function () {
                 Route::post('/store', [ImmunizationController::class, 'store']);
+                Route::put('/update/{patient}', [ImmunizationController::class, 'update']);
             });
             Route::prefix('occupation')->group(function () {
                 Route::post('/store', [OccupationController::class, 'store']);
+                Route::put('/update/{occupationRecord}', [OccupationController::class, 'update']);
             });
             Route::prefix('emergency')->group(function () {
                 Route::post('/store', [EmergencyContactController::class, 'store']);
+                Route::put('/update/{emergencyContact}', [EmergencyContactController::class, 'update']);
+            });
+            Route::prefix('chronic')->group(function () {
+                Route::post('/store', [ChronicController::class, 'store']);
+                Route::put('/update/{patient}', [ChronicController::class, 'update']);
             });
             Route::prefix('parent-chronic')->group(function () {
                 Route::post('/store', [ParentChronicController::class, 'store']);
+                Route::put('/update/{parentChronic}', [ParentChronicController::class, 'update']);
             });
-            Route::prefix('allergy')->group(function () {
+            Route::prefix('allergy')->group(function () {                
                 Route::post('/store', [AllergyController::class, 'store']);
+                Route::put('/update/{allergy}', [AllergyController::class, 'update']);
             });
 
             // appointment route
@@ -146,6 +156,9 @@ Route::prefix('v1')->group(function () {
                 Route::post('/store', [AppointmentController::class, 'store']);
                 Route::put('/check-in/{appointment}', [AppointmentController::class, 'checkin']);
                 Route::put('/take-medicine/{appointment}', [AppointmentController::class, 'takeMedicine']);
+            });
+            Route::prefix('bills')->group(function () {
+                Route::get('/', [BillController::class, 'index']);
             });
         });
     });

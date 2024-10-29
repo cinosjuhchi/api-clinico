@@ -6,17 +6,33 @@ use App\Models\Billing;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Auth;
+
 
 class BillController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $user = Auth::user();
+        $query = $request->input('q');
+        
+        $bills = $user->bills()
+        ->when($query, function ($q, $query) {
+            $q->where('transaction_date', 'like', "%{$query}%")
+            ->orWhere('is_paid', 'like', "%{$query}%");
+        })
+        ->paginate(10);
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully fetch data',
+            'data' => $bills
+        ]);
     }
+
 
     public function callback(Request $request)
     {

@@ -71,7 +71,25 @@ class ParentChronicController extends Controller
      */
     public function update(UpdateParentChronicRequest $request, ParentChronic $parentChronic)
     {
-        //
+        $validated = $request->validated();
+        DB::beginTransaction();
+        try {
+            $parentChronic->update([
+                'father_chronic_medical' => $validated['father_chronic_medical'],
+                'mother_chronic_medical' => $validated['mother_chronic_medical']
+            ]);
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Success update data.'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Fail to update data.'
+            ], 500);
+        }
     }
 
     /**

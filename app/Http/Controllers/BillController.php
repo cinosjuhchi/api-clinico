@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 
 class BillController extends Controller
@@ -20,10 +21,19 @@ class BillController extends Controller
         $query = $request->input('q');
         
         $bills = $user->bills()
-        ->when($query, function ($q, $query) {
+        ->with(['appointment.clinic'])
+        ->when($query, function ($q) use ($query) {
             $q->where('transaction_date', 'like', "%{$query}%")
-            ->orWhere('is_paid', 'like', "%{$query}%");
-        })
+              ->orWhere('is_paid', 'like', "%{$query}%")
+              ->orWhere(function ($queryBuilder) use ($query) {
+                  if (is_numeric($query)) {
+                      $queryBuilder->where('total_cost', 'like', "%" . ($query * 1000) . "%");
+                  }
+              })
+              ->orWhereHas('appointment.clinic', function ($queryBuilder) use ($query) {
+                  $queryBuilder->where('name', 'like', "%{$query}%");
+              });
+        })        
         ->paginate(10);
         
         return response()->json([
@@ -108,55 +118,40 @@ class BillController extends Controller
             'description' => 'required|string',
             'due_date' => 'required|date',
             'email' => 'required|email',
+            'amount' => 'required|numeric',
             'bill_id' => 'required|exists:billings,id',
-        ]);
-        $bill = Billing::find($validated['bill_id']);
+        ]);        
 
-        $bill->update([            
-            'is_paid' => true
-        ]);
+        $billData = [
+            'collection_id' => env('BILLPLZ_COLLECTION'),
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'amount' => $validated['amount'] * 100,
+            'description' => $validated['description'],
+            'due_at' => $validated['due_date'],         
+            'deliver' => true,   
+            'callback_url' => env('BILLPLZ_CALLBACK')
+        ];
 
-        $appointment = $bill->appointment;
+        $response = Http::withBasicAuth(env('BILLPLZ_KEY'), '')
+            ->post('https://www.billplz-sandbox.com/api/v3/bills', $billData);
 
-        $appointment->update([
-            'status' => 'completed',
-        ]);
+        if ($response->successful()) {
+            $responseData = $response->json();
+            $bill = Billing::find($validated['bill_id']);
+            $bill->update([
+                'billz_id' => $responseData['id'],
+            ]);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Bill created successfully.',            
-        ], 201);
-
-        // $billData = [
-        //     'collection_id' => env('BILLPLZ_COLLECTION'),
-        //     'name' => $validated['name'],
-        //     'email' => $validated['email'],
-        //     'amount' => 2.00 * 100,
-        //     'description' => $validated['description'],
-        //     'due_at' => $validated['due_date'],         
-        //     'deliver' => true,   
-        //     'callback_url' => env('BILLPLZ_CALLBACK')
-        // ];
-
-        // $response = Http::withBasicAuth(env('BILLPLZ_KEY'), '')
-        //     ->post('https://www.billplz.com/api/v3/bills', $billData);
-
-        // if ($response->successful()) {
-        //     $responseData = $response->json();
-        //     $bill = Billing::find($validated['bill_id']);
-        //     $bill->update([
-        //         'billz_id' => $responseData['id'],
-        //     ]);
-
-        //     return response()->json([
-        //         'status' => 'success',
-        //         'message' => 'Bill created successfully.',
-        //         'data' => $responseData,
-        //         'bill_url' => $responseData['url']
-        //     ], 201);
-        // } else {
-        //     return response()->json(['error' => $response->json()], $response->status());
-        // }
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Bill created successfully.',
+                'data' => $responseData,
+                'bill_url' => $responseData['url']
+            ], 201);
+        } else {
+            return response()->json(['error' => $response->json()], $response->status());
+        }
     }
 
     /**

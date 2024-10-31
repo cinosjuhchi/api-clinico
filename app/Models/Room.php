@@ -11,6 +11,8 @@ class Room extends Model
 {
     use HasFactory;
 
+    protected $guarded = ['id'];
+
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);

@@ -2,25 +2,24 @@
 
 namespace App\Models;
 
-use App\Models\Room;
-use App\Models\Clinic;
-use App\Models\Category;
-use App\Models\Employee;
 use App\Models\Appointment;
-use App\Models\DoctorSchedule;
-use App\Models\DoctorReference;
+use App\Models\Category;
+use App\Models\Clinic;
 use App\Models\DoctorBasicSkill;
-use App\Models\DoctorDemographic;
-use Laravel\Sanctum\HasApiTokens;
 use App\Models\DoctorContribution;
-use App\Models\DoctorEmergencyContact;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\DoctorDemographic;
 use App\Models\DoctorEducationalInformation;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\DoctorEmergencyContact;
+use App\Models\DoctorReference;
+use App\Models\DoctorSchedule;
+use App\Models\Employee;
+use App\Models\Room;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
 class Doctor extends Authenticatable
 {
@@ -32,7 +31,7 @@ class Doctor extends Authenticatable
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
-    
+
     public function schedules(): HasMany
     {
         return $this->hasMany(DoctorSchedule::class, 'doctor_id');
@@ -58,13 +57,15 @@ class Doctor extends Authenticatable
     }
     public function consultationAppointments(): HasMany
     {
-        return $this->hasMany(Appointment::class, 'doctor_id')->where('status', 'consultation');
+        return $this->hasMany(Appointment::class, 'doctor_id')->where('status', 'consultation')
+
+        ;
     }
     public function completedAppointments(): HasMany
     {
-        return $this->hasMany(Appointment::class, 'doctor_id')->where('status', 'completed');
+        return $this->hasMany(Appointment::class, 'doctor_id')->where('status', 'completed')->orWhere('status', 'take-medicine')
+        ->orWhere('status', 'waiting-payment');
     }
-
 
     public function demographic(): HasOne
     {
@@ -75,7 +76,6 @@ class Doctor extends Authenticatable
     {
         return $this->hasOne(DoctorEducationalInformation::class);
     }
-    
 
     public function reference(): HasOne
     {
@@ -121,6 +121,5 @@ class Doctor extends Authenticatable
     {
         return $this->hasOne(FinancialInformation::class);
     }
-
 
 }

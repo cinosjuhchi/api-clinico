@@ -28,7 +28,7 @@ class DoctorController extends Controller
      */
     public function show(Doctor $doctor)
     {
-        $doctor->load(['category', 'clinic', 'room']);
+        $doctor->load(['category', 'clinic', 'doctorSchedules']);
         return response()->json([
             'status' => 'success',
             'message' => 'Doctor retrieved successfully',

@@ -49,6 +49,11 @@ class ConsultationController extends Controller
                 'diagnosis.*' => 'required|string',
                 'plan' => 'required|string',
                 // Treatment
+                'investigations' => 'nullable|array',
+                'investigations.*.investigation_type' => 'required|string',            
+                'investigations.*.name' => 'required|string',            
+                'investigations.*.cost' => 'required|numeric',
+                // Treatment
                 'procedure' => 'nullable|array',
                 'procedure.*.name' => 'required|string',            
                 'procedure.*.cost' => 'required|numeric',
@@ -110,6 +115,17 @@ class ConsultationController extends Controller
                 ]);
             }
 
+            if(!empty($validated['investigations'])) {
+                foreach($validated['investigations'] as $investigation) {
+                    $medicalRecord->investigationRecord()->create([
+                        'type' => $investigation['investigation_type'],
+                        'item' => $investigation['name'],
+                        'cost' => $investigation['cost'],
+                        'patient_id' => $appointment->patient_id,
+                        'billing_id' => $bill->id
+                    ]);
+                }                
+            }
             if(!empty($validated['procedure'])) {
                 foreach($validated['procedure'] as $procedure) {
                     $medicalRecord->procedureRecords()->create([

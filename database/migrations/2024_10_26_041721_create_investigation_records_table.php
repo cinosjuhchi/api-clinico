@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('investigation_records', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('type');
+            $table->string('item');
             $table->decimal('cost', 8,2);            
             $table->foreignId('medical_record_id')->constrained()->cascadeOnDelete();
             $table->foreignId('patient_id')->constrained()->cascadeOnDelete();

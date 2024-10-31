@@ -120,6 +120,8 @@ class BillController extends Controller
             'email' => 'required|email',
             'amount' => 'required|numeric',
             'bill_id' => 'required|exists:billings,id',
+            'reference_1_label' => 'nullable|string',
+            'reference_1' => 'nullable|string'
         ]);        
 
         $billData = [
@@ -130,7 +132,9 @@ class BillController extends Controller
             'description' => $validated['description'],
             'due_at' => $validated['due_date'],         
             'deliver' => true,   
-            'callback_url' => env('BILLPLZ_CALLBACK')
+            'callback_url' => env('BILLPLZ_CALLBACK'),
+            'reference_1_label' => $validated['reference_1_label'],
+            'reference_1' => $validated['reference_1'],
         ];
 
         $response = Http::withBasicAuth(env('BILLPLZ_KEY'), '')

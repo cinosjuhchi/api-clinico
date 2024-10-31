@@ -11,7 +11,7 @@ class StoreDoctorScheduleRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,11 @@ class StoreDoctorScheduleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'start_time' => 'required|time',
+            'end_time' =>'required|time',
+            'day' => 'required|string',
+            'clinic_id' => 'required|exists:clinics,id',
+            'doctor_id' => 'required|exists:doctor,id'
         ];
     }
 }

@@ -2,20 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreRoomRequest;
-use App\Http\Requests\UpdateRoomRequest;
 use App\Models\Room;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\StoreRoomRequest;
+use App\Http\Requests\UpdateRoomRequest;
 
 class RoomController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $user = Auth::user();
+        $clinic = $user->clinic;
+
+        $rooms = $clinic->rooms()->with(['occupant'])->paginate(10);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully retrieved',
+            'data' => $rooms
+        ]);
     }
 
     /**

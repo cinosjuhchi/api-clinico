@@ -217,6 +217,7 @@ Route::prefix('v1')->group(function () {
                 });                
             });
             Route::prefix('rooms')->group(function () {
+                Route::get('/', [RoomController::class, 'index']);
                 Route::post('/store', [RoomController::class, 'store']);
             });
             Route::prefix('employee')->group(function () {

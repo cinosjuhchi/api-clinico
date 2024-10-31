@@ -11,7 +11,7 @@ class StoreRoomRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +21,6 @@ class StoreRoomRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            //
-        ];
+        return ['name' => 'required|string|max:255', 'occupant_id' => 'required|exists:doctors,id', 'clinic_id' => 'required|exists:clinics,id'];
     }
 }

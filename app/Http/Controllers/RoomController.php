@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Room;
 use App\Http\Requests\StoreRoomRequest;
 use App\Http\Requests\UpdateRoomRequest;
+use App\Models\Room;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 
 class RoomController extends Controller
 {
@@ -29,7 +31,22 @@ class RoomController extends Controller
      */
     public function store(StoreRoomRequest $request)
     {
-        //
+        $validated = $request->validated();
+        DB::beginTransaction();
+        try {
+            Room::create($validated);
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                "message" => "Success store data.",
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                "status" => "error",
+                "message" => $e->getMessage()
+            ]);
+        }
     }
 
     /**

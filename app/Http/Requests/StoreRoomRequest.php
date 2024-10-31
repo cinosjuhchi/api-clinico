@@ -21,6 +21,6 @@ class StoreRoomRequest extends FormRequest
      */
     public function rules(): array
     {
-        return ['name' => 'required|string|max:255', 'room_number' => 'required|integer|unique','occupant_id' => 'required|exists:doctors,id', 'clinic_id' => 'required|exists:clinics,id'];
+        return ['name' => 'required|string|max:255', 'room_number' => 'required|integer|unique:rooms','occupant_id' => 'required|exists:doctors,id', 'clinic_id' => 'required|exists:clinics,id'];
     }
 }

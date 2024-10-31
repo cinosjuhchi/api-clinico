@@ -151,7 +151,7 @@ class BillController extends Controller
                 'status' => 'success',
                 'message' => 'Bill created successfully.',
                 'data' => $responseData,
-                'bill_url' => $responseData['url']
+                'bill_url' => $responseData['url'] . 'auto_submit=true'
             ], 201);
         } else {
             return response()->json(['error' => $response->json()], $response->status());

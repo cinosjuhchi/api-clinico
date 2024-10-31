@@ -18,7 +18,7 @@ class ClinicController extends Controller
         $page = $request->input('page', 1); // Get the page number from the request
         $clinics = Clinic::with([
             'doctors.category',
-            'doctors.schedules',
+            'doctors.doctorSchedules',
             'rooms',
             'location', 
             'schedule'
@@ -66,7 +66,7 @@ class ClinicController extends Controller
             'services',
             'doctors' => function ($query) use ($day) {
                 // Hanya ambil dokter yang memiliki jadwal sesuai dengan hari yang diminta
-                $query->whereHas('schedules', function ($q) use ($day) {
+                $query->whereHas('doctorSchedules', function ($q) use ($day) {
                     $q->where('day', $day);
                 })->with('category'); // Pastikan kategori dokter juga dimuat
             }

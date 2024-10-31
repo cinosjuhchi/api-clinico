@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('rooms', function (Blueprint $table) {
             $table->id();
             $table->string('name');           
+            $table->integer('room_number')->unique();           
             $table->unsignedBigInteger('occupant_id');
             $table->foreign('occupant_id')->references('id')->on('doctors')->onDelete('restrict');
             $table->foreignId('clinic_id')->constrained()->onDelete('cascade');

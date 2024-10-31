@@ -92,7 +92,8 @@ class DatabaseSeeder extends Seeder
             'clinic_id' => $clinicMuhara->id,
             'employee_id' => $employeeDoctor->id,
         ]);
-        $rooms = Room::factory(3)->create(['clinic_id' => $clinicMuhara->id, 'occupant_id' => $doctor->id]);
+        $indexRoom = 1;
+        $rooms = Room::factory(3)->create(['clinic_id' => $clinicMuhara->id, 'occupant_id' => $doctor->id, 'room_number' => $indexRoom++]);
 
         $daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 

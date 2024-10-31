@@ -74,7 +74,7 @@ class ChronicController extends Controller
         DB::beginTransaction();
         try {
             $patient->chronics()->delete();
-            foreach ($validated as $item) {
+            foreach ($validated['chronics'] as $item) {
                 $patient->chronics()->create([
                     'chronic_medical' => $item['chronic_medical']
                 ]);
@@ -88,7 +88,8 @@ class ChronicController extends Controller
             DB::rollBack();
             return response()->json([
                 'status' => 'failed',
-                'message' => 'Fail update the data.'
+                'message' => 'Fail update the data.',
+                'error' => $e->getMessage()
             ], 500);
         }
     }

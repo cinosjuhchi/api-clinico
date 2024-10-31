@@ -70,17 +70,17 @@ class ImmunizationController extends Controller
         DB::beginTransaction();
         try {
             $patient->immunizations()->delete();
-            foreach ($validated as $item) {
+            foreach ($validated['vaccines'] as $item) {
                 $patient->immunizations()->create([
                     'vaccine_received' => $item['vaccine_received'],
                     'date_administered' => $item['date_administered']
-                ]);
-                DB::commit();
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Success to update data.'
-                ], 200);
+                ]);                
             }
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Success to update data.'
+            ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([

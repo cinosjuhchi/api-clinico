@@ -71,7 +71,7 @@ class MedicationRecordController extends Controller
         DB::beginTransaction();
         try {
             $patient->medications()->delete();
-            foreach($validated as $item) 
+            foreach($validated['medications'] as $item) 
             {
                 $patient->medications()->create([
                     'medicine' => $item['medicine'],

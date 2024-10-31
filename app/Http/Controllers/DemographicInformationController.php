@@ -84,18 +84,18 @@ class DemographicInformationController extends Controller
                 'address' => $validated['address'],
                 'country' => $validated['country'],
                 'postal_code' => $validated['postal_code']
-            ]);
+            ]);            
             DB::commit();
             return response()->json([
                 'status' => 'success',
-                'message' => 'Success to update data.'
+                'message' => 'Success to update data.'                
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Fail to update the data.'
-            ]);
+            ], 500);
         }
     }
 

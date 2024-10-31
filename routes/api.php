@@ -111,7 +111,7 @@ Route::prefix('v1')->group(function () {
 
             Route::prefix('demographic')->group(function () {
                 Route::post('/store', [DemographicInformationController::class, 'store']);
-                Route::put('/update/{demographic}', [DemographicInformationController::class, 'update']);
+                Route::put('/update/{demographicInformation}', [DemographicInformationController::class, 'update']);
             });
             
             Route::prefix('physical')->group(function () {

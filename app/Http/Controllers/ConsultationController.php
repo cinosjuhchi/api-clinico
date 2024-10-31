@@ -79,7 +79,7 @@ class ConsultationController extends Controller
             ]);
 
 
-            $patient->physicalExaminations()->updateOrCreate([
+            $patient->physicalExaminations()->update([
                 'blood_pressure' => $validated['blood_pressure'],
                 'pulse_rate' => $validated['pulse_rate'],
                 'temperature' => $validated['temperature'],
@@ -158,7 +158,7 @@ class ConsultationController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Appointment completed successfully',
+                'message' => 'Appointment completed successfully',                
             ], 200);        
 
         } catch (\Exception $e) {

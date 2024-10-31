@@ -79,7 +79,6 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Buat Rooms, Services, Schedules, dan Locations untuk Clinic Muhara
-        Room::factory(3)->create(['clinic_id' => $clinicMuhara->id]);
         ClinicService::factory(5)->create(['clinic_id' => $clinicMuhara->id]);
         ClinicSchedule::factory()->create(['clinic_id' => $clinicMuhara->id]);
         ClinicLocation::factory()->create(['clinic_id' => $clinicMuhara->id]);
@@ -95,9 +94,10 @@ class DatabaseSeeder extends Seeder
             'name' => "Muhammad Habibullah Mursalin",
             'user_id' => $userDoctor->id,
             'clinic_id' => $clinicMuhara->id,
-            'employee_id' => $employeeDoctor->id,
-            'room_id' => $clinicMuhara->rooms->first()->id // Hubungkan dengan room pertama yang dibuat
+            'employee_id' => $employeeDoctor->id,            
         ]);
+        Room::factory(3)->create(['clinic_id' => $clinicMuhara->id, 'occupant_id' => $doctor->id]);
+        
 
         // Buat Doctor Schedules untuk dokter di Clinic Muhara
         DoctorSchedule::factory()->create(['doctor_id' => $doctor->id, 'clinic_id' => $clinicMuhara->id, 'day' => 'sunday']);

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('day');
             $table->foreignId('clinic_id')->constrained()->onDelete('cascade');            
             $table->foreignId('doctor_id')->constrained()->onDelete('cascade');
+            $table->foreignId('room_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

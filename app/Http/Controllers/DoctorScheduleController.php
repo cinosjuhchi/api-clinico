@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\DoctorSchedule;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreDoctorScheduleRequest;
 use App\Http\Requests\UpdateDoctorScheduleRequest;
 
@@ -29,7 +31,23 @@ class DoctorScheduleController extends Controller
      */
     public function store(StoreDoctorScheduleRequest $request)
     {
-        //
+        $validated = $request->validated();
+        DB::beginTransaction();
+        try {
+            //code...
+            DoctorSchedule::create($validated);
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Successfully stored data'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status'=> 'error',
+                'message'=> $e->getMessage()
+                ],500);
+        }
     }
 
     /**

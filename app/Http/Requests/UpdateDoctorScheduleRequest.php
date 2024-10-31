@@ -22,7 +22,9 @@ class UpdateDoctorScheduleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'start_time' => 'sometimes|time',
+            'end_time' => 'sometimes|time',
+            'day' => 'sometimes|string',            
         ];
     }
 }

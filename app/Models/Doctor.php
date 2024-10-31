@@ -16,6 +16,7 @@ use App\Models\Employee;
 use App\Models\Room;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -42,9 +43,15 @@ class Doctor extends Authenticatable
         return $this->belongsTo(Clinic::class, 'clinic_id');
     }
 
-    public function room(): BelongsTo
+    public function roomsOccupant(): HasMany
     {
-        return $this->belongsTo(Room::class, 'room_id');
+        return $this->hasMany(Room::class, 'doctor');
+    }
+
+    public function doctorSchedules(): BelongsToMany
+    {
+        return $this->belongsToMany(DoctorSchedule::class,'doctor_schedules')
+        ->withPivot('start_time', 'end_time');
     }
 
     public function appointments(): HasMany
@@ -64,7 +71,7 @@ class Doctor extends Authenticatable
     public function completedAppointments(): HasMany
     {
         return $this->hasMany(Appointment::class, 'doctor_id')->where('status', 'completed')->orWhere('status', 'take-medicine')
-        ->orWhere('status', 'waiting-payment');
+            ->orWhere('status', 'waiting-payment');
     }
 
     public function demographic(): HasOne

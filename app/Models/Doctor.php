@@ -50,8 +50,8 @@ class Doctor extends Authenticatable
 
     public function doctorSchedules(): BelongsToMany
     {
-        return $this->belongsToMany(DoctorSchedule::class,'doctor_schedules')
-        ->withPivot('start_time', 'end_time');
+        return $this->belongsToMany(Room::class, 'doctor_schedules')
+            ->withPivot('start_time', 'end_time');
     }
 
     public function appointments(): HasMany

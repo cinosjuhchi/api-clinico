@@ -26,15 +26,27 @@ class DoctorController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Doctor $doctor)
-    {
-        $doctor->load(['category', 'clinic', 'doctorSchedules']);
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Doctor retrieved successfully',
-            'data' => $doctor
-        ]);
-    }
+    public function show(Doctor $doctor, Request $request)
+{
+    $day = $request->input('day');
+
+    $doctor->load([
+        'category',
+        'clinic',
+        'doctorSchedules' => function ($query) use ($day) {
+            if ($day) {
+                $query->where('day', $day)->first();
+            }
+        }
+    ]);
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Doctor retrieved successfully',
+        'data' => $doctor
+    ]);
+}
+
 
     /**
      * Update the specified resource in storage.

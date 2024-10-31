@@ -93,7 +93,8 @@ class DatabaseSeeder extends Seeder
             'employee_id' => $employeeDoctor->id,
         ]);
         $indexRoom = 1;
-        $rooms = Room::factory(3)->create(['clinic_id' => $clinicMuhara->id, 'occupant_id' => $doctor->id, 'room_number' => $indexRoom++]);
+        $indexRoom = 1;
+        $rooms = Room::factory()->count(3)->sequence(function () use (&$indexRoom, $clinicMuhara, $doctor) {return ['clinic_id' => $clinicMuhara->id, 'occupant_id' => $doctor->id, 'room_number' => $indexRoom++];})->create();
 
         $daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 

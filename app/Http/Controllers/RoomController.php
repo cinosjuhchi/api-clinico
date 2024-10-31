@@ -85,6 +85,11 @@ class RoomController extends Controller
     public function update(UpdateRoomRequest $request, Room $room)
     {
         $validated = $request->validated();
+        $collision = Room::where('name', $validated['name'])->where('room_number', $validated['room_number'])->first();
+        if ($collision) {
+            return response()->json(['status' => 'error', 'message' => 'Room with this name and number already exists.'], 422);
+        }
+
         $room->fill($validated);
         if ($room->isDirty()) {
             DB::beginTransaction();

@@ -68,11 +68,7 @@ class PhysicalController extends Controller
         $validated = $request->validate([
             'height' => 'required|numeric',
             'weight' => 'required|numeric',
-            'blood_type' => 'required|in:A+,A-,B+,B-,AB+,AB-,O+,O-,Unknown',
-            'blood_pressure' => 'sometimes|string',
-            'sp02' => 'sometimes|integer',
-            'temperature' => 'sometimes|integer',
-            'pulse_rate' => 'sometimes|integer'
+            'blood_type' => 'required|in:A+,A-,B+,B-,AB+,AB-,O+,O-,Unknown',            
         ]);
 
         DB::beginTransaction();

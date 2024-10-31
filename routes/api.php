@@ -110,7 +110,7 @@ Route::prefix('v1')->group(function () {
 
             Route::prefix('physical')->group(function () {
                 Route::post('/store', [PhysicalController::class, 'store']);
-                Route::post('/update/{physicalExamination}', [PhysicalController::class, 'update']);
+                Route::put('/update/{physicalExamination}', [PhysicalController::class, 'update']);
             });
             Route::prefix('medicines')->group(function () {
                 Route::post('/store', [MedicationRecordController::class, 'store']);

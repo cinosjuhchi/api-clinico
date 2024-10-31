@@ -138,7 +138,7 @@ class BillController extends Controller
         ];
 
         $response = Http::withBasicAuth(env('BILLPLZ_KEY'), '')
-            ->post('https://www.billplz-sandbox.com/api/v3/bills', $billData);
+            ->post('https://www.billplz.com/api/v3/bills', $billData);
 
         if ($response->successful()) {
             $responseData = $response->json();

@@ -23,7 +23,7 @@ class UpdateRoomRequest extends FormRequest
     {
         return [
             'name' => 'sometimes|required|string|max:255',
-            'room_number' => 'sometimes|required|integer|unique:rooms,room_number',
+            'room_number' => 'sometimes|required|integer',
             'occupant_id' => 'sometimes|required|exists:doctors,id',
 
         ];

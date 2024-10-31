@@ -43,6 +43,10 @@ class RoomController extends Controller
     {
         $validated = $request->validated();
         DB::beginTransaction();
+        $collision = Room::where('name', $validated['name'])->where('room_number', $validated['room_number'])->first();
+        if ($collision) {
+            return response()->json(['status' => 'error', 'message' => 'Room with this name and number already exists.'], 422);
+        }
         try {
             Room::create($validated);
             DB::commit();
@@ -117,13 +121,13 @@ class RoomController extends Controller
             DB::commit();
             return response()->json([
                 'status' => 'success',
-                'message' => 'Success delete data.'
+                'message' => 'Success delete data.',
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }

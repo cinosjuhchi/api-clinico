@@ -18,19 +18,49 @@ class DoctorDataController extends Controller
         //
     }
 
-
     public function consultationEntry(Request $request)
     {
         $user = Auth::user();
-        $doctor = $user->doctor;        
-        if(!$doctor)
-        {
+        $doctor = $user->doctor;
+        if (!$doctor) {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'user not found'
+                'message' => 'user not found',
             ]);
         }
-        $appointments = $doctor->consultationAppointments()->with(['patient', 'doctor.category', 'clinic', 'service'])->orderBy('waiting_number')->paginate(5);
+        $query = $request->input('q');
+
+        $appointments = $doctor->consultationAppointments()->with(['patient.demographics', 'doctor.category', 'clinic', 'service'])->when($query, function ($q) use ($query) {
+            $q->where(function ($subQuery) use ($query) {
+                $subQuery->where('waiting_number', 'like', "%{$query}%")
+                    ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {
+                        $categoryQuery->where('name', 'like', "%{$query}%");
+                    });
+            });
+        })->orderBy('waiting_number')->paginate(5);
+
+        return response()->json($appointments);
+    }
+    public function completedEntry(Request $request)
+    {
+        $user = Auth::user();
+        $doctor = $user->doctor;
+        if (!$doctor) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'user not found',
+            ]);
+        }
+        $query = $request->input('q');
+
+        $appointments = $doctor->completedAppointments()->with(['patient', 'doctor.category', 'clinic', 'service'])->when($query, function ($q) use ($query) {
+            $q->where(function ($subQuery) use ($query) {
+                $subQuery->where('waiting_number', 'like', "%{$query}%")
+                    ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {
+                        $categoryQuery->where('name', 'like', "%{$query}%");
+                    });
+            });
+        })->latest()->paginate(5);
 
         return response()->json($appointments);
     }
@@ -55,14 +85,14 @@ class DoctorDataController extends Controller
     {
         $appointment = Appointment::with(
             [
-            'doctor.category', 
-            'clinic', 
-            'patient.allergy', 
-            'patient.demographics',
-            'patient.occupation',
-            'service'
+                'doctor.category',
+                'clinic',
+                'patient.allergy',
+                'patient.demographics',
+                'patient.occupation',
+                'service',
             ]
-            )->where('slug', $slug)->first();
+        )->where('slug', $slug)->first();
         if (!$appointment) {
             return response()->json([
                 'status' => 'error',
@@ -72,7 +102,7 @@ class DoctorDataController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Appointment retrieved successfully',
-            'data' => $appointment
+            'data' => $appointment,
         ], 200);
     }
 

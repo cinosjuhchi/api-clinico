@@ -104,7 +104,8 @@ class AuthController extends Controller
                 'user_id' => $user->id,
                 'family_id' => $family->id,
             ]);
-
+            $lastDemographicInfo = DemographicInformation::orderBy('id', 'desc')->first(); 
+            $newMRN = 'MRN' . str_pad(($lastDemographicInfo ? ((int) substr($lastDemographicInfo->mrn, 3)) + 1 : 1), 7, '0', STR_PAD_LEFT);
 
             DemographicInformation::create([
                 'date_birth' => $validated['date_birth'],
@@ -114,6 +115,7 @@ class AuthController extends Controller
                 'country' => $validated['country'],
                 'postal_code' => $validated['postal_code'],
                 'patient_id' => $patient->id,
+                'mrn' => $newMRN
             ]);
         
 

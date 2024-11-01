@@ -1,16 +1,16 @@
 @component('mail::message')
-# Sahkan Alamat Emel Anda
+# Verify Your Email Address
 
-Hai {{ $data['name'] }},
+Hi {{ $data['name'] }},
 
-Terima kasih kerana mendaftar di aplikasi kami. Sila klik butang di bawah ini untuk mengesahkan alamat emel anda.
+Thank you for registering on our application. Please click the button below to verify your email address.
 
 @component('mail::button', ['url' => $data['verification_url']])
-Sahkan Emel
+Verify Email
 @endcomponent
 
-Jika anda tidak mendaftar untuk akaun ini, tidak perlu tindakan lanjut.
+If you did not register for this account, no further action is required.
 
-Terima kasih,<br>
+Thank you,<br>
 {{ config('app.name') }}
 @endcomponent

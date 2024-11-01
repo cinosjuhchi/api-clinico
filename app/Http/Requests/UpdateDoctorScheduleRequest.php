@@ -11,7 +11,7 @@ class UpdateDoctorScheduleRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,9 +22,11 @@ class UpdateDoctorScheduleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'start_time' => 'sometimes|time',
-            'end_time' => 'sometimes|time',
+            'start_time' => 'sometimes|date_format:H:i',
+            'end_time' => 'sometimes|date_format:H:i',                        
             'day' => 'sometimes|string',            
+            'room_id' => 'sometimes|exists:rooms,id',
+            'doctor_id' => 'sometimes|exists:doctors,id'
         ];
     }
 }

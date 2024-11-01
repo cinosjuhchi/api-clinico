@@ -115,6 +115,20 @@ class RoomController extends Controller
 
     }
 
+    public function roomResource(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = $user->clinic;
+
+        $rooms = $clinic->rooms()->with(['occupant'])->get();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully retrieved',
+            'data' => $rooms,
+        ]);
+
+    }
+
     /**
      * Remove the specified resource from storage.
      */

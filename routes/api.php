@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\ImmunizationController;
 use App\Http\Controllers\ClinicServiceController;
+use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\ParentChronicController;
 use App\Http\Controllers\RequestClinicController;
 use App\Http\Controllers\DoctorScheduleController;
@@ -107,6 +108,10 @@ Route::prefix('v1')->group(function () {
             Route::prefix('demographic')->group(function () {
                 Route::post('/store', [DemographicInformationController::class, 'store']);
                 Route::put('/update/{demographicInformation}', [DemographicInformationController::class, 'update']);
+            });
+
+            Route::prefix('medical-record')->group(function () {
+                Route::get('/', [MedicalRecordController::class,'index']);
             });
 
             Route::prefix('physical')->group(function () {
@@ -213,10 +218,14 @@ Route::prefix('v1')->group(function () {
                 Route::put('/update/{doctor}', [ClinicDataController::class, 'updateDoctor']);
                 Route::delete('/delete/{doctor}', [ClinicDataController::class, 'destroyDoctor']);
                 Route::prefix('schedule')->group(function () {
+                    Route::get('/', [DoctorScheduleController::class, 'index']);
                     Route::post('/store', [DoctorScheduleController::class, 'store']);
+                    Route::put('/update/{doctorSchedule}', [DoctorScheduleController::class, 'update']);
+                    Route::delete('/delete/{doctorSchedule}', [DoctorScheduleController::class, 'destroy']);
                 });                
             });
             Route::prefix('rooms')->group(function () {
+                Route::get('/resource', [RoomController::class, 'roomResource']);
                 Route::get('/', [RoomController::class, 'index']);
                 Route::post('/store', [RoomController::class, 'store']);
                 Route::put('/update/{room}', [RoomController::class, 'update']);

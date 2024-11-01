@@ -34,6 +34,11 @@ class Clinic extends Authenticatable
         return $this->hasMany(Room::class, 'clinic_id');
     }
 
+    public function doctorSchedule(): HasMany
+    {
+        return $this->hasMany(DoctorSchedule::class, 'clinic_id');
+    }
+
     public function location(): HasOne
     {
         return $this->hasOne(ClinicLocation::class, 'clinic_id');

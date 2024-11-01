@@ -22,11 +22,12 @@ class StoreDoctorScheduleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'start_time' => 'required|time',
-            'end_time' =>'required|time',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i',                        
             'day' => 'required|string',
             'clinic_id' => 'required|exists:clinics,id',
-            'doctor_id' => 'required|exists:doctor,id'
+            'room_id' => 'required|exists:rooms,id',
+            'doctor_id' => 'required|exists:doctors,id'
         ];
     }
 }

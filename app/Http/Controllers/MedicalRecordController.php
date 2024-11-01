@@ -10,9 +10,18 @@ class MedicalRecordController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $user = $request->user();        
+        
+        $medicalRecord = $user->medicalRecord;
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Appointments retrieved successfully',
+            'data' => $medicalRecord,
+        ], 200);
+
     }
 
     /**

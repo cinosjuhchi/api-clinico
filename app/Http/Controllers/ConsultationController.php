@@ -116,6 +116,7 @@ class ConsultationController extends Controller
                 'name' => $service->name,
                 'cost' => $service->price,
                 'patient_id' => $appointment->patient_id,
+                'billing_id' => $bill->id,
             ]);
 
             foreach ($validated['diagnosis'] as $diagnosis) {

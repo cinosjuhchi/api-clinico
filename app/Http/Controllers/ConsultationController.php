@@ -115,11 +115,13 @@ class ConsultationController extends Controller
             $serviceRecord = $medicalRecord->serviceRecord()->create([
                 'name' => $service->name,
                 'cost' => $service->price,
+                'patient_id' => $appointment->patient_id,
             ]);
 
             foreach ($validated['diagnosis'] as $diagnosis) {
                 $medicalRecord->diagnosisRecord()->create([
                     'diagnosis' => $diagnosis,
+                    'patient_id' => $appointment->patient_id,
                 ]);
             }
 

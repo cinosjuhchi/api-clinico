@@ -12,9 +12,10 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Clinic extends Authenticatable
 {
@@ -24,7 +25,10 @@ class Clinic extends Authenticatable
 
     protected $table = 'clinics';
 
-
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
     public function doctors(): HasMany
     {
         return $this->hasMany(Doctor::class, 'clinic_id');
@@ -73,6 +77,10 @@ class Clinic extends Authenticatable
     {
         return $this->hasMany(Appointment::class, 'clinic_id')->where('status', 'completed');
     }
+    public function consultationAppointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class, 'clinic_id')->where('status', 'consultation');
+    }
 
     public function medications(): HasMany
     {
@@ -91,5 +99,10 @@ class Clinic extends Authenticatable
     public function employments(): HasManyThrough
     {
         return $this->hasManyThrough(Employee::class, Doctor::class);
+    }
+
+    public function financial(): HasOne
+    {
+        return $this->hasOne(ClinicFinancial::class, 'clinic_id');
     }
 }

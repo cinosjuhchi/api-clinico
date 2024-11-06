@@ -2,44 +2,44 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Http\Requests\StoreDoctorClinicRequest;
+use App\Http\Resources\ClinicResource;
 use App\Models\Clinic;
 use App\Models\Doctor;
 use App\Models\Employee;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Resources\ClinicResource;
-use App\Http\Requests\StoreDoctorClinicRequest;
-use App\Http\Requests\UpdateDoctorClinicRequest;
+use Illuminate\Support\Facades\DB;
 
 class ClinicDataController extends Controller
 {
 
     public function me(Request $request)
     {
-        $user = Auth::user();        
+        $user = Auth::user();
         $clinic = Clinic::with([
             'rooms',
             'location',
             'schedule',
-            'services',            
-            'doctors.category'
+            'user',
+            'services',
+            'doctors.category',
         ])
-        ->where('user_id', $user->id)
-        ->firstOrFail();
+            ->where('user_id', $user->id)
+            ->firstOrFail();
         return response()->json([
             'status' => 'success',
             'message' => 'Fetch profile success',
-            'data' => new ClinicResource($clinic)
+            'data' => new ClinicResource($clinic),
         ]);
     }
 
     public function medicines(Request $request)
     {
         $user = Auth::user();
-        $clinic = Clinic::where('user_id', $user->id)->firstOrFail();                
+        $clinic = Clinic::where('user_id', $user->id)->firstOrFail();
         $medicines = $clinic->medications;
         return response()->json($medicines);
     }
@@ -47,15 +47,38 @@ class ClinicDataController extends Controller
     public function pendingAppointmentsDoctor(Request $request)
     {
         $user = Auth::user();
-        $doctor = $user->doctor;        
-        if(!$doctor)
-        {
+        $doctor = $user->doctor;
+        if (!$doctor) {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'user not found'
-            ]);
+                'message' => 'user not found',
+            ], 404);
         }
         $appointments = $doctor->pendingAppointments()->paginate(5);
+
+        return response()->json($appointments);
+    }
+
+    public function consultationAppointments(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = $user->clinic;
+
+        if (!$clinic) {
+            $doctor = $user->doctor;
+            if ($doctor) {
+                $clinic = $doctor->clinic;
+            }
+        }
+
+        if (!$clinic) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'user not found',
+            ], 404);
+        }
+
+        $appointments = $clinic->consultationAppointments()->paginate(5);
 
         return response()->json($appointments);
     }
@@ -69,7 +92,7 @@ class ClinicDataController extends Controller
         if (!$clinic) {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'Clinic not found for the user'
+                'message' => 'Clinic not found for the user',
             ]);
         }
 
@@ -84,12 +107,12 @@ class ClinicDataController extends Controller
             ]);
 
             $newEmployee = Employee::create([
-                'image_profile' => $validated['image_profile'] 
-                    ? $validated['image_profile']->store('image_profile') 
-                    : 'image_profile/default.png',
-                'image_signature' => $validated['image_signature'] 
-                    ? $validated['image_signature']->store('image_signature') 
-                    : 'path/to/default_signature_image.jpg',
+                'image_profile' => $validated['image_profile']
+                ? $validated['image_profile']->store('image_profile')
+                : 'image_profile/default.png',
+                'image_signature' => $validated['image_signature']
+                ? $validated['image_signature']->store('image_signature')
+                : 'path/to/default_signature_image.jpg',
                 'branch' => $validated['branch'],
                 'apc' => $validated['apc'],
                 'mmc' => $validated['mmc'],
@@ -183,8 +206,6 @@ class ClinicDataController extends Controller
                 'others' => $validated['others_skill'],
             ]);
 
-            
-
             $newDoctor->financialInformation()->create([
                 'bank_name' => $validated['bank_name'],
                 'account_number' => $validated['account_number'],
@@ -194,7 +215,7 @@ class ClinicDataController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Doctor created successfully'
+                'message' => 'Doctor created successfully',
             ], 201);
 
         } catch (\Exception $e) {
@@ -205,6 +226,19 @@ class ClinicDataController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function consultations(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = $user->clinic;
+
+        $appointments = $clinic->consultationAppointments()->with(['service', 'bill', 'room'])->paginate(10);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Success fetch data',
+            'data' => $appointments,
+        ]);
     }
 
     public function updateDoctor(Request $request, Doctor $doctor)
@@ -285,7 +319,7 @@ class ClinicDataController extends Controller
         if (!$clinic) {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'Clinic not found for the user'
+                'message' => 'Clinic not found for the user',
             ]);
         }
 
@@ -308,7 +342,7 @@ class ClinicDataController extends Controller
                 'staff_id' => $validated['staff_id'],
                 'tenure' => $validated['tenure'],
                 'basic_salary' => $validated['basic_salary'],
-                'elaun' => $validated['elaun']
+                'elaun' => $validated['elaun'],
             ];
 
             if ($request->hasFile('image_profile')) {
@@ -412,7 +446,7 @@ class ClinicDataController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Doctor updated successfully'
+                'message' => 'Doctor updated successfully',
             ], 200);
 
         } catch (\Exception $e) {
@@ -425,62 +459,59 @@ class ClinicDataController extends Controller
         }
     }
 
-
     public function doctors(Request $request)
     {
         $user = Auth::user();
         $clinic = $user->clinic;
-        if(!$clinic)
-        {
+        if (!$clinic) {
             $clinic = $user->doctor->clinic;
-            if(!$clinic)
-            {
+            if (!$clinic) {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'user not found'
-                ]);                
+                    'message' => 'user not found',
+                ]);
             }
-            
-        }               
-        $doctors = $clinic->doctors()->with(['employmentInformation', 
-            'educational', 
-            'demographic', 
-            'contributionInfo', 
-            'emergencyContact', 
-            'spouseInformation', 
-            'childsInformation', 
-            'parentInformation', 
-            'reference', 
-            'basicSkills', 
+
+        }
+        $doctors = $clinic->doctors()->with(['employmentInformation',
+            'educational',
+            'demographic',
+            'contributionInfo',
+            'emergencyContact',
+            'spouseInformation',
+            'childsInformation',
+            'parentInformation',
+            'reference',
+            'basicSkills',
             'financialInformation',
-            'category',])->paginate(10);
+            'category'])->paginate(10);
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully fetch data',
-            'data' => $doctors            
+            'data' => $doctors,
         ], 200);
     }
 
     public function showDoctor(Doctor $doctor)
     {
         $doctor->load([
-            'employmentInformation', 
-            'educational', 
-            'demographic', 
-            'contributionInfo', 
-            'emergencyContact', 
-            'spouseInformation', 
-            'childsInformation', 
-            'parentInformation', 
-            'reference', 
-            'basicSkills', 
+            'employmentInformation',
+            'educational',
+            'demographic',
+            'contributionInfo',
+            'emergencyContact',
+            'spouseInformation',
+            'childsInformation',
+            'parentInformation',
+            'reference',
+            'basicSkills',
             'financialInformation',
             'category',
         ]);
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully fetch data',
-            'data' => $doctor
+            'data' => $doctor,
         ], 200);
     }
 

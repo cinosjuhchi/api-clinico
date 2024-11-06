@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Billing;
 use App\Models\Appointment;
 use Illuminate\Http\Request;
+use App\Models\ClinicService;
 use App\Models\MedicalRecord;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -71,7 +72,8 @@ class ConsultationController extends Controller
                 // Bill
                 'total_cost' => 'required|numeric',
                 'transaction_date' => 'required|date',
-                'service_id' => 'required|exists:clinic_services,id'
+                'service_id' => 'required|exists:clinic_services,id',
+                
             ]);
 
             $patient = $appointment->patient;
@@ -108,6 +110,13 @@ class ConsultationController extends Controller
                 'pain_score' => $validated['pain_score'],    
                 'clinic_service_id' => $validated['service_id']
             ]);        
+
+            $service = ClinicService::find($validated['service_id']);
+
+            $serviceRecord = $medicalRecord->serviceRecord()->create([
+                'name' => $service->name,
+                'cost' => $service->price
+            ]);
 
             foreach($validated['diagnosis'] as $diagnosis) {
                 $medicalRecord->diagnosisRecord()->create([

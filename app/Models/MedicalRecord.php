@@ -39,6 +39,11 @@ class MedicalRecord extends Model
         return $this->belongsTo(Clinic::class, 'clinic_id');
     }
 
+    public function clinicService()
+    {
+        return $this->belongsTo(ClinicService::class, 'clinic_service_id');
+    }
+
     public function serviceRecord()
     {
         return $this->hasMany(ServiceRecord::class, 'medical_record_id');

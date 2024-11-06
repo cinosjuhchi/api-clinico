@@ -29,8 +29,50 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Buat Category dan FamilyRelationship secara bulk
-        Category::factory(6)->create();
-        FamilyRelationship::factory(8)->create();
+        $departments = [
+            "Administration",
+            "Cardiology",
+            "Dermatology",
+            "Dispensary",
+            "Emergency Medicine",
+            "Endocrinology",
+            "Gastroenterology",
+            "General Surgery",
+            "Geriatrics",
+            "Gynecology/Obstetrics (OB/GYN)",
+            "Hematology",
+            "Human Resources",
+            "Infectious Diseases",
+            "Internal Medicine",
+            "Media & Marketing",
+            "Nephrology",
+            "Neurology",
+            "Nursing",
+            "Oncology",
+            "Orthopedics",
+            "Otolaryngology (ENT)",
+            "Pediatrics",
+            "Pharmacy",
+            "Psychiatry",
+            "Pulmonology",
+            "Radiology",
+            "Rheumatology",
+            "Stock & Logistic",
+            "Urology",
+        ];
+
+        foreach ($departments as $item) {
+            Category::factory()->create([
+                'name' => $item,
+            ]);
+        }
+        $relationship = ['Son', 'Daughter', 'Spouse', 'Siblings', 'Parents', 'Grandparents', 'Official Guardian'];
+
+        foreach ($relationship as $item) {
+            FamilyRelationship::factory()->create([
+                'name' => $item,
+            ]);
+        }
 
         $pregnancyCategories = [
             [

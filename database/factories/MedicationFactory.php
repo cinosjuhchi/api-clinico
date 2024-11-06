@@ -49,7 +49,7 @@ class MedicationFactory extends Factory
             'expired_date' => fake()->date(),
             'total_amount' => fake()->numberBetween(1, 100),
             'pregnancy_category_id' => fake()->numberBetween(1, 6),         
-            'price' => fake()->randomFloat(2, 100, 1000),
+            'price' => fake()->randomFloat(2, 100, 500),
             'manufacture' => fake()->name(),
             'supplier' => fake()->name(),
             'for' => fake()->name(),

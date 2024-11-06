@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('address')->nullable();                                                   
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('family_id')->nullable()->constrained()->onDelete('cascade');
-            $table->foreignId('family_relationship_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('family_relationship_id')->nullable()->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

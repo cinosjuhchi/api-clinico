@@ -62,7 +62,7 @@ class AppointmentController extends Controller
         $appointments = $appointmentsQuery->get();
 
         // Muat relasi untuk appointments
-        $appointments->load(['patient:id,name', 'doctor', 'clinic.schedule', 'bill', 'medicalRecord.serviceRecord', 'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords', 'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords']);        
+        $appointments->load(['patient:id,name', 'doctor', 'clinic.schedule', 'bill', 'medicalRecord.clinicService', 'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords', 'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords']);        
 
         if ($appointments->isEmpty()) {
             return response()->json([

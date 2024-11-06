@@ -15,10 +15,9 @@ class FamilyRelationshipFactory extends Factory
      * @return array<string, mixed>
      */
     public function definition(): array
-    {
-        $relationship = ['Grandpa', 'Grandma', 'Uncle', 'Aunty', 'Brother', 'Sister', 'Father', 'Mother'];
-        return [    
-            'name' => $this->faker->unique()->randomElement($relationship),
+    {        
+        return [
+            
         ];
     }
 }

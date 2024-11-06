@@ -46,7 +46,7 @@ class MedicalRecord extends Model
 
     public function serviceRecord()
     {
-        return $this->hasMany(ServiceRecord::class, 'medical_record_id');
+        return $this->hasOne(ServiceRecord::class, 'medical_record_id');
     }
     
     public function investigationRecord()

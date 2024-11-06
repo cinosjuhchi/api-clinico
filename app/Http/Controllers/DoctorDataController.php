@@ -65,6 +65,8 @@ class DoctorDataController extends Controller
         return response()->json($appointments);
     }
 
+    
+
     /**
      * Store a newly created resource in storage.
      */

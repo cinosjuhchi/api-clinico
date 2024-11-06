@@ -213,7 +213,7 @@ class ConsultationController extends Controller
                     'message' => 'user not found',
                 ]);
             }
-            $appointments = $doctor->consultationTakeMedicine()->with(['patient', 'doctor.category', 'clinic', 'service'])->when($query, function ($q) use ($query) {
+            $appointments = $doctor->consultationTakeMedicine()->with(['patient', 'doctor.category', 'clinic', 'service', 'bill'])->when($query, function ($q) use ($query) {
                 $q->where(function ($subQuery) use ($query) {
                     $subQuery->where('waiting_number', 'like', "%{$query}%")
                         ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {
@@ -224,7 +224,7 @@ class ConsultationController extends Controller
             return response()->json($appointments);
 
         }
-        $appointments = $clinic->consultationTakeMedicine()->with(['patient', 'doctor.category', 'clinic', 'service'])->when($query, function ($q) use ($query) {
+        $appointments = $clinic->consultationTakeMedicine()->with(['patient', 'doctor.category', 'clinic', 'service', 'bill'])->when($query, function ($q) use ($query) {
             $q->where(function ($subQuery) use ($query) {
                 $subQuery->where('waiting_number', 'like', "%{$query}%")
                     ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {

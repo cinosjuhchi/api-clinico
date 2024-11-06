@@ -2,19 +2,16 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\AppointmentRequest;
+use App\Models\Appointment;
 use App\Models\Clinic;
 use App\Models\Doctor;
 use App\Models\Patient;
-use App\Models\Appointment;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use App\Helpers\SlugAppointmentHelper;
-use App\Http\Requests\AppointmentRequest;
+use Illuminate\Support\Str;
 
 class AppointmentController extends Controller
 {
@@ -22,7 +19,7 @@ class AppointmentController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {        
+    {
         $user = $request->user();
         $patientId = $request->input('patient_id');
         $status = $request->input('status'); // Ambil status dari request
@@ -62,34 +59,31 @@ class AppointmentController extends Controller
         $appointments = $appointmentsQuery->get();
 
         // Muat relasi untuk appointments
-        $appointments->load(['patient:id,name', 'doctor', 'clinic.schedule', 'bill', 'medicalRecord.clinicService', 'medicalRecord.serviceRecord', 'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords', 'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords']);        
+        $appointments->load(['patient:id,name', 'doctor', 'clinic.schedule', 'bill', 'medicalRecord.clinicService', 'medicalRecord.serviceRecord', 'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords', 'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords']);
 
         if ($appointments->isEmpty()) {
             return response()->json([
                 'status' => 'success',
                 'message' => 'No appointments found',
-                'data' => []
+                'data' => [],
             ], 200);
         }
 
         return response()->json([
             'status' => 'success',
             'message' => 'Appointments retrieved successfully',
-            'data' => $appointments
+            'data' => $appointments,
         ], 200);
     }
-
-
-
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(AppointmentRequest $appointmentRequest): JsonResponse
+    public function store(AppointmentRequest $appointmentRequest)
     {
         $validated = $appointmentRequest->validated();
 
-        // Pastikan Clinic, Patient, dan Doctor ada sebelum melanjutkan                
+        // Ensure Clinic, Patient, and Doctor exist before proceeding
         $patient = Patient::find($validated['patient_id']);
         $doctor = Doctor::find($validated['doctor_id']);
         $clinic = Clinic::find($doctor->clinic_id);
@@ -100,23 +94,45 @@ class AppointmentController extends Controller
                 'message' => 'Clinic, Patient, or Doctor not found',
             ], 404);
         }
-        
+
         $title = "{$validated['visit_purpose']} on {$clinic->name}";
         $slug = Str::slug($title);
 
-        // Cek apakah slug sudah ada di database
+        // Check if slug already exists in the database
         $slugBase = $slug;
         $counter = 1;
-    
+
         while (Appointment::where('slug', $slug)->exists()) {
-            // Jika ada slug yang sama, tambahkan angka
+            // If there's a duplicate slug, append a number
             $slug = $slugBase . '-' . $counter;
             $counter++;
         }
 
+        // Generate the next visit number (VN)
+        $currentDate = now();
+        $currentYear = $currentDate->year;
+
+        // Check the last VN and increment or reset
+        $lastAppointment = Appointment::whereYear('created_at', $currentYear)
+            ->orderBy('visit_number', 'desc')
+            ->first();
+
+        if ($lastAppointment) {
+            $lastVN = $lastAppointment->visit_number;
+            $lastVNNumber = (int) substr($lastVN, 2); // Strip "VN" prefix and convert to number
+
+            if ($lastVNNumber >= 999999) {
+                $newVN = 'VN000001';
+            } else {
+                $newVN = 'VN' . str_pad($lastVNNumber + 1, 6, '0', STR_PAD_LEFT);
+            }
+        } else {
+            $newVN = 'VN000001';
+        }
+
         try {
-            // Gunakan transaksi untuk menjaga konsistensi data
-            DB::transaction(function () use ($validated, $title, $slug, $clinic) {
+            // Use transaction to maintain data consistency
+            DB::transaction(function () use ($validated, $title, $slug, $clinic, $newVN) {
                 Appointment::create([
                     'title' => $title,
                     'slug' => $slug,
@@ -128,6 +144,7 @@ class AppointmentController extends Controller
                     'doctor_id' => $validated['doctor_id'],
                     'clinic_id' => $clinic->id,
                     'appointment_date' => $validated['appointment_date'],
+                    'visit_number' => $newVN, // Assign the generated visit number
                 ]);
             });
 
@@ -145,13 +162,12 @@ class AppointmentController extends Controller
 
     public function takeMedicine(Appointment $appointment)
     {
-        if($appointment->status == 'consultation' || $appointment->status == 'cancelled' || $appointment->status == 'completed') 
-        {
+        if ($appointment->status == 'consultation' || $appointment->status == 'cancelled' || $appointment->status == 'completed') {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'Appointment has been check-in!'                
+                'message' => 'Appointment has been check-in!',
             ], 403);
-        } 
+        }
         $appointment->status = 'waiting-payment';
         $appointment->save();
         return response()->json([
@@ -159,8 +175,6 @@ class AppointmentController extends Controller
             'message' => 'Appointment in-progress successfully',
         ], 200);
     }
-
-
 
     /**
      * Display the specified resource.
@@ -177,7 +191,7 @@ class AppointmentController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Appointment retrieved successfully',
-            'data' => $appointment
+            'data' => $appointment,
         ], 200);
     }
 
@@ -185,21 +199,20 @@ class AppointmentController extends Controller
      * Update the specified resource in storage.
      */
     public function checkin(Appointment $appointment)
-    {        
-        if($appointment->status == 'consultation' || $appointment->status == 'cancelled' || $appointment->status == 'completed') 
-        {
+    {
+        if ($appointment->status == 'consultation' || $appointment->status == 'cancelled' || $appointment->status == 'completed') {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'Appointment has been check-in!'                
+                'message' => 'Appointment has been check-in!',
             ], 403);
         }
         $booked = Appointment::where('appointment_date', $appointment->appointment_date)
-        ->where('status', 'consultation')    
-        ->where('doctor_id', $appointment->doctor_id)
-        ->where('room_id', $appointment->room_id)
-        ->latest('updated_at')->first();
+            ->where('status', 'consultation')
+            ->where('doctor_id', $appointment->doctor_id)
+            ->where('room_id', $appointment->room_id)
+            ->latest('updated_at')->first();
         $waitingNumber = 1;
-        if($booked) {
+        if ($booked) {
             $waitingNumber += $booked->waiting_number;
             $appointment->update([
                 'status' => 'consultation',
@@ -208,18 +221,18 @@ class AppointmentController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Check-In successfully!',
-                'data' => $booked
+                'data' => $booked,
             ], 200);
         }
         $appointment->update([
             'status' => 'consultation',
-            'waiting_number' => 1
+            'waiting_number' => 1,
         ]);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Check-In successfully!',
-            'data' => $waitingNumber
+            'data' => $waitingNumber,
         ], 200);
     }
 
@@ -236,7 +249,7 @@ class AppointmentController extends Controller
             ], 404);
         }
         $appointment->status = 'cancelled';
-        $appointment->save(); 
+        $appointment->save();
         return response()->json([
             'status' => 'success',
             'message' => 'Appointment cancelled successfully',
@@ -244,6 +257,6 @@ class AppointmentController extends Controller
     }
     public function callPatient(Appointment $appointment)
     {
-        
-    }    
+
+    }
 }

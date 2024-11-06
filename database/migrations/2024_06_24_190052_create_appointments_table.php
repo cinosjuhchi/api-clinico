@@ -18,6 +18,7 @@ return new class extends Migration
             $table->enum('status', ['pending', 'consultation', 'take-medicine', 'completed', 'cancelled', 'waiting-payment']);
             $table->text('current_condition');
             $table->integer('waiting_number')->nullable();
+            $table->string('visit_number')->nullable();
             $table->unsignedBigInteger('patient_id');
             $table->unsignedBigInteger('doctor_id')->nullable();
             $table->unsignedBigInteger('clinic_id')->nullable();            

@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
-use Illuminate\Http\Request;
 use App\Models\ClinicService;
 use App\Models\MedicalRecord;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ConsultationController extends Controller
 {
@@ -213,7 +213,7 @@ class ConsultationController extends Controller
                     'message' => 'user not found',
                 ]);
             }
-            $appointments = $doctor->consultationTakeMedicine()->with(['patient', 'doctor.category', 'clinic', 'service', 'bill', 'medicalRecord'])->when($query, function ($q) use ($query) {
+            $appointments = $doctor->consultationTakeMedicine()->with(['patient', 'doctor.category', 'clinic', 'service', 'bill', 'medicalRecord', 'medicalRecord.clinicService', 'medicalRecord.serviceRecord', 'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords', 'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords'])->when($query, function ($q) use ($query) {
                 $q->where(function ($subQuery) use ($query) {
                     $subQuery->where('waiting_number', 'like', "%{$query}%")
                         ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {
@@ -224,7 +224,7 @@ class ConsultationController extends Controller
             return response()->json($appointments);
 
         }
-        $appointments = $clinic->consultationTakeMedicine()->with(['patient', 'doctor.category', 'clinic', 'service', 'bill', 'medicalRecord'])->when($query, function ($q) use ($query) {
+        $appointments = $clinic->consultationTakeMedicine()->with(['patient', 'doctor.category', 'clinic', 'service', 'bill', 'medicalRecord', 'medicalRecord.clinicService', 'medicalRecord.serviceRecord', 'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords', 'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords'])->when($query, function ($q) use ($query) {
             $q->where(function ($subQuery) use ($query) {
                 $subQuery->where('waiting_number', 'like', "%{$query}%")
                     ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {

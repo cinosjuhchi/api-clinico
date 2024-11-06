@@ -10,14 +10,12 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
 
 class DiagnosesImport extends DefaultValueBinder implements
 ToCollection,
 WithChunkReading,
 WithBatchInserts,
-WithHeadingRow,
 WithCustomValueBinder
 {
     private $batchSize = 500;
@@ -50,7 +48,6 @@ WithCustomValueBinder
                     $data = [];
 
                     foreach ($chunk as $row) {
-                        // Add row even if empty, since we're allowing nullable fields
                         $data[] = $this->formatRow($row);
                     }
 
@@ -97,16 +94,19 @@ WithCustomValueBinder
     private function formatRow($row): array
     {
         try {
+            // Now accessing numeric indexes since we're not using headers
+            // 0 = Column A (code)
+            // 1 = Column B (description - merged B & C)
+            // 3 = Column D (nf_excel)
             return [
-                'code' => !empty($row['a']) ? substr(trim($row['a']), 0, 255) : null,
-                'description' => !empty($row['b']) ? substr(trim($row['b']), 0, 65535) : null,
-                'nf_excel' => !empty($row['d']) ? substr(trim($row['d']), 0, 255) : null,
+                'code' => isset($row[0]) ? substr(trim($row[0]), 0, 255) : null,
+                'description' => isset($row[1]) ? substr(trim($row[1]), 0, 65535) : null,
+                'nf_excel' => isset($row[3]) ? substr(trim($row[3]), 0, 255) : null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
         } catch (\Exception $e) {
             Log::error("Error formatting row: " . json_encode($row) . " Error: " . $e->getMessage());
-            // Return empty but valid row structure instead of throwing
             return [
                 'code' => null,
                 'description' => null,

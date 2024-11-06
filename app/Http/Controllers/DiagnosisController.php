@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Diagnosis;
 use App\Http\Requests\StoreDiagnosisRequest;
 use App\Http\Requests\UpdateDiagnosisRequest;
+use App\Models\Diagnosis;
 use Illuminate\Http\Request;
 
 class DiagnosisController extends Controller
@@ -14,7 +14,14 @@ class DiagnosisController extends Controller
      */
     public function index(Request $request)
     {
-        $data = Diagnosis::all();
+        $query = $request->input('q');
+        $perPage = $request->input('per_page', 10); // Default to 10 items per page if not specified
+
+        $data = Diagnosis::when($query, function ($queryBuilder) use ($query) {
+            $queryBuilder->where('code', 'like', '%' . $query . '%')
+                ->orWhere('description', 'like', '%' . $query . '%');
+        })->paginate($perPage);
+
         return response()->json($data);
     }
 

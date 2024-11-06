@@ -8,7 +8,6 @@ use App\Models\Appointment;
 use App\Models\Clinic;
 use App\Models\Doctor;
 use App\Models\Patient;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -234,6 +233,18 @@ class AppointmentController extends Controller
             'message' => 'Check-In successfully!',
             'data' => $waitingNumber,
         ], 200);
+    }
+
+    public function waitingNumber(Appointment $appointment)
+    {
+        $roomWaitingNumber = Appointment::where('appointment_date', $appointment->appointment_date)
+            ->where('status', 'consultation')
+            ->where('doctor_id', $appointment->doctor_id)
+            ->where('room_id', $appointment->room_id)
+            ->oldest('updated_at')->first();
+
+            return response()->json($roomWaitingNumber);
+
     }
 
     /**

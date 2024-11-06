@@ -154,6 +154,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/my-appointment', [AppointmentController::class, 'myAppointment']);
                 Route::get('/show/{slug}', [AppointmentController::class, 'show']);
                 Route::get('/destroy/{slug}', [AppointmentController::class, 'destroy']);
+                Route::get('/waiting-number', [AppointmentController::class,'waitingNumber']);
                 Route::post('/store', [AppointmentController::class, 'store']);
                 Route::put('/check-in/{appointment}', [AppointmentController::class, 'checkin']);
                 Route::put('/take-medicine/{appointment}', [AppointmentController::class, 'takeMedicine']);
@@ -268,7 +269,7 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/cancel-appointment/{slug}', [AppointmentController::class, 'destroy']);
             });
             Route::get('/dispensary', [ConsultationController::class, 'dispensary']);
-            Route::get('/take-medicine/{appointment}', [ConsultationController::class, 'take-medicine']);
+            Route::get('/take-medicine/{appointment}', [ConsultationController::class, 'takeMedicine']);
         });
         Route::prefix('diagnosis')->group(function () {
             Route::get('/', [DiagnosisController::class, 'index']);

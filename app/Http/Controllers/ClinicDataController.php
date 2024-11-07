@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreDoctorClinicRequest;
-use App\Http\Resources\ClinicResource;
+use App\Models\User;
 use App\Models\Clinic;
 use App\Models\Doctor;
+use App\Models\Billing;
 use App\Models\Employee;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\ClinicResource;
+use App\Http\Requests\StoreDoctorClinicRequest;
 
 class ClinicDataController extends Controller
 {
@@ -513,6 +514,13 @@ class ClinicDataController extends Controller
             'message' => 'Successfully fetch data',
             'data' => $doctor,
         ], 200);
+    }
+
+    public function bills(Request $request)
+    {
+        $data = Billing::all()->paginate(10);
+        return response()->json($data);
+        
     }
 
 }

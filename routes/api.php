@@ -48,6 +48,9 @@ Route::prefix('v1')->group(function () {
     Route::prefix('back-office')->group(function () {
         Route::post('login', [BackOfficeController::class, 'login']);
         Route::middleware(['auth:sanctum', 'abilities:backOffice'])->group(function () {
+            Route::prefix('bills')->group(function () {
+                Route::get('/', []);
+            });
             Route::get('/logout', [BackOfficeController::class, 'logout']);
             Route::prefix('clinic')->group(function () {
                 Route::get('/request-clinic', [RequestClinicController::class, 'index']);

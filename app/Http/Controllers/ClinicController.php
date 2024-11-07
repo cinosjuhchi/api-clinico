@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ClinicResource;
 use App\Models\Clinic;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use App\Http\Resources\ClinicResource;
 
 class ClinicController extends Controller
 {
@@ -20,11 +20,11 @@ class ClinicController extends Controller
             'doctors.category',
             'doctors.doctorSchedules',
             'rooms',
-            'location', 
-            'schedule'
+            'location',
+            'schedule',
         ])
-        ->where('status', true)
-        ->paginate($perPage);
+            ->where('status', true)
+            ->paginate($perPage);
 
         return ClinicResource::collection($clinics)
             ->additional([
@@ -34,7 +34,6 @@ class ClinicController extends Controller
                 'totalPages' => $clinics->lastPage(),
             ]);
     }
-    
 
     /**
      * Store a newly created resource in storage.
@@ -60,7 +59,7 @@ class ClinicController extends Controller
             'appointments' => function ($query) use ($date) {
                 // Hanya ambil appointment yang memiliki tanggal hari ini
                 $query->whereDate('appointment_date', $date)
-                ->where('status', 'pending')
+                    ->where('status', 'consultation')
                 ;
             },
             'services',
@@ -69,10 +68,10 @@ class ClinicController extends Controller
                 $query->whereHas('doctorSchedules', function ($q) use ($day) {
                     $q->where('day', $day);
                 })->with('category'); // Pastikan kategori dokter juga dimuat
-            }
+            },
         ])
-        ->where('slug', $slug)
-        ->firstOrFail(); // Menggunakan firstOrFail untuk mendapatkan klinik atau menghasilkan 404
+            ->where('slug', $slug)
+            ->firstOrFail(); // Menggunakan firstOrFail untuk mendapatkan klinik atau menghasilkan 404
 
         // Kembalikan resource klinik dengan tambahan status dan pesan
         return response()->json([
@@ -81,12 +80,6 @@ class ClinicController extends Controller
             'data' => new ClinicResource($clinic),
         ]);
     }
-
-
-
-
-
-
 
     /**
      * Update the specified resource in storage.

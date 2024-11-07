@@ -268,7 +268,9 @@ Route::prefix('v1')->group(function () {
                 Route::get('/completed-entry', [DoctorDataController::class, 'completedEntry']);
                 Route::delete('/cancel-appointment/{slug}', [AppointmentController::class, 'destroy']);
             });
+            
             Route::get('/dispensary', [ConsultationController::class, 'dispensary']);
+            Route::get('/consultation-entry', [ConsultationController::class, 'consultationEntry']);
             Route::get('/take-medicine/{appointment}', [ConsultationController::class, 'takeMedicine']);
         });
         Route::prefix('diagnosis')->group(function () {

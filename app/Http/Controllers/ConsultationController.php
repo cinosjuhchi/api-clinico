@@ -236,6 +236,43 @@ class ConsultationController extends Controller
 
     }
 
+    public function consultationEntry(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = $user->clinic;
+        $query = $request->input('q');
+
+        if (!$clinic) {
+            $doctor = $user->doctor;
+            if (!$doctor) {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'user not found',
+                ]);
+            }
+            $appointments = $doctor->consultationAppointments()->with(['patient', 'doctor.category', 'clinic', 'service', 'bill', 'medicalRecord', 'medicalRecord.clinicService', 'medicalRecord.serviceRecord', 'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords', 'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords', 'medicalRecord.diagnosisRecord'])->when($query, function ($q) use ($query) {
+                $q->where(function ($subQuery) use ($query) {
+                    $subQuery->where('waiting_number', 'like', "%{$query}%")
+                        ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {
+                            $categoryQuery->where('name', 'like', "%{$query}%");
+                        });
+                });
+            })->latest()->paginate(5);
+            return response()->json($appointments);
+
+        }
+        $appointments = $clinic->consultationAppointments()->with(['patient', 'doctor.category', 'clinic', 'service', 'bill', 'medicalRecord', 'medicalRecord.clinicService', 'medicalRecord.serviceRecord', 'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords', 'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords', 'medicalRecord.diagnosisRecord'])->when($query, function ($q) use ($query) {
+            $q->where(function ($subQuery) use ($query) {
+                $subQuery->where('waiting_number', 'like', "%{$query}%")
+                    ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {
+                        $categoryQuery->where('name', 'like', "%{$query}%");
+                    });
+            });
+        })->latest()->paginate(5);
+        return response()->json($appointments);
+
+    }
+
     public function takeMedicine(Appointment $appointment)
     {
         if ($appointment->status == 'consultation' || $appointment->status == 'cancelled' || $appointment->status == 'completed') {

@@ -21,7 +21,7 @@ class ContactUsController extends Controller
         ]);
 
         try {
-            Mail::to("contact@clinico.site")->send(new ContactUs($data));
+            Mail::to("verification@clinico.site")->send(new ContactUs($data));
         } catch (Throwable $e) {
             Log::error("email gagal dikirim" . $e->getMessage());
             return response()->json(['message' => 'Email failed'], 500);

@@ -3,7 +3,6 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
@@ -30,7 +29,7 @@ class VerifyEmail extends Mailable
     {
         return new Envelope(
             subject: "Clinico Verify Email",
-            from: new Address('contact@clinico.site', "Clinico Malaysia"),
+            from: new Address('verification@clinico.site', "Clinico Malaysia"),
         );
     }
 

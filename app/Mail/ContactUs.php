@@ -6,9 +6,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\SerializesModels;
 
 class ContactUs extends Mailable
 {
@@ -30,7 +29,7 @@ class ContactUs extends Mailable
     {
         return new Envelope(
             subject: $this->data['name'],
-            from: new Address('contact@clinico.site', $this->data['name']),
+            from: new Address('verification@clinico.site', $this->data['name']),
             replyTo: [
                 new Address($this->data['email'], $this->data['name']),
             ]

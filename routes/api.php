@@ -1,48 +1,48 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\BillController;
-use App\Http\Controllers\RoomController;
-use App\Http\Controllers\ClinicController;
-use App\Http\Controllers\DoctorController;
-use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\AllergyController;
-use App\Http\Controllers\ChronicController;
-use App\Http\Controllers\PatientController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\EmployeeController;
-use App\Http\Controllers\PhysicalController;
-use App\Http\Controllers\DiagnosisController;
-use App\Http\Controllers\InjectionController;
-use App\Http\Controllers\ProcedureController;
-use App\Http\Controllers\BackOfficeController;
-use App\Http\Controllers\ClinicDataController;
-use App\Http\Controllers\DoctorDataController;
-use App\Http\Controllers\MedicationController;
-use App\Http\Controllers\OccupationController;
-use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\UserController;
-use App\Http\Controllers\ConsultationController;
-use App\Http\Controllers\ImmunizationController;
-use App\Http\Controllers\ClinicServiceController;
-use App\Http\Controllers\MedicalRecordController;
-use App\Http\Controllers\ParentChronicController;
-use App\Http\Controllers\RequestClinicController;
-use App\Http\Controllers\DoctorScheduleController;
-use App\Http\Controllers\Api\V1\ContactUsController;
-use App\Http\Controllers\EmergencyContactController;
-use App\Http\Controllers\MedicationRecordController;
-use App\Http\Controllers\PregnancyCategoryController;
 use App\Http\Controllers\Api\V1\AppointmentController;
-use App\Http\Controllers\FamilyRelationshipController;
-use App\Http\Controllers\Api\V1\User\ProfileController;
-use App\Http\Controllers\InvestigationClinicController;
-use App\Http\Controllers\PatientNotificationController;
-use App\Http\Controllers\Api\V1\ClinicProfileController;
-use App\Http\Controllers\Api\V1\DoctorProfileController;
+use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\Auth\ClinicAuthController;
 use App\Http\Controllers\Api\V1\Auth\DoctorAuthController;
+use App\Http\Controllers\Api\V1\ClinicProfileController;
+use App\Http\Controllers\Api\V1\ContactUsController;
+use App\Http\Controllers\Api\V1\DoctorProfileController;
+use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Api\V1\User\ProfileController;
+use App\Http\Controllers\BackOfficeController;
+use App\Http\Controllers\BillController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ChronicController;
+use App\Http\Controllers\ClinicController;
+use App\Http\Controllers\ClinicDataController;
+use App\Http\Controllers\ClinicServiceController;
+use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\DemographicInformationController;
+use App\Http\Controllers\DiagnosisController;
+use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\DoctorDataController;
+use App\Http\Controllers\DoctorScheduleController;
+use App\Http\Controllers\EmergencyContactController;
+use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\FamilyController;
+use App\Http\Controllers\FamilyRelationshipController;
+use App\Http\Controllers\ImmunizationController;
+use App\Http\Controllers\InjectionController;
+use App\Http\Controllers\InvestigationClinicController;
+use App\Http\Controllers\MedicalRecordController;
+use App\Http\Controllers\MedicationController;
+use App\Http\Controllers\MedicationRecordController;
+use App\Http\Controllers\OccupationController;
+use App\Http\Controllers\ParentChronicController;
+use App\Http\Controllers\PatientController;
+use App\Http\Controllers\PatientNotificationController;
+use App\Http\Controllers\PhysicalController;
+use App\Http\Controllers\PregnancyCategoryController;
+use App\Http\Controllers\ProcedureController;
+use App\Http\Controllers\RequestClinicController;
+use App\Http\Controllers\RoomController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('back-office')->group(function () {
@@ -54,6 +54,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/logout', [BackOfficeController::class, 'logout']);
             Route::prefix('clinic')->group(function () {
                 Route::get('/request-clinic', [RequestClinicController::class, 'index']);
+                Route::delete('/delete/{clinic}', [RequestClinicController::class, 'destroy']);
                 Route::put('/accept-request/{clinic}', [RequestClinicController::class, 'update']);
             });
         });
@@ -157,7 +158,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/my-appointment', [AppointmentController::class, 'myAppointment']);
                 Route::get('/show/{slug}', [AppointmentController::class, 'show']);
                 Route::get('/destroy/{slug}', [AppointmentController::class, 'destroy']);
-                Route::get('/waiting-number', [AppointmentController::class,'waitingNumber']);
+                Route::get('/waiting-number', [AppointmentController::class, 'waitingNumber']);
                 Route::post('/store', [AppointmentController::class, 'store']);
                 Route::put('/check-in/{appointment}', [AppointmentController::class, 'checkin']);
                 Route::put('/take-medicine/{appointment}', [AppointmentController::class, 'takeMedicine']);
@@ -271,7 +272,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/completed-entry', [DoctorDataController::class, 'completedEntry']);
                 Route::delete('/cancel-appointment/{slug}', [AppointmentController::class, 'destroy']);
             });
-            
+
             Route::get('/dispensary', [ConsultationController::class, 'dispensary']);
             Route::get('/consultation-entry', [ConsultationController::class, 'consultationEntry']);
             Route::get('/take-medicine/{appointment}', [ConsultationController::class, 'takeMedicine']);
@@ -283,5 +284,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/', [PregnancyCategoryController::class, 'index']);
             Route::get('/show/{pregnancyCategory}', [PregnancyCategoryController::class, 'show']);
         });
+        Route::prefix('rooms')->group(function () {
+            Route::get('/resource', [RoomController::class, 'roomResource']);
+            Route::get('/', [RoomController::class, 'index']);            
+        });
+
     });
 });

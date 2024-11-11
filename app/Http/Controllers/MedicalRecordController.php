@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MedicalRecord;
 use Illuminate\Http\Request;
+use App\Models\MedicalRecord;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class MedicalRecordController extends Controller
 {
@@ -12,9 +14,9 @@ class MedicalRecordController extends Controller
      */
     public function index(Request $request)
     {
-        $user = $request->user();        
+        $user = Auth::user();        
         
-        $medicalRecord = $user->medicalRecord;
+        $medicalRecord = $user->medicalRecords;
 
         return response()->json([
             'status' => 'success',

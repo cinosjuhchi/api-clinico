@@ -85,6 +85,20 @@ class RequestClinicController extends Controller
      */
     public function destroy(Clinic $clinic)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $clinic->delete();
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Clinic Deleted!'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'error something wrong happened'
+            ], 500);
+        }
     }
 }

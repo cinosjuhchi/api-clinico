@@ -29,10 +29,15 @@ class ClinicProfileController extends Controller
                 $query->whereDate('appointment_date', $date)
                     ->where('status', 'pending');
             },
+            'consultationAppointments' => function ($query) use ($date) {
+                // Ambil hanya appointment dengan status 'pending' pada hari ini
+                $query->whereDate('appointment_date', $date)
+                ->where('status', 'consultation');                    
+            },
             'completedAppointments' => function ($query) use ($date) {
                 // Ambil hanya appointment dengan status 'pending' pada hari ini
                 $query->whereDate('appointment_date', $date)
-                    ->where('status', 'pending');
+                ->where('status', 'completed');
             },
             'services',
             'doctors' => function ($query) use ($day) {

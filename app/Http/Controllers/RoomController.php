@@ -18,14 +18,46 @@ class RoomController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $clinic = $user->clinic;
 
-        $rooms = $clinic->rooms()->with(['occupant'])->paginate(10);
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Successfully retrieved',
-            'data' => $rooms,
-        ]);
+        // Get clinic based on user role
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            default => throw new \Exception('Unauthorized access. Invalid role.'),
+        };
+
+        // Verify clinic exists
+        if (!$clinic) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Clinic not found',
+            ], 404);
+        }
+
+        try {
+            // Query rooms with occupant relationship
+            $rooms = $clinic->rooms()
+                ->with(['occupant'])
+                ->when($request->has('search'), function ($query) use ($request) {
+                    return $query->where('name', 'like', "%{$request->search}%");
+                })
+                ->when($request->has('status'), function ($query) use ($request) {
+                    return $query->where('status', $request->status);
+                })
+                ->paginate($request->per_page ?? 10);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Successfully retrieved rooms',
+                'data' => $rooms,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve rooms: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

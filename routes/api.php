@@ -195,6 +195,7 @@ Route::prefix('v1')->group(function () {
             });
         });
         Route::middleware(['auth:sanctum', 'abilities:hasAccessResource'])->group(function () {
+            Route::get('/clinic-information', [ClinicController::class, 'clinicInformation']);
             Route::prefix('medicines')->group(function () {
                 Route::get('/', [MedicationController::class, 'index']);
                 Route::get('/doctor-resource', [MedicationController::class, 'doctorResource']);

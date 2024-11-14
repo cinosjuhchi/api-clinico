@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\ClinicResource;
 use App\Models\Clinic;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\ClinicResource;
 
 class ClinicController extends Controller
 {
@@ -41,6 +42,32 @@ class ClinicController extends Controller
     public function store(Request $request)
     {
         //
+    }
+
+    public function clinicInformation(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            default => throw new \Exception('Unauthorized access. Invalid role.'),
+        };
+
+        if(!$clinic)
+        {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Clinic not found',                
+            ], 404);
+
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully fetch clinic data',
+            'data' => $clinic
+        ]);
+
     }
 
     /**

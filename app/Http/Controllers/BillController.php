@@ -322,7 +322,12 @@ class BillController extends Controller
      */
     public function show(Billing $billing)
     {
-        //
+        $billing->load(['doctor', 'clinic', 'injections', 'service', 'medications', 'procedures', 'appointment.patient']);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Succesfully fetch bill!',
+            'data' => $billing
+        ]);
     }
 
     /**

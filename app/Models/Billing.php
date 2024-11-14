@@ -20,4 +20,15 @@ class Billing extends Model
     {
         return $this->belongsTo(Appointment::class, 'appointment_id');
     }
+
+    public function clinic()
+    {
+        return $this->belongsTo(Clinic::class, 'clinic_id');
+    }
+
+    public function doctor()
+    {
+        return $this->belongsTo(Doctor::class, 'doctor_id');
+    }
+
 }

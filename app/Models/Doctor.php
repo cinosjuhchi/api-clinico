@@ -131,4 +131,8 @@ class Doctor extends Authenticatable
         return $this->hasOne(FinancialInformation::class);
     }
 
+    public function bills(): HasMany
+    {
+        return $this->hasMany(Billing::class, 'doctor_id');
+    }
 }

@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Billing;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-
+use Illuminate\Support\Facades\Log;
 
 class BillController extends Controller
 {
@@ -19,30 +19,184 @@ class BillController extends Controller
     {
         $user = Auth::user();
         $query = $request->input('q');
-        
+
         $bills = $user->bills()
-        ->with(['appointment.clinic'])
-        ->when($query, function ($q) use ($query) {
-            $q->where('transaction_date', 'like', "%{$query}%")
-              ->orWhere('is_paid', 'like', "%{$query}%")
-              ->orWhere(function ($queryBuilder) use ($query) {
-                  if (is_numeric($query)) {
-                      $queryBuilder->where('total_cost', 'like', "%" . ($query * 1000) . "%");
-                  }
-              })
-              ->orWhereHas('appointment.clinic', function ($queryBuilder) use ($query) {
-                  $queryBuilder->where('name', 'like', "%{$query}%");
-              });
-        })        
-        ->paginate(10);
-        
+            ->with(['appointment.clinic'])
+            ->when($query, function ($q) use ($query) {
+                $q->where('transaction_date', 'like', "%{$query}%")
+                    ->orWhere('is_paid', 'like', "%{$query}%")
+                    ->orWhere(function ($queryBuilder) use ($query) {
+                        if (is_numeric($query)) {
+                            $queryBuilder->where('total_cost', 'like', "%" . ($query * 1000) . "%");
+                        }
+                    })
+                    ->orWhereHas('appointment.clinic', function ($queryBuilder) use ($query) {
+                        $queryBuilder->where('name', 'like', "%{$query}%");
+                    });
+            })
+            ->paginate(10);
+
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully fetch data',
-            'data' => $bills
+            'data' => $bills,
         ]);
     }
 
+    public function clinicRevenue(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            default => throw new \Exception('Unauthorized access. Invalid role.'),
+        };
+
+        if (!$clinic) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Clinic not found.',
+            ], 404);
+        }
+
+        $revenue = $clinic->bills()
+            ->with(['user', 'appointment'])
+            ->where('is_paid', true)
+            ->paginate(5);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Success to fetch the data.',
+            'data' => $revenue,
+        ], 200);
+    }
+
+    public function clinicTotalRevenue(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            default => throw new \Exception('Unauthorized access. Invalid role.'),
+        };
+
+        if (!$clinic) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Clinic not found.',
+            ], 404);
+        }
+
+        $month = $request->input('month');
+        $year = $request->input('year');
+
+        // Memfilter berdasarkan bulan dan tahun pada kolom transaction_date jika diberikan
+        $query = $clinic->bills()->where('is_paid', true);
+
+        if ($month && $year) {
+            $query->whereMonth('transaction_date', $month)->whereYear('transaction_date', $year);
+        } elseif ($month) {
+            $query->whereMonth('transaction_date', $month);
+        } elseif ($year) {
+            $query->whereYear('transaction_date', $year);
+        }
+
+        $totalRevenue = $query->sum('total_cost');
+
+        // Mengurangi 5% dari total revenue
+        $adjustedRevenue = $totalRevenue * 0.95;
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Success to fetch the total revenue.',
+            'total_revenue' => $adjustedRevenue,
+        ], 200);
+    }
+    public function clinicDailyTotalRevenue(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            default => throw new \Exception('Unauthorized access. Invalid role.'),
+        };
+
+        if (!$clinic) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Clinic not found.',
+            ], 404);
+        }
+
+        $date = $request->input('date');
+
+        // Memfilter berdasarkan tanggal pada kolom transaction_date jika diberikan
+        $query = $clinic->bills()->where('is_paid', true);
+
+        if ($date) {
+            $query->whereDate('transaction_date', $date);
+        }
+
+        $totalRevenue = $query->sum('total_cost');
+
+        // Mengurangi 5% dari total revenue
+        $adjustedRevenue = $totalRevenue * 0.95;
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Success to fetch the daily total revenue.',
+            'total_revenue' => $adjustedRevenue,
+        ], 200);
+    }
+    public function clinicTotalRevenueByDoctor(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            default => throw new \Exception('Unauthorized access. Invalid role.'),
+        };
+
+        if (!$clinic) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Clinic not found.',
+            ], 404);
+        }
+        $query = $clinic->bills()
+            ->where('is_paid', true)
+            ->join('doctors', 'billings.doctor_id', '=', 'doctors.id')
+            ->leftJoin('categories', 'doctors.category_id', '=', 'categories.id')
+            ->leftJoin('employees', 'doctors.employee_id', '=', 'employees.id')
+            ->select(
+                'doctors.id',
+                'doctors.name as doctor_name',
+                'categories.id as category_id',
+                'categories.name as category_name',
+                'employees.image_profile as image',
+                DB::raw('SUM(billings.total_cost) as total_revenue'),
+                DB::raw('COUNT(billings.id) as total_patients')
+            )
+            ->groupBy('doctors.id', 'doctors.name', 'categories.id', 'categories.name');
+
+        $doctorsRevenue = $query->get()->map(function ($item) {
+            return [
+                'doctor_id' => $item->id,
+                'doctor_name' => $item->doctor_name,
+                'total_patients' => $item->total_patients,
+                'category_name' => $item->category_name,
+                'total_revenue' => $item->total_revenue,
+                'image' => $item->image,
+                'adjusted_revenue' => $item->total_revenue * 0.95, // Pengurangan 5%
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Success to fetch doctors revenue.',
+            'data' => $doctorsRevenue,
+        ], 200);
+    }
 
     public function callback(Request $request)
     {
@@ -51,19 +205,19 @@ class BillController extends Controller
         $signature = $request->header('X-Signature');
         $data = $request->all();
         $xSignature = $data['x_signature'] ?? null;
-        
+
         // Hapus x_signature dari data untuk validasi
         unset($data['x_signature']);
-        
+
         // Validasi signature
         if (!$this->validateSignature($data, $xSignature)) {
             Log::error('Invalid Billplz signature');
             return response()->json(['error' => 'Invalid signature'], 401);
         }
-        
-        $billing = Billing::where('billz_id', $billId)->first();            
+
+        $billing = Billing::where('billz_id', $billId)->first();
         $billing->update([
-            'is_paid' => true
+            'is_paid' => true,
         ]);
 
         $appointment = $billing->appointment;
@@ -71,7 +225,7 @@ class BillController extends Controller
         $appointment->update([
             'status' => 'completed',
         ]);
-                        
+
         return response()->json(['status' => 'success'], 200);
     }
 
@@ -98,8 +252,8 @@ class BillController extends Controller
         $combinedString = implode('|', $sourceStrings);
 
         // 4. Generate signature menggunakan HMAC-SHA256
-        $generatedSignature = hash_hmac('sha256', 
-            $combinedString, 
+        $generatedSignature = hash_hmac('sha256',
+            $combinedString,
             env('BILLPLZ_SIGNATURE')
         );
 
@@ -107,13 +261,12 @@ class BillController extends Controller
         return hash_equals($xSignature, $generatedSignature);
     }
 
-
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([            
+        $validated = $request->validate([
             'name' => 'required|string',
             'description' => 'required|string',
             'due_date' => 'required|date',
@@ -121,8 +274,8 @@ class BillController extends Controller
             'amount' => 'required|numeric',
             'bill_id' => 'required|exists:billings,id',
             'reference_1_label' => 'nullable|string',
-            'reference_1' => 'nullable|string'
-        ]);        
+            'reference_1' => 'nullable|string',
+        ]);
 
         $billData = [
             'collection_id' => env('BILLPLZ_COLLECTION'),
@@ -130,8 +283,8 @@ class BillController extends Controller
             'email' => $validated['email'],
             'amount' => $validated['amount'] * 100,
             'description' => $validated['description'],
-            'due_at' => $validated['due_date'],         
-            'deliver' => true,   
+            'due_at' => $validated['due_date'],
+            'deliver' => true,
             'callback_url' => env('BILLPLZ_CALLBACK'),
             'reference_1_label' => $validated['reference_1_label'],
             'reference_1' => $validated['reference_1'],
@@ -145,13 +298,19 @@ class BillController extends Controller
             $bill = Billing::find($validated['bill_id']);
             $bill->update([
                 'billz_id' => $responseData['id'],
+                'is_paid' => true,
+            ]);
+            $appointment = $bill->appointment;
+
+            $appointment->update([
+                'status' => 'completed',
             ]);
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Bill created successfully.',
                 'data' => $responseData,
-                'bill_url' => $responseData['url'] . '?auto_submit=true'
+                'bill_url' => $responseData['url'] . '?auto_submit=true',
             ], 201);
         } else {
             return response()->json(['error' => $response->json()], $response->status());

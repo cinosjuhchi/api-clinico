@@ -17,7 +17,7 @@ return new class extends Migration
             $table->dateTime('transaction_date');
             $table->decimal('total_cost', 12, 2);
             $table->boolean('is_paid')->default(false);
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();            
             $table->foreignId('appointment_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });

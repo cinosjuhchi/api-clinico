@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Medication;
 use App\Models\Appointment;
+use Illuminate\Http\Request;
 use App\Models\ClinicService;
 use App\Models\MedicalRecord;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class ConsultationController extends Controller
 {
@@ -30,7 +31,12 @@ class ConsultationController extends Controller
 
     public function complete(Appointment $appointment, Request $request)
     {
+        $user = Auth::user();
+        $doctor = $user->doctor;
+        $clinic = $doctor->clinic;
+
         DB::beginTransaction();
+
 
         try {
             $validated = $request->validate([
@@ -69,6 +75,8 @@ class ConsultationController extends Controller
                 'medicine.*.unit' => 'required|string',
                 'medicine.*.frequency' => 'nullable|string',
                 'medicine.*.cost' => 'required|numeric',
+                'medicine.*.medicine_id' => 'nullable|exists:medications:id',
+                'medicine.*.medicine_qty' => 'nullable|integer', 
                 // Bill
                 'total_cost' => 'required|numeric',
                 'transaction_date' => 'required|date',
@@ -83,6 +91,8 @@ class ConsultationController extends Controller
                 'transaction_date' => $validated['transaction_date'],
                 'total_cost' => $validated['total_cost'],
                 'user_id' => $user,
+                'clinic_id' => $clinic->id,
+                'doctor_id' => $doctor->id
             ]);
 
             $patient->physicalExaminations()->update([
@@ -161,10 +171,14 @@ class ConsultationController extends Controller
 
             if (!empty($validated['medicine'])) {
                 foreach ($validated['medicine'] as $medicine) {
+                    $medication = Medication::find($medicine->medicine_id);
+                    $price = $medication->price;
                     $medicalRecord->medicationRecords()->create([
                         'medicine' => $medicine['name'],
                         'frequency' => $medicine['frequency'],
-                        'price' => $medicine['cost'],
+                        'price' => $price,
+                        'total_cost' => $medicine['cost'],
+                        'qty' => $medicine['medicine_qty'],
                         'patient_id' => $appointment->patient_id,
                         'billing_id' => $bill->id,
                     ]);

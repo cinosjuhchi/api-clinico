@@ -2,20 +2,19 @@
 
 namespace App\Models;
 
-use App\Models\Room;
-use App\Models\Doctor;
 use App\Models\Appointment;
-use App\Models\ClinicService;
 use App\Models\ClinicLocation;
 use App\Models\ClinicSchedule;
-use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\ClinicService;
+use App\Models\Doctor;
+use App\Models\Room;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
 class Clinic extends Authenticatable
 {
@@ -28,6 +27,17 @@ class Clinic extends Authenticatable
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+    public function doctorUsers(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            User::class, // Target model
+            Doctor::class, // Intermediate model
+            'clinic_id', // Foreign key on doctors table
+            'id', // Foreign key on users table
+            'id', // Local key on clinics table
+            'user_id' // Local key on doctors table
+        )->where('users.role', 'doctor');
     }
     public function doctors(): HasMany
     {
@@ -107,5 +117,10 @@ class Clinic extends Authenticatable
     public function financial(): HasOne
     {
         return $this->hasOne(ClinicFinancial::class, 'clinic_id');
+    }
+
+    public function bills(): HasMany
+    {
+        return $this->hasMany(Billing::class, 'clinic_id');
     }
 }

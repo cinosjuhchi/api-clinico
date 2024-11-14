@@ -3,6 +3,7 @@
 use App\Http\Middleware\Cors;
 use Illuminate\Foundation\Application;
 use App\Console\Commands\CancelExpiredAppointments;
+use App\Http\Middleware\UpdateLastSeen;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Laravel\Sanctum\Http\Middleware\CheckAbilities;
@@ -19,7 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'abilities' => CheckAbilities::class,
             'ability' => CheckForAnyAbility::class,
-        ]);        
+        ]);
+        $middleware->api([
+            UpdateLastSeen::class,
+        ]);
     })
     ->withCommands([
         CancelExpiredAppointments::class

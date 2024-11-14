@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\MedicalRecord;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,8 +14,8 @@ class MedicalRecordController extends Controller
      */
     public function index(Request $request)
     {
-        $user = Auth::user();        
-        
+        $user = Auth::user();
+
         $medicalRecord = $user->medicalRecords;
 
         return response()->json([
@@ -39,7 +39,20 @@ class MedicalRecordController extends Controller
      */
     public function show(MedicalRecord $medicalRecord)
     {
-        //
+        if (!$medicalRecord) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Medical record not found.',
+            ], 404);
+        }
+
+        $medicalRecord->load(['patient', 'doctor', 'clinic', 'serviceRecord', 'investigationRecord', 'diagnosisRecord']); // Periksa konsistensi nama relasi
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully fetched medical data.',
+            'data' => $medicalRecord,
+        ]);
     }
 
     /**

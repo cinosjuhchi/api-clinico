@@ -34,6 +34,7 @@ use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\MedicationController;
 use App\Http\Controllers\MedicationRecordController;
 use App\Http\Controllers\OccupationController;
+use App\Http\Controllers\OnlineEmployeeController;
 use App\Http\Controllers\ParentChronicController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientNotificationController;
@@ -117,6 +118,7 @@ Route::prefix('v1')->group(function () {
 
             Route::prefix('medical-record')->group(function () {
                 Route::get('/', [MedicalRecordController::class, 'index']);
+                Route::get('/show/{medicalRecord}', [MedicalRecordController::class, 'show']);
             });
 
             Route::prefix('physical')->group(function () {
@@ -264,6 +266,15 @@ Route::prefix('v1')->group(function () {
     Route::middleware(['auth:sanctum', 'abilities:hasAccessResource'])->group(function () {
         Route::prefix('medicines')->group(function () {
             Route::get('/', [ClinicDataController::class, 'medicines']);
+        });
+        Route::prefix('users')->group(function () {
+            Route::get('/online-list', [OnlineEmployeeController::class, 'index']);
+        });
+        Route::prefix('bills')->group(function () {
+            Route::get('/clinic-revenue', [BillController::class, 'clinicRevenue']);
+            Route::get('/clinic-total-revenue-month', [BillController::class, 'clinicTotalRevenue']);
+            Route::get('/clinic-total-revenue-daily', [BillController::class, 'clinicDailyTotalRevenue']);
+            Route::get('/clinic-total-revenue-doctor', [BillController::class, 'clinicTotalRevenueByDoctor']);
         });
         Route::prefix('appointments')->group(function () {
             Route::prefix('doctor')->group(function () {

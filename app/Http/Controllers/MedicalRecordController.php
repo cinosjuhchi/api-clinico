@@ -46,7 +46,7 @@ class MedicalRecordController extends Controller
             ], 404);
         }
 
-        $medicalRecord->load(['patient', 'doctor', 'clinic', 'serviceRecord', 'investigationRecord', 'diagnosisRecord']); // Periksa konsistensi nama relasi
+        $medicalRecord->load(['patient', 'doctor', 'clinic', 'serviceRecord', 'investigationRecord', 'diagnosisRecord', 'procedureRecords', 'medicationRecords']); // Periksa konsistensi nama relasi
 
         return response()->json([
             'status' => 'success',

@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Medication;
 use App\Models\Appointment;
-use Illuminate\Http\Request;
 use App\Models\ClinicService;
 use App\Models\MedicalRecord;
+use App\Models\Medication;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ConsultationController extends Controller
 {
@@ -36,7 +36,6 @@ class ConsultationController extends Controller
         $clinic = $doctor->clinic;
 
         DB::beginTransaction();
-
 
         try {
             $validated = $request->validate([
@@ -76,7 +75,7 @@ class ConsultationController extends Controller
                 'medicine.*.frequency' => 'nullable|string',
                 'medicine.*.cost' => 'required|numeric',
                 'medicine.*.medicine_id' => 'nullable|exists:medications:id',
-                'medicine.*.medicine_qty' => 'nullable|integer', 
+                'medicine.*.medicine_qty' => 'nullable|integer',
                 // Bill
                 'total_cost' => 'required|numeric',
                 'transaction_date' => 'required|date',
@@ -92,7 +91,7 @@ class ConsultationController extends Controller
                 'total_cost' => $validated['total_cost'],
                 'user_id' => $user,
                 'clinic_id' => $clinic->id,
-                'doctor_id' => $doctor->id
+                'doctor_id' => $doctor->id,
             ]);
 
             $patient->physicalExaminations()->update([
@@ -303,6 +302,21 @@ class ConsultationController extends Controller
         ], 200);
     }
 
+    public function callPatient(Appointment $appointment)
+    {
+        if ($appointment->status == 'consultation' || $appointment->status == 'cancelled' || $appointment->status == 'completed') {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Appointment has been check-in!',
+            ], 403);
+        }
+        $appointment->status = 'on-consultation';
+        $appointment->save();
+        return response()->json([
+            'status' => 'success',
+            'messaage' => 'Appointment on-consultation successfully!'
+        ]);
+    }
     /**
      * Display the specified resource.
      */

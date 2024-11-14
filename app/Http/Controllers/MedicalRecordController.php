@@ -16,7 +16,7 @@ class MedicalRecordController extends Controller
     {
         $user = Auth::user();
 
-        $medicalRecord = $user->medicalRecords;
+        $medicalRecord = $user->medicalRecords()->with(['patient', 'doctor', 'clinic', 'serviceRecord', 'investigationRecord', 'diagnosisRecord'])->get();
 
         return response()->json([
             'status' => 'success',

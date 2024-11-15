@@ -70,11 +70,11 @@ class ConsultationController extends Controller
                 'injection.*.cost' => 'required|numeric',
 
                 'medicine' => 'nullable|array',
+                'medicine.*.medicine_id' => 'nullable|exists:medications,id',
                 'medicine.*.name' => 'required|string',
                 'medicine.*.unit' => 'required|string',
                 'medicine.*.frequency' => 'nullable|string',
                 'medicine.*.cost' => 'required|numeric',
-                'medicine.*.medicine_id' => 'nullable|exists:medications,id',
                 'medicine.*.medicine_qty' => 'nullable|integer',
                 // Bill
                 'total_cost' => 'required|numeric',
@@ -170,7 +170,7 @@ class ConsultationController extends Controller
 
             if (!empty($validated['medicine'])) {
                 foreach ($validated['medicine'] as $medicine) {
-                    $medication = Medication::find($medicine->medicine_id);
+                    $medication = Medication::find($medicine['medicine_id']);
                     $price = $medication->price;
                     $medicalRecord->medicationRecords()->create([
                         'medicine' => $medicine['name'],

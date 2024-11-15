@@ -23,12 +23,12 @@ class Billing extends Model
 
     public function clinic()
     {
-        return $this->hasOne(Clinic::class, 'billing_id');
+        return $this->belongsTo(Clinic::class, 'clinic_id');
     }
 
     public function doctor()
     {
-        return $this->hasOne(Doctor::class, 'billing_id');
+        return $this->belongsTo(Doctor::class, 'doctor_id');
     }
 
     public function injections()

@@ -182,7 +182,7 @@ Route::prefix('v1')->group(function () {
             });
             Route::prefix('consultation')->group(function () {
                 Route::put('/complete/{appointment}', [ConsultationController::class, 'complete']);
-                Route::put('/call-patient', [ConsultationController::class, 'callPatient']);
+                Route::put('/call-patient/{appointment}', [ConsultationController::class, 'callPatient']);
             });
         });
     });

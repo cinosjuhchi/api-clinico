@@ -74,7 +74,7 @@ class ConsultationController extends Controller
                 'medicine.*.unit' => 'required|string',
                 'medicine.*.frequency' => 'nullable|string',
                 'medicine.*.cost' => 'required|numeric',
-                'medicine.*.medicine_id' => 'nullable|exists:medications:id',
+                'medicine.*.medicine_id' => 'nullable|exists:medications,id',
                 'medicine.*.medicine_qty' => 'nullable|integer',
                 // Bill
                 'total_cost' => 'required|numeric',

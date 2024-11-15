@@ -64,8 +64,11 @@ class Doctor extends Authenticatable
     }
     public function consultationAppointments(): HasMany
     {
-        return $this->hasMany(Appointment::class, 'doctor_id')->where('status', 'consultation');
+        return $this->hasMany(Appointment::class, 'doctor_id')
+            ->where('status', 'consultation')
+            ->orWhere('status', 'on-consultation');
     }
+
     public function consultationTakeMedicine()
     {
         return $this->hasMany(Appointment::class, 'doctor_id')->where('status', 'take-medicine');

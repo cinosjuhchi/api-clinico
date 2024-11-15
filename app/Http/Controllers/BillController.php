@@ -326,8 +326,38 @@ class BillController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Succesfully fetch bill!',
-            'data' => $billing
+            'data' => $billing,
         ]);
+    }
+
+    public function totalRevenueTaxOnly(Request $request)
+    {
+        $month = $request->input('month');
+        $year = $request->input('year');
+
+        // Memulai query untuk mendapatkan semua tagihan yang telah dibayar
+        $query = Billing::where('is_paid', true);
+
+        // Memfilter berdasarkan bulan dan tahun pada kolom transaction_date jika diberikan
+        if ($month && $year) {
+            $query->whereMonth('transaction_date', $month)->whereYear('transaction_date', $year);
+        } elseif ($month) {
+            $query->whereMonth('transaction_date', $month);
+        } elseif ($year) {
+            $query->whereYear('transaction_date', $year);
+        }
+
+        // Menghitung total pendapatan dari semua tagihan
+        $totalRevenue = $query->sum('total_cost');
+
+        // Menghitung 5% dari total revenue
+        $totalTaxRevenue = $totalRevenue * 0.05;
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Success to fetch the total tax revenue.',
+            'total_tax_revenue' => $totalTaxRevenue,
+        ], 200);
     }
 
     /**

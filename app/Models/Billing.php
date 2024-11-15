@@ -51,4 +51,9 @@ class Billing extends Model
         return $this->hasOne(ServiceRecord::class,'billing_id');
     }
 
+    public function investigations()
+    {
+        return $this->hasMany(InvestigationRecord::class, 'billing_id');
+    }
+
 }

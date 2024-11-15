@@ -315,7 +315,7 @@ class ConsultationController extends Controller
         return response()->json([
             'status' => 'success',
             'messaage' => 'Appointment on-consultation successfully!'
-        ]);
+        ], 200);
     }
     /**
      * Display the specified resource.

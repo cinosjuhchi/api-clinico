@@ -304,10 +304,10 @@ class ConsultationController extends Controller
 
     public function callPatient(Appointment $appointment)
     {
-        if ($appointment->status == 'consultation' || $appointment->status == 'cancelled' || $appointment->status == 'completed') {
+        if ($appointment->status == 'on-consultation') {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'Appointment has been check-in!',
+                'message' => 'Appointment has been called!',
             ], 403);
         }
         $appointment->status = 'on-consultation';

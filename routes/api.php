@@ -50,7 +50,7 @@ Route::prefix('v1')->group(function () {
         Route::post('login', [BackOfficeController::class, 'login']);
         Route::middleware(['auth:sanctum', 'abilities:backOffice'])->group(function () {
             Route::prefix('bills')->group(function () {
-                Route::get('/', []);
+                Route::get('/total-revenue-clinico', [BillController::class, 'totalRevenueTaxOnly']);
             });
             Route::get('/logout', [BackOfficeController::class, 'logout']);
             Route::prefix('clinic')->group(function () {

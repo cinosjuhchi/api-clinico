@@ -18,7 +18,11 @@ class DoctorScheduleController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $clinic = $user->clinic;
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            default => throw new \Exception('Unauthorized access. Invalid role.'),
+        };
 
         try {
             $schedules = $clinic->doctorSchedule()->with(['doctor', 'room'])->paginate(10);
@@ -93,22 +97,21 @@ class DoctorScheduleController extends Controller
     {
         $validated = $request->validated();
         $doctorSchedule->fill($validated);
-        if($doctorSchedule->isDirty())
-        {
+        if ($doctorSchedule->isDirty()) {
             DB::beginTransaction();
             try {
                 $doctorSchedule->update($validated);
                 DB::commit();
                 return response()->json([
-                    'status'=> 'success',
-                    'message'=> 'Success update data'
+                    'status' => 'success',
+                    'message' => 'Success update data',
                 ], 200);
             } catch (\Exception $e) {
                 DB::rollBack();
                 return response()->json([
-                    'status'=> 'failed',
-                    'message'=> 'Failed update the data.',
-                    'error' => $e->getMessage()
+                    'status' => 'failed',
+                    'message' => 'Failed update the data.',
+                    'error' => $e->getMessage(),
                 ], 500);
             }
         }
@@ -125,13 +128,13 @@ class DoctorScheduleController extends Controller
             DB::commit();
             return response()->json([
                 'status' => 'success',
-                'message' => 'Succcess delete the data.'
+                'message' => 'Succcess delete the data.',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Fail update the data',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

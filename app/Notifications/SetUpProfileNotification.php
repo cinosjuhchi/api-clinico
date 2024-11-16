@@ -48,8 +48,8 @@ class SetUpProfileNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'title' => 'Selamat datang di Clinico!',
-            'message' => '🌟 Ayo, lengkapi profil Anda untuk mendapatkan pengalaman terbaik! Klik di sini untuk mulai.',
+            'title' => 'Welcome to Clinico!',
+            'message' => '🌟 Come on, set up your profile now to get the best experience! Click here to start.',
             'action_url' => env('WEB_CLINICO_URL') . '/patient/profile',
             'type' => 'info'            
         ];        

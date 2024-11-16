@@ -177,7 +177,7 @@ class BillController extends Controller
                 DB::raw('SUM(billings.total_cost) as total_revenue'),
                 DB::raw('COUNT(billings.id) as total_patients')
             )
-            ->groupBy('doctors.id', 'doctors.name', 'categories.id', 'categories.name');
+            ->groupBy('doctors.id', 'doctors.name', 'categories.id', 'categories.name', 'employees.image_profile');
 
         $doctorsRevenue = $query->get()->map(function ($item) {
             return [
@@ -295,17 +295,6 @@ class BillController extends Controller
 
         if ($response->successful()) {
             $responseData = $response->json();
-            $bill = Billing::find($validated['bill_id']);
-            $bill->update([
-                'billz_id' => $responseData['id'],
-                'is_paid' => true,
-            ]);
-            $appointment = $bill->appointment;
-
-            $appointment->update([
-                'status' => 'completed',
-            ]);
-
             return response()->json([
                 'status' => 'success',
                 'message' => 'Bill created successfully.',

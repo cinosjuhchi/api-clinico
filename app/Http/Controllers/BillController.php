@@ -295,6 +295,10 @@ class BillController extends Controller
 
         if ($response->successful()) {
             $responseData = $response->json();
+            $billing = Billing::find($validated['bill_id']);
+            $billing->update([
+                'billz_id' => $responseData['id'],
+            ]);
             return response()->json([
                 'status' => 'success',
                 'message' => 'Bill created successfully.',

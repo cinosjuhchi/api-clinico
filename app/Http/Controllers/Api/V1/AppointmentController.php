@@ -205,27 +205,37 @@ class AppointmentController extends Controller
                 'message' => 'Appointment has been check-in!',
             ], 403);
         }
-        $booked = Appointment::where('appointment_date', $appointment->appointment_date)
+
+        // Cek appointment dengan status consultation terlebih dahulu
+        $bookedConsultation = Appointment::where('appointment_date', $appointment->appointment_date)
             ->where('status', 'consultation')
             ->where('doctor_id', $appointment->doctor_id)
             ->where('room_id', $appointment->room_id)
-            ->latest('updated_at')->first();
-        $waitingNumber = 1;
-        if ($booked) {
-            $waitingNumber += $booked->waiting_number;
-            $appointment->update([
-                'status' => 'consultation',
-                'waiting_number' => $waitingNumber,
-            ]);
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Check-In successfully!',
-                'data' => $booked,
-            ], 200);
+            ->latest('updated_at')
+            ->first();
+
+        // Jika tidak ada status consultation, cek status on-consultation
+        if (!$bookedConsultation) {
+            $bookedOnConsultation = Appointment::where('appointment_date', $appointment->appointment_date)
+                ->where('status', 'on-consultation')
+                ->where('doctor_id', $appointment->doctor_id)
+                ->where('room_id', $appointment->room_id)
+                ->latest('updated_at')
+                ->first();
         }
+
+        // Tentukan waiting number berdasarkan hasil pengecekan
+        $waitingNumber = 1;
+        if ($bookedConsultation) {
+            $waitingNumber = $bookedConsultation->waiting_number + 1;
+        } elseif (isset($bookedOnConsultation) && $bookedOnConsultation) {
+            $waitingNumber = $bookedOnConsultation->waiting_number + 1;
+        }
+
+        // Update appointment
         $appointment->update([
             'status' => 'consultation',
-            'waiting_number' => 1,
+            'waiting_number' => $waitingNumber,
         ]);
 
         return response()->json([
@@ -243,7 +253,7 @@ class AppointmentController extends Controller
             ->where('room_id', $appointment->room_id)
             ->oldest('updated_at')->first();
 
-            return response()->json($roomWaitingNumber);
+        return response()->json($roomWaitingNumber);
 
     }
 

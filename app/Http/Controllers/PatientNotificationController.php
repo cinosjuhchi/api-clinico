@@ -9,8 +9,19 @@ class PatientNotificationController extends Controller
     public function getNotifications(Request $request)
     {
         $user = $request->user();
-        // Mengambil semua notifikasi yang belum dibaca
-        return response()->json($user->unreadNotifications);
+
+        // Mengambil semua notifikasi
+        $notifications = $user->notifications()->latest()->get();
+
+        // Menghitung jumlah notifikasi yang belum dibaca
+        $unreadCount = $user->unreadNotifications->count();
+
+        return response()->json([
+            'notifications' => $notifications,
+            'unread_count' => $unreadCount,
+            'success' => true,
+        ]);
+
     }
 
     public function markAsRead(Request $request, $id)

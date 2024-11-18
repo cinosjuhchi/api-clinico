@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\Patient;
+use App\Models\Medication;
 use App\Models\Appointment;
+use Illuminate\Http\Request;
 use App\Models\ClinicService;
 use App\Models\MedicalRecord;
-use App\Models\Medication;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use App\Notifications\CallPatientNotification;
 
 class ConsultationController extends Controller
 {
@@ -309,6 +313,14 @@ class ConsultationController extends Controller
                 'status' => 'failed',
                 'message' => 'Appointment has been called!',
             ], 403);
+        }
+        $patient = Patient::find($appointment->patient_id);
+        $user = $patient->user;
+        $room = $appointment->room;
+        try{
+            $user->notify(new CallPatientNotification($room, $appointment->waiting_number));
+        } catch (\Exception $e) {
+            Log::error('Notification error: ' . $e->getMessage());
         }
         $appointment->status = 'on-consultation';
         $appointment->save();

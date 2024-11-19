@@ -21,11 +21,10 @@ class AppointmentController extends Controller
     {
         $user = $request->user();
         $patientId = $request->input('patient_id');
-        $status = $request->input('status'); // Ambil status dari request
-        $date = $request->input('date'); // Ambil status dari request
+        $status = $request->input('status');
+        $date = $request->input('date');
 
         if ($patientId) {
-            // Jika patient_id diberikan, pastikan pasien milik user yang sedang login
             $patient = $user->patients()->find($patientId);
 
             if (!$patient) {
@@ -35,17 +34,12 @@ class AppointmentController extends Controller
                 ], 404);
             }
 
-            // Query appointments berdasarkan patient_id dan urutkan dari yang terbaru
             $appointmentsQuery = Appointment::where('patient_id', $patient->id)->orderBy('created_at', 'desc');
         } else {
-            // Jika patient_id tidak diberikan, ambil semua pasien milik user
             $patientIds = $user->patients()->pluck('id')->toArray();
-
-            // Query appointments berdasarkan semua pasien milik user dan urutkan dari yang terbaru
             $appointmentsQuery = Appointment::whereIn('patient_id', $patientIds)->orderBy('created_at', 'desc');
         }
 
-        // Jika status diberikan, tambahkan filter status
         if ($status) {
             $appointmentsQuery->where('status', $status);
         }
@@ -54,11 +48,29 @@ class AppointmentController extends Controller
             $appointmentsQuery->where('appointment_date', $date);
         }
 
-        // Eksekusi query untuk mendapatkan appointments
         $appointments = $appointmentsQuery->get();
 
-        // Muat relasi untuk appointments
-        $appointments->load(['patient:id,name', 'doctor', 'clinic.schedule', 'bill', 'medicalRecord.clinicService', 'medicalRecord.serviceRecord', 'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords', 'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords']);
+        // Base relations yang selalu dimuat
+        $baseRelations = [
+            'patient:id,name',
+            'doctor',
+            'clinic.schedule',
+            'bill',
+            'medicalRecord.clinicService',
+            'medicalRecord.serviceRecord',
+            'medicalRecord.investigationRecord',
+            'medicalRecord.medicationRecords',
+            'medicalRecord.procedureRecords',
+            'medicalRecord.injectionRecords',
+        ];
+
+        // Jika status consultation, tambahkan relasi room.onConsultation
+        if ($status === 'consultation') {
+            $baseRelations[] = 'room.onConsultation';
+        }
+
+        // Load semua relasi yang diperlukan
+        $appointments->load($baseRelations);
 
         if ($appointments->isEmpty()) {
             return response()->json([
@@ -199,14 +211,32 @@ class AppointmentController extends Controller
      */
     public function checkin(Appointment $appointment)
     {
-        if ($appointment->status == 'consultation' || $appointment->status == 'cancelled' || $appointment->status == 'completed') {
+        // Validate appointment status
+        if (
+            $appointment->status == 'consultation' ||
+            $appointment->status == 'cancelled' ||
+            $appointment->status == 'completed'
+        ) {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Appointment has been check-in!',
             ], 403);
         }
 
-        // Cek appointment dengan status consultation terlebih dahulu
+        // Check if there's another appointment on the same day with consultation status
+        $existingConsultation = Appointment::where('doctor_id', $appointment->doctor_id)
+            ->where('appointment_date', $appointment->appointment_date)
+            ->where('status', 'consultation')
+            ->exists();
+
+        if ($existingConsultation) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'You already have an appointment with consultation status today.',
+            ], 403);
+        }
+
+        // Check appointment with consultation status first
         $bookedConsultation = Appointment::where('appointment_date', $appointment->appointment_date)
             ->where('status', 'consultation')
             ->where('doctor_id', $appointment->doctor_id)
@@ -214,7 +244,8 @@ class AppointmentController extends Controller
             ->latest('updated_at')
             ->first();
 
-        // Jika tidak ada status consultation, cek status on-consultation
+        // If no consultation status, check on-consultation status
+        $bookedOnConsultation = null;
         if (!$bookedConsultation) {
             $bookedOnConsultation = Appointment::where('appointment_date', $appointment->appointment_date)
                 ->where('status', 'on-consultation')
@@ -224,11 +255,11 @@ class AppointmentController extends Controller
                 ->first();
         }
 
-        // Tentukan waiting number berdasarkan hasil pengecekan
+        // Determine waiting number based on check results
         $waitingNumber = 1;
         if ($bookedConsultation) {
             $waitingNumber = $bookedConsultation->waiting_number + 1;
-        } elseif (isset($bookedOnConsultation) && $bookedOnConsultation) {
+        } elseif ($bookedOnConsultation) {
             $waitingNumber = $bookedOnConsultation->waiting_number + 1;
         }
 
@@ -276,8 +307,5 @@ class AppointmentController extends Controller
             'message' => 'Appointment cancelled successfully',
         ], 200);
     }
-    public function callPatient(Appointment $appointment)
-    {
 
-    }
 }

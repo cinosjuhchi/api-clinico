@@ -15,77 +15,8 @@ class EmployeeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
-    {
-        $user = Auth::user();
-        $clinic = $user->clinic;
-        if (!$clinic) {
-            $clinic = $user->doctor->clinic;
-            if (!$clinic) {
-                return response()->json([
-                    'status' => 'failed',
-                    'message' => 'user not found',
-                ], 404);
-            }
-        }
-
-        $page = $request->input('page', 1);
-        $perPage = 10;
-
-        // Ensure both queries select the same columns
-        $doctorsQuery = $clinic->doctors()
-            ->with([
-                'employmentInformation',
-                'educational',
-                'demographic',
-                'contributionInfo',
-                'emergencyContact',
-                'spouseInformation',
-                'childsInformation',
-                'parentInformation',
-                'reference',
-                'basicSkills',
-                'financialInformation',
-                'category',
-            ])
-            ->select([
-                'doctors.id',
-                'doctors.name',
-                'doctors.email',
-                'doctors.phone_number',
-                DB::raw("'doctor' as type"),
-            ]);
-
-        $staffQuery = $clinic->staffs()
-            ->with([
-                'employmentInformation',
-                'educational',
-                'demographic',
-                'contributionInfo',
-                'emergencyContact',
-                'spouseInformation',
-                'childsInformation',
-                'parentInformation',
-                'reference',
-                'basicSkills',
-                'financialInformation',                
-            ])
-            ->select([
-                'staff.id',
-                'staff.name',
-                'staff.email',
-                'staff.phone_number',
-                DB::raw("'staff' as type"),
-            ]);
-
-        $employees = $doctorsQuery->unionAll($staffQuery)->paginate($perPage);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Successfully fetch data',
-            'data' => $employees,
-        ], 200);
-    }
+    
+    
 
     /**
      * Show the form for creating a new resource.

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Staff;
 use App\Models\Clinic;
 use App\Models\Doctor;
 use App\Models\Billing;
@@ -12,8 +13,8 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\ClinicResource;
-use App\Http\Requests\StoreDoctorClinicRequest;
 use App\Http\Requests\StoreStaffRequest;
+use App\Http\Requests\StoreDoctorClinicRequest;
 
 class ClinicDataController extends Controller
 {
@@ -658,6 +659,59 @@ class ClinicDataController extends Controller
             'status' => 'success',
             'message' => 'Successfully fetch data',
             'data' => $doctor,
+        ], 200);
+    }
+    public function staffs(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = $user->clinic;
+        if (!$clinic) {
+            $clinic = $user->staff->clinic;
+            if (!$clinic) {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'user not found',
+                ]);
+            }
+
+        }
+        $staffs = $clinic->staffs()->with(['employmentInformation',
+            'educational',
+            'demographic',
+            'contributionInfo',
+            'emergencyContact',
+            'spouseInformation',
+            'childsInformation',
+            'parentInformation',
+            'reference',
+            'basicSkills',
+            'financialInformation'])->paginate(10);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully fetch data',
+            'data' => $staffs,
+        ], 200);
+    }
+
+    public function showStaff(Staff $staff)
+    {
+        $staff->load([
+            'employmentInformation',
+            'educational',
+            'demographic',
+            'contributionInfo',
+            'emergencyContact',
+            'spouseInformation',
+            'childsInformation',
+            'parentInformation',
+            'reference',
+            'basicSkills',
+            'financialInformation',            
+        ]);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully fetch data',
+            'data' => $staff,
         ], 200);
     }
 

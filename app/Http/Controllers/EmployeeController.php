@@ -31,34 +31,33 @@ class EmployeeController extends Controller
 // Gabungkan relasi dokter dan staff dengan menggunakan union
         $employees = $clinic->doctorEmployments()
             ->with([
-                'employmentInformation',
-                'educational',
-                'demographic',
-                'contributionInfo',
-                'emergencyContact',
-                'spouseInformation',
-                'childsInformation',
-                'parentInformation',
-                'reference',
-                'basicSkills',
-                'financialInformation',
-                'category',
+                'doctor.employmentInformation',
+                'doctor.educational',
+                'doctor.demographic',
+                'doctor.contributionInfo',
+                'doctor.emergencyContact',
+                'doctor.spouseInformation',
+                'doctor.childsInformation',
+                'doctor.parentInformation',
+                'doctor.reference',
+                'doctor.basicSkills',
+                'doctor.financialInformation',
+                'doctor.category',
             ])
             ->union(
                 $clinic->staffEmployments()
                     ->with([
-                        'employmentInformation',
-                        'educational',
-                        'demographic',
-                        'contributionInfo',
-                        'emergencyContact',
-                        'spouseInformation',
-                        'childsInformation',
-                        'parentInformation',
-                        'reference',
-                        'basicSkills',
-                        'financialInformation',
-                        'category',
+                        'staff.employmentInformation',
+                        'staff.educational',
+                        'staff.demographic',
+                        'staff.contributionInfo',
+                        'staff.emergencyContact',
+                        'staff.spouseInformation',
+                        'staff.childsInformation',
+                        'staff.parentInformation',
+                        'staff.reference',
+                        'staff.basicSkills',
+                        'staff.financialInformation',                        
                     ])
             )
             ->paginate(10);

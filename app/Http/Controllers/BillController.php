@@ -298,6 +298,7 @@ class BillController extends Controller
             $billing = Billing::find($validated['bill_id']);
             $billing->update([
                 'billz_id' => $responseData['id'],
+                'total_cost' => $validated['amount']
             ]);
             return response()->json([
                 'status' => 'success',

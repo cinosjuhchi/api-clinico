@@ -122,10 +122,10 @@ class Clinic extends Authenticatable
         return $this->hasManyThrough(
             Employee::class, // Model tujuan akhir
             Doctor::class, // Model perantara
-            'clinic_id', // Foreign key di tabel doctors
-            'doctor_id', // Foreign key di tabel employees
+            'clinic_id', // Foreign key di tabel doctors yang merujuk ke clinic
+            'id', // Foreign key di tabel employees
             'id', // Primary key di tabel clinics
-            'id' // Primary key di tabel doctors
+            'employee_id' // Foreign key di tabel doctors yang merujuk ke employees
         );
     }
 
@@ -134,10 +134,10 @@ class Clinic extends Authenticatable
         return $this->hasManyThrough(
             Employee::class, // Model tujuan akhir
             Staff::class, // Model perantara
-            'clinic_id', // Foreign key di tabel staff
-            'staff_id', // Foreign key di tabel employees
+            'clinic_id', // Foreign key di tabel staff yang merujuk ke clinic
+            'id', // Foreign key di tabel employees
             'id', // Primary key di tabel clinics
-            'id' // Primary key di tabel staff
+            'employee_id' // Foreign key di tabel staff yang merujuk ke employees
         );
     }
 

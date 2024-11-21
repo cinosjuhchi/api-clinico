@@ -119,11 +119,26 @@ class Clinic extends Authenticatable
 
     public function doctorEmployments(): HasManyThrough
     {
-        return $this->hasManyThrough(Employee::class, Doctor::class);
+        return $this->hasManyThrough(
+            Employee::class, // Model tujuan akhir
+            Doctor::class, // Model perantara
+            'clinic_id', // Foreign key di tabel doctors
+            'doctor_id', // Foreign key di tabel employees
+            'id', // Primary key di tabel clinics
+            'id' // Primary key di tabel doctors
+        );
     }
+
     public function staffEmployments(): HasManyThrough
     {
-        return $this->hasManyThrough(Employee::class, Staff::class);
+        return $this->hasManyThrough(
+            Employee::class, // Model tujuan akhir
+            Staff::class, // Model perantara
+            'clinic_id', // Foreign key di tabel staff
+            'staff_id', // Foreign key di tabel employees
+            'id', // Primary key di tabel clinics
+            'id' // Primary key di tabel staff
+        );
     }
 
     public function financial(): HasOne

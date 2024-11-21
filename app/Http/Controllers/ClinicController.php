@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ClinicResource;
 use App\Models\Clinic;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Resources\ClinicResource;
 
 class ClinicController extends Controller
 {
@@ -50,14 +50,13 @@ class ClinicController extends Controller
         $clinic = match ($user->role) {
             'clinic' => $user->clinic,
             'doctor' => $user->doctor->clinic,
-            default => throw new \Exception('Unauthorized access. Invalid role.'),
+            default => abort(401, 'Unauthorized access. Invalid role.'),
         };
 
-        if(!$clinic)
-        {
+        if (!$clinic) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Clinic not found',                
+                'message' => 'Clinic not found',
             ], 404);
 
         }
@@ -65,7 +64,7 @@ class ClinicController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully fetch clinic data',
-            'data' => $clinic
+            'data' => $clinic,
         ]);
 
     }

@@ -19,7 +19,7 @@ class PatientController extends Controller
         $clinic = match ($user->role) {
             'clinic' => $user->clinic,
             'doctor' => $user->doctor->clinic,
-            default => throw new \Exception('Unauthorized access. Invalid role.'),
+            default => abort(401, 'Unauthorized access. Invalid role.'),
         };
 
         if (!$clinic) {
@@ -49,7 +49,7 @@ class PatientController extends Controller
         $clinic = match ($user->role) {
             'clinic' => $user->clinic,
             'doctor' => $user->doctor->clinic,
-            default => throw new \Exception('Unauthorized access. Invalid role.'),
+            default => abort(401, 'Unauthorized access. Invalid role.'),
         };
 
         if (!$clinic) {
@@ -79,7 +79,7 @@ class PatientController extends Controller
         $clinic = match ($user->role) {
             'clinic' => $user->clinic,
             'doctor' => $user->doctor->clinic,
-            default => throw new \Exception('Unauthorized access. Invalid role.'),
+            default => abort(401, 'Unauthorized access. Invalid role.'),
         };
 
         if (!$clinic) {
@@ -110,7 +110,7 @@ class PatientController extends Controller
         $clinic = match ($user->role) {
             'clinic' => $user->clinic,
             'doctor' => $user->doctor->clinic,
-            default => throw new \Exception('Unauthorized access. Invalid role.'),
+            default => abort(401, 'Unauthorized access. Invalid role.'),
         };
 
         if (!$clinic) {

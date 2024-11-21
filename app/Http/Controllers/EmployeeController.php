@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreEmployeeRequest;
+use App\Http\Requests\UpdateEmployeeRequest;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Requests\StoreEmployeeRequest;
-use App\Http\Requests\UpdateEmployeeRequest;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeController extends Controller
 {
@@ -25,13 +25,14 @@ class EmployeeController extends Controller
                 return response()->json([
                     'status' => 'failed',
                     'message' => 'user not found',
-                ]);
+                ], 404);
             }
         }
 
         $page = $request->input('page', 1);
         $perPage = 10;
 
+        // Ensure both queries select the same columns
         $doctorsQuery = $clinic->doctors()
             ->with([
                 'employmentInformation',
@@ -47,7 +48,13 @@ class EmployeeController extends Controller
                 'financialInformation',
                 'category',
             ])
-            ->select('doctors.*', DB::raw("'doctor' as type"));
+            ->select([
+                'doctors.id',
+                'doctors.name',
+                'doctors.email',
+                'doctors.phone_number',
+                DB::raw("'doctor' as type"),
+            ]);
 
         $staffQuery = $clinic->staffs()
             ->with([
@@ -61,14 +68,17 @@ class EmployeeController extends Controller
                 'parentInformation',
                 'reference',
                 'basicSkills',
-                'financialInformation',
-                'category',
+                'financialInformation',                
             ])
-            ->select('staff.*', DB::raw("'staff' as type"));
+            ->select([
+                'staff.id',
+                'staff.name',
+                'staff.email',
+                'staff.phone_number',
+                DB::raw("'staff' as type"),
+            ]);
 
-        $employees = $doctorsQuery
-            ->union($staffQuery)
-            ->paginate($perPage);
+        $employees = $doctorsQuery->unionAll($staffQuery)->paginate($perPage);
 
         return response()->json([
             'status' => 'success',

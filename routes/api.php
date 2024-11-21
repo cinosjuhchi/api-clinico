@@ -313,7 +313,7 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/dispensary', [ConsultationController::class, 'dispensary']);
             Route::get('/consultation-entry', [ConsultationController::class, 'consultationEntry']);
-            Route::get('/take-medicine/{appointment}', [ConsultationController::class, 'takeMedicine']);
+            Route::put('/take-medicine/{appointment}', [ConsultationController::class, 'takeMedicine']);
         });
         Route::prefix('diagnosis')->group(function () {
             Route::get('/', [DiagnosisController::class, 'index']);

@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Patient;
-use App\Models\Medication;
 use App\Models\Appointment;
-use Illuminate\Http\Request;
 use App\Models\ClinicService;
 use App\Models\MedicalRecord;
+use App\Models\Medication;
+use App\Models\Patient;
+use App\Models\User;
+use App\Notifications\CallPatientNotification;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
-use App\Notifications\CallPatientNotification;
 
 class ConsultationController extends Controller
 {
@@ -290,7 +290,7 @@ class ConsultationController extends Controller
 
     }
 
-    public function takeMedicine(Appointment $appointment)
+    public function takeMedicine(Request $request, Appointment $appointment)
     {
         if ($appointment->status == 'consultation' || $appointment->status == 'cancelled' || $appointment->status == 'completed') {
             return response()->json([
@@ -298,6 +298,38 @@ class ConsultationController extends Controller
                 'message' => 'Appointment has been check-in!',
             ], 403);
         }
+        $validated = $request->validated([
+            'total_cost' => 'required|numeric',
+            'medicine' => 'nullable|array',
+            'medicine.*.medicine_id' => 'nullable|exists:medications,id',
+            'medicine.*.name' => 'required|string',
+            'medicine.*.unit' => 'required|string',
+            'medicine.*.frequency' => 'nullable|string',
+            'medicine.*.cost' => 'required|numeric',
+            'medicine.*.medicine_qty' => 'nullable|integer',
+        ]);
+        $medicalRecord = $appointment->medicalRecord;
+        $bill = $appointment->bill;
+        $medicalRecord->medicationRecords()->delete();
+        if (!empty($validated['medicine'])) {
+            foreach ($validated['medicine'] as $medicine) {
+                $medication = Medication::find($medicine['medicine_id']);
+                $price = $medication->price;
+                $medicalRecord->medicationRecords()->create([
+                    'medicine' => $medicine['name'],
+                    'frequency' => $medicine['frequency'],
+                    'price' => $price,
+                    'total_cost' => $medicine['cost'],
+                    'qty' => $medicine['medicine_qty'],
+                    'patient_id' => $appointment->patient_id,
+                    'billing_id' => $bill->id,
+                ]);
+            }
+        }
+
+        $bill->total_cost = $validated['total_cost'];
+        $bill->save();
+
         $appointment->status = 'waiting-payment';
         $appointment->save();
         return response()->json([
@@ -317,7 +349,7 @@ class ConsultationController extends Controller
         $patient = Patient::find($appointment->patient_id);
         $user = $patient->user;
         $room = $appointment->room;
-        try{
+        try {
             $user->notify(new CallPatientNotification($room, $appointment->waiting_number));
         } catch (\Exception $e) {
             Log::error('Notification error: ' . $e->getMessage());
@@ -326,7 +358,7 @@ class ConsultationController extends Controller
         $appointment->save();
         return response()->json([
             'status' => 'success',
-            'messaage' => 'Appointment on-consultation successfully!'
+            'messaage' => 'Appointment on-consultation successfully!',
         ], 200);
     }
     /**

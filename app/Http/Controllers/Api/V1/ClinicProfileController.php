@@ -21,38 +21,32 @@ class ClinicProfileController extends Controller
 
         $day = $request->input('day');
         $date = $request->input('date');
-        $clinic->with([
-            // Cari klinik berdasarkan slug
+        $clinic->load([
             'rooms',
             'location',
             'schedule',
             'appointments' => function ($query) use ($date) {
-                // Ambil semua appointment pada hari ini
                 $query->whereDate('appointment_date', $date);
             },
             'pendingAppointments' => function ($query) use ($date) {
-                // Ambil hanya appointment dengan status 'pending' pada hari ini
                 $query->whereDate('appointment_date', $date)
                     ->where('status', 'pending');
             },
             'consultationAppointments' => function ($query) use ($date) {
-                // Ambil hanya appointment dengan status 'pending' pada hari ini
                 $query->whereDate('appointment_date', $date)
                     ->where('status', 'consultation');
             },
             'completedAppointments' => function ($query) use ($date) {
-                // Ambil hanya appointment dengan status 'pending' pada hari ini
                 $query->whereDate('appointment_date', $date)
                     ->where('status', 'completed');
             },
             'services',
             'doctors' => function ($query) use ($day) {
-                // Hanya ambil dokter yang memiliki jadwal sesuai dengan hari yang diminta
                 $query->whereHas('schedules', function ($q) use ($day) {
                     $q->where('day', $day);
-                })->with('category'); // Pastikan kategori dokter juga dimuat
+                })->with('category');
             },
-        ]);            
+        ]);
 
         // Kembalikan resource klinik dengan tambahan status dan pesan
         return response()->json([

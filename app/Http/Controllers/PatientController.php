@@ -31,7 +31,7 @@ class PatientController extends Controller
 
         $query = $request->input('q');
 
-        $appointments = $clinic->appointments()->with(['patient.demographics', 'doctor.category', 'clinic', 'service'])->when($query, function ($q) use ($query) {
+        $appointments = $clinic->appointments()->with(['patient.demographics', 'doctor.category', 'clinic', 'service', 'patient.user'])->when($query, function ($q) use ($query) {
             $q->where(function ($subQuery) use ($query) {
                 $subQuery->where('waiting_number', 'like', "%{$query}%")
                     ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {
@@ -121,7 +121,7 @@ class PatientController extends Controller
         }
         $query = $request->input('q');
 
-        $appointments = $clinic->completedAppointments()->with(['patient.demographics', 'doctor.category', 'clinic', 'service'])->when($query, function ($q) use ($query) {
+        $appointments = $clinic->completedAppointments()->with(['patient.demographics', 'doctor.category', 'clinic', 'service', 'bill'])->when($query, function ($q) use ($query) {
             $q->where(function ($subQuery) use ($query) {
                 $subQuery->where('waiting_number', 'like', "%{$query}%")
                     ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {

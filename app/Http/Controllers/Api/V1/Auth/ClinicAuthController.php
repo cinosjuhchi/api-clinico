@@ -39,6 +39,11 @@ class ClinicAuthController extends Controller
                 $token = $user->createToken('Clinico', ['doctor', 'hasAccessResource'])->plainTextToken;
                 return response()->json(['user' => $user, 'role' => $user->role, 'token' => $token], 200);
             }
+
+            if ($user->role == 'staff') {
+                $token = $user->createToken('Clinico', ['staff', 'hasAccessResource'])->plainTextToken;
+                return response()->json(['user' => $user, 'role' => $user->role, 'token' => $token], 200);
+            }
         }
 
         Log::error("Login Failed", ['user' => $request->user]);

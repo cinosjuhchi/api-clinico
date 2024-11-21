@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Patient;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class PatientController extends Controller
@@ -12,14 +13,125 @@ class PatientController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $patients = Patient::all();
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Success to get patient data',
-            'data' => $patients
-        ]);
+        $user = Auth::user();
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            default => throw new \Exception('Unauthorized access. Invalid role.'),
+        };
+
+        if (!$clinic) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Clinic not found.',
+            ], 404);
+        }
+
+        $query = $request->input('q');
+
+        $appointments = $clinic->appointments()->with(['patient.demographics', 'doctor.category', 'clinic', 'service'])->when($query, function ($q) use ($query) {
+            $q->where(function ($subQuery) use ($query) {
+                $subQuery->where('waiting_number', 'like', "%{$query}%")
+                    ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {
+                        $categoryQuery->where('name', 'like', "%{$query}%");
+                    });
+            });
+        })->paginate(5);
+
+        return response()->json($appointments);
+    }
+
+    public function waitingPatient(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            default => throw new \Exception('Unauthorized access. Invalid role.'),
+        };
+
+        if (!$clinic) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Clinic not found.',
+            ], 404);
+        }
+
+        $query = $request->input('q');
+
+        $appointments = $clinic->consultationAppointments()->with(['patient.demographics', 'doctor.category', 'clinic', 'service'])->when($query, function ($q) use ($query) {
+            $q->where(function ($subQuery) use ($query) {
+                $subQuery->where('waiting_number', 'like', "%{$query}%")
+                    ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {
+                        $categoryQuery->where('name', 'like', "%{$query}%");
+                    });
+            });
+        })->orderBy('waiting_number')->paginate(5);
+
+        return response()->json($appointments);
+
+    }
+    public function bookingPatient(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            default => throw new \Exception('Unauthorized access. Invalid role.'),
+        };
+
+        if (!$clinic) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Clinic not found.',
+            ], 404);
+        }
+
+        $query = $request->input('q');
+
+        $appointments = $clinic->pendingAppointments()->with(['patient.demographics', 'doctor.category', 'clinic', 'service'])->when($query, function ($q) use ($query) {
+            $q->where(function ($subQuery) use ($query) {
+                $subQuery->where('waiting_number', 'like', "%{$query}%")
+                    ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {
+                        $categoryQuery->where('name', 'like', "%{$query}%");
+                    });
+            });
+        })->get();
+
+        return response()->json($appointments);
+
+    }
+
+    public function completedPatient(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            default => throw new \Exception('Unauthorized access. Invalid role.'),
+        };
+
+        if (!$clinic) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Clinic not found.',
+            ], 404);
+        }
+        $query = $request->input('q');
+
+        $appointments = $clinic->completedAppointments()->with(['patient.demographics', 'doctor.category', 'clinic', 'service'])->when($query, function ($q) use ($query) {
+            $q->where(function ($subQuery) use ($query) {
+                $subQuery->where('waiting_number', 'like', "%{$query}%")
+                    ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {
+                        $categoryQuery->where('name', 'like', "%{$query}%");
+                    });
+            });
+        })->orderBy('waiting_number')->paginate(5);
+
+        return response()->json($appointments);
+
     }
 
     /**
@@ -48,7 +160,7 @@ class PatientController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Successfully stored patient data.',
-                'data' => $patient
+                'data' => $patient,
             ], 201);
 
         } catch (\Exception $e) {
@@ -60,7 +172,6 @@ class PatientController extends Controller
             ], 500);
         }
     }
-
 
     /**
      * Display the specified resource.
@@ -82,7 +193,7 @@ class PatientController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy(Patient $patient)
-    {        
+    {
         try {
             // Hapus pasien dari database
             $patient->delete();

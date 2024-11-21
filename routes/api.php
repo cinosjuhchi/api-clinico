@@ -167,7 +167,7 @@ Route::prefix('v1')->group(function () {
             });
             Route::prefix('bills')->group(function () {
                 Route::get('/', [BillController::class, 'index']);
-                Route::get('/show/{billing}', [BillController::class,'show']);
+                Route::get('/show/{billing}', [BillController::class, 'show']);
             });
         });
     });
@@ -260,7 +260,10 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/delete/{investigationClinic}', [InvestigationClinicController::class, 'destroy']);
             });
             Route::prefix('appointments')->group(function () {
-                Route::get('/patient-waiting', [ClinicDataController::class, 'consultationAppointments']);
+                Route::get('/patient', [PatientController::class, 'index']);
+                Route::get('/booking-patient', [PatientController::class, 'bookingPatient']);
+                Route::get('/waiting-patient', [PatientController::class, 'waitingPatient']);
+                Route::get('/completed-patient', [PatientController::class, 'completedPatient']);                
             });
         });
 
@@ -300,7 +303,7 @@ Route::prefix('v1')->group(function () {
         });
         Route::prefix('rooms')->group(function () {
             Route::get('/resource', [RoomController::class, 'roomResource']);
-            Route::get('/', [RoomController::class, 'index']);            
+            Route::get('/', [RoomController::class, 'index']);
         });
 
     });

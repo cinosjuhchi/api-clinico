@@ -228,6 +228,150 @@ class ClinicDataController extends Controller
             ], 500);
         }
     }
+    public function storeStaff(StoreDoctorClinicRequest $request)
+    {
+        $validated = $request->validated();
+        $user = Auth::user();
+        $clinic = $user->clinic;
+
+        if (!$clinic) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Clinic not found for the user',
+            ]);
+        }
+
+        try {
+            DB::beginTransaction();
+            // Create user
+            $newUser = User::create([
+                'email' => $validated['email'],
+                'password' => bcrypt($validated['password']),
+                'phone_number' => $validated['phone_number'],
+                'role' => 'staff',
+            ]);
+
+            $newEmployee = Employee::create([
+                'image_profile' => $validated['image_profile']
+                ? $validated['image_profile']->store('image_profile')
+                : 'image_profile/default.png',
+                'image_signature' => $validated['image_signature']
+                ? $validated['image_signature']->store('image_signature')
+                : 'path/to/default_signature_image.jpg',
+                'branch' => $validated['branch'],
+                'apc' => $validated['apc'],
+                'mmc' => $validated['mmc'],
+                'position' => $validated['position'],
+                'staff_id' => $validated['staff_id'],
+                'tenure' => $validated['tenure'],
+                'basic_salary' => $validated['basic_salary'],
+                'elaun' => $validated['elaun'],
+            ]);
+
+            // Create doctor profile
+            $newStaff = $clinic->staffs()->create([
+                'user_id' => $newUser->id,
+                'name' => $validated['name'],
+                'category_id' => $validated['category_id'],
+                'employee_id' => $newEmployee->id,
+            ]);
+
+            // Create related information
+            $newStaff->demographic()->create([
+                'name' => $validated['name'],
+                'nric' => $validated['nric'],
+                'birth_date' => $validated['birth_date'],
+                'place_of_birth' => $validated['place_of_birth'],
+                'marital_status' => $validated['marital_status'],
+                'email' => $validated['email'],
+                'phone_number' => $validated['phone_number'],
+                'address' => $validated['address'],
+                'country' => $validated['country'],
+                'postal_code' => $validated['postal_code'],
+                'gender' => $validated['gender'],
+            ]);
+
+            $newStaff->educational()->create([
+                'graduated_from' => $validated['graduated_from'],
+                'bachelor' => $validated['bachelor'],
+                'graduation_year' => $validated['graduation_year'],
+            ]);
+
+            $newStaff->contributionInfo()->create([
+                'kwsp_number' => $validated['kwsp_number'],
+                'kwsp_amount' => $validated['kwsp_amount'],
+                'perkeso_number' => $validated['perkeso_number'],
+                'perkeso_amount' => $validated['perkeso_amount'],
+                'tax_number' => $validated['tax_number'],
+                'tax_amount' => $validated['tax_amount'],
+            ]);
+
+            $newStaff->emergencyContact()->create([
+                'name' => $validated['emergency_contact'],
+                'relationship' => $validated['emergency_contact_relation'],
+                'phone_number' => $validated['emergency_contact_number'],
+            ]);
+
+            $newStaff->spouseInformation()->create([
+                'name' => $validated['spouse_name'],
+                'contact' => $validated['spouse_phone'],
+                'occupation' => $validated['spouse_occupation'],
+            ]);
+
+            if (!empty($validated['childs'])) {
+                foreach ($validated['childs'] as $child) {
+                    $newStaff->childsInformation()->create([
+                        'name' => $child['name'],
+                        'age' => $child['age'],
+                    ]);
+                }
+            }
+
+            $newStaff->parentInformation()->create([
+                'father_name' => $validated['father_name'],
+                'father_occupation' => $validated['father_occupation'],
+                'mother_name' => $validated['mother_name'],
+                'mother_occupation' => $validated['mother_occupation'],
+                'father_contact' => $validated['father_contact'],
+                'mother_contact' => $validated['mother_contact'],
+            ]);
+
+            $newStaff->reference()->create([
+                'name' => $validated['reference_name'],
+                'company' => $validated['reference_company'],
+                'number_phone' => $validated['reference_phone'],
+                'position' => $validated['reference_position'],
+                'email' => $validated['reference_email'],
+            ]);
+
+            $newStaff->basicSkills()->create([
+                'languange_spoken' => $validated['languange_spoken_skill'],
+                'languange_written' => $validated['languange_written_skill'],
+                'microsoft_office' => $validated['microsoft_office_skill'],
+                'others' => $validated['others_skill'],
+            ]);
+
+            $newStaff->financialInformation()->create([
+                'bank_name' => $validated['bank_name'],
+                'account_number' => $validated['account_number'],
+            ]);
+
+            DB::commit(); // Ensure all changes are saved to the database
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Doctor created successfully',
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create doctor',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 
     public function consultations(Request $request)
     {

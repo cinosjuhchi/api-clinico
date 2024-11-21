@@ -65,7 +65,7 @@ class AppointmentController extends Controller
         ];
 
         // Jika status consultation, tambahkan relasi room.onConsultation
-        if ($status === 'consultation') {
+        if ($status === 'consultation' || $status === 'on-consultation') {
             $baseRelations[] = 'room.onConsultation';
         }
 

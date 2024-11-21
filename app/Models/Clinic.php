@@ -43,6 +43,10 @@ class Clinic extends Authenticatable
     {
         return $this->hasMany(Doctor::class, 'clinic_id');
     }
+    public function staffs(): HasMany
+    {
+        return $this->hasMany(Staff::class, 'clinic_id');
+    }
     public function rooms(): HasMany
     {
         return $this->hasMany(Room::class, 'clinic_id');
@@ -93,6 +97,10 @@ class Clinic extends Authenticatable
     public function consultationAppointments(): HasMany
     {
         return $this->hasMany(Appointment::class, 'clinic_id')->where('status', 'consultation');
+    }
+    public function onConsultationAppointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class, 'clinic_id')->where('status', 'on-consultation');
     }
 
     public function medications(): HasMany

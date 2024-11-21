@@ -28,8 +28,10 @@ class EmployeeController extends Controller
             }
         }
 
-// Gabungkan relasi dokter dan staff dengan menggunakan union
-        $employees = $clinic->doctors()
+        $page = $request->input('page', 1);
+        $perPage = 10;
+
+        $doctorsQuery = $clinic->doctors()
             ->with([
                 'employmentInformation',
                 'educational',
@@ -44,31 +46,34 @@ class EmployeeController extends Controller
                 'financialInformation',
                 'category',
             ])
-            ->union(
-                $clinic->staffs()
-                    ->with([
-                        'employmentInformation',
-                        'educational',
-                        'demographic',
-                        'contributionInfo',
-                        'emergencyContact',
-                        'spouseInformation',
-                        'childsInformation',
-                        'parentInformation',
-                        'reference',
-                        'basicSkills',
-                        'financialInformation',
-                        'category',
-                    ])
-            )
-            ->paginate(10);
+            ->select('doctors.*', DB::raw("'doctor' as type"));
+
+        $staffQuery = $clinic->staffs()
+            ->with([
+                'employmentInformation',
+                'educational',
+                'demographic',
+                'contributionInfo',
+                'emergencyContact',
+                'spouseInformation',
+                'childsInformation',
+                'parentInformation',
+                'reference',
+                'basicSkills',
+                'financialInformation',
+                'category',
+            ])
+            ->select('staff.*', DB::raw("'staff' as type"));
+
+        $employees = $doctorsQuery
+            ->union($staffQuery)
+            ->paginate($perPage);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully fetch data',
             'data' => $employees,
         ], 200);
-
     }
 
     /**

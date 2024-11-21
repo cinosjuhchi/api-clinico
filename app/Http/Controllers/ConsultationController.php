@@ -298,7 +298,7 @@ class ConsultationController extends Controller
                 'message' => 'Appointment has been check-in!',
             ], 403);
         }
-        $validated = $request->validated([
+        $validated = $request->validate([
             'total_cost' => 'required|numeric',
             'medicine' => 'nullable|array',
             'medicine.*.medicine_id' => 'nullable|exists:medications,id',

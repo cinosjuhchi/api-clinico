@@ -52,9 +52,7 @@ class ClinicProfileController extends Controller
                     $q->where('day', $day);
                 })->with('category'); // Pastikan kategori dokter juga dimuat
             },
-        ])
-            ->where('user_id', $user->id)
-            ->firstOrFail(); // Menggunakan firstOrFail untuk mendapatkan klinik atau menghasilkan 404
+        ]);            
 
         // Kembalikan resource klinik dengan tambahan status dan pesan
         return response()->json([

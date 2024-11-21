@@ -246,6 +246,7 @@ Route::prefix('v1')->group(function () {
                 Route::put('/delete/{room}', [RoomController::class, 'destroy']);
             });
             Route::prefix('employee')->group(function () {
+                Route::get('/', [EmployeeController::class,'index']);
                 Route::delete('/delete/{employee}', [EmployeeController::class, 'destroy']);
             });
             Route::prefix('services')->group(function () {

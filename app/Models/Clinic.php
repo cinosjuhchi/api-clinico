@@ -117,9 +117,13 @@ class Clinic extends Authenticatable
         return $this->hasMany(Injection::class, 'clinic_id');
     }
 
-    public function employments(): HasManyThrough
+    public function doctorEmployments(): HasManyThrough
     {
         return $this->hasManyThrough(Employee::class, Doctor::class);
+    }
+    public function staffEmployments(): HasManyThrough
+    {
+        return $this->hasManyThrough(Employee::class, Staff::class);
     }
 
     public function financial(): HasOne

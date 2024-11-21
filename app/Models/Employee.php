@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Employee extends Model
 {
@@ -14,5 +15,10 @@ class Employee extends Model
     public function doctor()
     {
         return $this->hasOne(Doctor::class);
+    }
+
+    public function staff(): HasOne
+    {
+        return $this->hasOne(Staff::class);
     }
 }

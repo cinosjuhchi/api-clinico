@@ -2,18 +2,73 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Employee;
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
+use App\Models\Employee;
+use Illuminate\Http\Client\Request;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class EmployeeController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $user = Auth::user();
+        $clinic = $user->clinic;
+        if (!$clinic) {
+            $clinic = $user->doctor->clinic;
+            if (!$clinic) {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'user not found',
+                ]);
+            }
+        }
+
+// Gabungkan relasi dokter dan staff dengan menggunakan union
+        $employees = $clinic->doctorEmployments()
+            ->with([
+                'employmentInformation',
+                'educational',
+                'demographic',
+                'contributionInfo',
+                'emergencyContact',
+                'spouseInformation',
+                'childsInformation',
+                'parentInformation',
+                'reference',
+                'basicSkills',
+                'financialInformation',
+                'category',
+            ])
+            ->union(
+                $clinic->staffEmployments()
+                    ->with([
+                        'employmentInformation',
+                        'educational',
+                        'demographic',
+                        'contributionInfo',
+                        'emergencyContact',
+                        'spouseInformation',
+                        'childsInformation',
+                        'parentInformation',
+                        'reference',
+                        'basicSkills',
+                        'financialInformation',
+                        'category',
+                    ])
+            )
+            ->paginate(10);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully fetch data',
+            'data' => $employees,
+        ], 200);
+
     }
 
     /**

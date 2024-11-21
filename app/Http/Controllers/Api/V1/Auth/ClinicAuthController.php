@@ -2,48 +2,47 @@
 
 namespace App\Http\Controllers\Api\V1\Auth;
 
-use App\Models\User;
-use App\Models\Clinic;
-use App\Models\Family;
-use App\Models\Patient;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\ClinicAuthLogin;
 use App\Mail\VerifyEmail;
-use Illuminate\Support\Str;
+use App\Models\Clinic;
+use App\Models\User;
+use App\Notifications\SetUpProfileNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\URL;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use App\Http\Requests\ClinicAuthLogin;
-use App\Http\Requests\DoctorAuthLogin;
-use App\Models\DemographicInformation;
-use App\Notifications\SetUpProfileNotification;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 
 class ClinicAuthController extends Controller
 {
     public function login(ClinicAuthLogin $request)
-    {        
-        $request->validated();            
-        if(Auth::attempt(['email' => $request->user, 'password' => $request->password]) || Auth::attempt(['phone_number' => $request->user, 'password' => $request->password]))
-        {
-            $user = Auth::user();
-            if($user->role == 'clinic')
-            {
-                $token = $user->createToken('Clinico', ['clinic', 'hasAccessResource'])->plainTextToken;
-                $role = $user->role;
-                return response()->json([$user, 'role' => $role,'token' => $token], 200);
+    {
+        $request->validated();
 
+        Log::info('Login Request:', $request->all());
+
+        if (Auth::attempt(['email' => $request->user, 'password' => $request->password]) ||
+            Auth::attempt(['phone_number' => $request->user, 'password' => $request->password])) {
+
+            $user = Auth::user();
+            Log::info('Authenticated User:', $user->toArray());
+
+            if ($user->role == 'clinic') {
+                $token = $user->createToken('Clinico', ['clinic', 'hasAccessResource'])->plainTextToken;
+                return response()->json(['user' => $user, 'role' => $user->role, 'token' => $token], 200);
             }
-            if($user->role == 'doctor')
-            {
+
+            if ($user->role == 'doctor') {
                 $token = $user->createToken('Clinico', ['doctor', 'hasAccessResource'])->plainTextToken;
-                $role = $user->role;
-                return response()->json([$user, 'role' => $role,'token' => $token], 200);
+                return response()->json(['user' => $user, 'role' => $user->role, 'token' => $token], 200);
             }
         }
-        
-            return response()->json(["message" => "User didn't exist!"], 404);        
+
+        Log::error("Login Failed", ['user' => $request->user]);
+        return response()->json(["message" => "User didn't exist!"], 404);
     }
 
     public function store(Request $request)
@@ -65,10 +64,10 @@ class ClinicAuthController extends Controller
                 'password' => bcrypt($validated['password']),
                 'phone_number' => $validated['phone_number'],
                 'role' => 'clinic',
-            ]);            
+            ]);
             $verificationUrl = URL::temporarySignedRoute(
                 'verification.verify', now()->addMinutes(60), ['id' => $user->id]
-            );  
+            );
 
             $slug = Str::slug($validated['name']);
 
@@ -76,28 +75,28 @@ class ClinicAuthController extends Controller
                 'name' => $validated['name'],
                 'company' => $validated['company'],
                 'ssm_number' => $validated['registration_number'],
-                'referral_number' => $validated['referral_number'],                
+                'referral_number' => $validated['referral_number'],
                 'registration_number' => $validated['registration_number'],
                 'user_id' => $user->id,
-                'slug' => $slug
+                'slug' => $slug,
             ]);
 
             Mail::to($user->email)->send(new VerifyEmail([
                 'name' => $clinic->name,
-                'verification_url' => $verificationUrl
+                'verification_url' => $verificationUrl,
             ]));
-            
+
             try {
                 $user->notify(new SetUpProfileNotification());
-            } catch (\Exception $e) {                
+            } catch (\Exception $e) {
                 Log::error('Notification error: ' . $e->getMessage());
-            }                        
+            }
         });
         return response()->json(['status' => 'success', 'message' => 'Register Successful'], 201);
     }
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();        
+        $request->user()->currentAccessToken()->delete();
         return response()->json(["message" => "Logout"], 200);
     }
 }

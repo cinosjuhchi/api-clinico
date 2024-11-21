@@ -25,8 +25,7 @@ class StoreStaffRequest extends FormRequest
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:3',
             'name' => 'required|string',
-            'phone_number' => 'required|string|min:10|unique:users',
-            'category_id' => 'required|exists:categories,id',
+            'phone_number' => 'required|string|min:10|unique:users',            
             // Demographic Information
             'nric' => 'required|string|min:5',
             'birth_date' => 'required|date:before:today',

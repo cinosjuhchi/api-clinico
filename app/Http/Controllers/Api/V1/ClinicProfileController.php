@@ -2,20 +2,26 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\Controller;
+use App\Http\Resources\ClinicResource;
 use App\Models\Clinic;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Resources\ClinicResource;
 
 class ClinicProfileController extends Controller
 {
     public function clinicPatient(Request $request)
     {
         $user = Auth::user();
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            default => abort(401, 'Unauthorized access. Invalid role.'),
+        };
+
         $day = $request->input('day');
         $date = $request->input('date');
-        $clinic = Clinic::with([
+        $clinic->with([
             // Cari klinik berdasarkan slug
             'rooms',
             'location',
@@ -32,12 +38,12 @@ class ClinicProfileController extends Controller
             'consultationAppointments' => function ($query) use ($date) {
                 // Ambil hanya appointment dengan status 'pending' pada hari ini
                 $query->whereDate('appointment_date', $date)
-                ->where('status', 'consultation');                    
+                    ->where('status', 'consultation');
             },
             'completedAppointments' => function ($query) use ($date) {
                 // Ambil hanya appointment dengan status 'pending' pada hari ini
                 $query->whereDate('appointment_date', $date)
-                ->where('status', 'completed');
+                    ->where('status', 'completed');
             },
             'services',
             'doctors' => function ($query) use ($day) {
@@ -45,18 +51,17 @@ class ClinicProfileController extends Controller
                 $query->whereHas('schedules', function ($q) use ($day) {
                     $q->where('day', $day);
                 })->with('category'); // Pastikan kategori dokter juga dimuat
-            }
-        ])        
-        ->where('user_id', $user->id)
-        ->firstOrFail(); // Menggunakan firstOrFail untuk mendapatkan klinik atau menghasilkan 404
+            },
+        ])
+            ->where('user_id', $user->id)
+            ->firstOrFail(); // Menggunakan firstOrFail untuk mendapatkan klinik atau menghasilkan 404
 
         // Kembalikan resource klinik dengan tambahan status dan pesan
         return response()->json([
             'status' => 'success',
             'message' => 'Success to get clinic data.',
-            'data' => new ClinicResource($clinic),            
+            'data' => new ClinicResource($clinic),
         ]);
     }
 
-    
 }

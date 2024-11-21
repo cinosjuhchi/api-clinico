@@ -248,7 +248,7 @@ Route::prefix('v1')->group(function () {
                 Route::put('/delete/{room}', [RoomController::class, 'destroy']);
             });
             Route::prefix('employee')->group(function () {
-                Route::get('/', [EmployeeController::class,'index']);
+                Route::get('/', [EmployeeController::class, 'index']);
                 Route::delete('/delete/{employee}', [EmployeeController::class, 'destroy']);
             });
             Route::prefix('services')->group(function () {
@@ -267,9 +267,10 @@ Route::prefix('v1')->group(function () {
             });
             Route::prefix('appointments')->group(function () {
                 Route::get('/patient', [PatientController::class, 'index']);
+                Route::get('/today-patient', [ClinicProfileController::class, 'clinicPatient']);
                 Route::get('/booking-patient', [PatientController::class, 'bookingPatient']);
                 Route::get('/waiting-patient', [PatientController::class, 'waitingPatient']);
-                Route::get('/completed-patient', [PatientController::class, 'completedPatient']);                
+                Route::get('/completed-patient', [PatientController::class, 'completedPatient']);
             });
         });
 

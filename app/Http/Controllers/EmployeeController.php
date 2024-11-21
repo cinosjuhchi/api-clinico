@@ -29,35 +29,36 @@ class EmployeeController extends Controller
         }
 
 // Gabungkan relasi dokter dan staff dengan menggunakan union
-        $employees = $clinic->doctorEmployments()
+        $employees = $clinic->doctors()
             ->with([
-                'doctor.employmentInformation',
-                'doctor.educational',
-                'doctor.demographic',
-                'doctor.contributionInfo',
-                'doctor.emergencyContact',
-                'doctor.spouseInformation',
-                'doctor.childsInformation',
-                'doctor.parentInformation',
-                'doctor.reference',
-                'doctor.basicSkills',
-                'doctor.financialInformation',
-                'doctor.category',
+                'employmentInformation',
+                'educational',
+                'demographic',
+                'contributionInfo',
+                'emergencyContact',
+                'spouseInformation',
+                'childsInformation',
+                'parentInformation',
+                'reference',
+                'basicSkills',
+                'financialInformation',
+                'category',
             ])
             ->union(
-                $clinic->staffEmployments()
+                $clinic->staffs()
                     ->with([
-                        'staff.employmentInformation',
-                        'staff.educational',
-                        'staff.demographic',
-                        'staff.contributionInfo',
-                        'staff.emergencyContact',
-                        'staff.spouseInformation',
-                        'staff.childsInformation',
-                        'staff.parentInformation',
-                        'staff.reference',
-                        'staff.basicSkills',
-                        'staff.financialInformation',                        
+                        'employmentInformation',
+                        'educational',
+                        'demographic',
+                        'contributionInfo',
+                        'emergencyContact',
+                        'spouseInformation',
+                        'childsInformation',
+                        'parentInformation',
+                        'reference',
+                        'basicSkills',
+                        'financialInformation',
+                        'category',
                     ])
             )
             ->paginate(10);

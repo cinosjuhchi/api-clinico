@@ -235,6 +235,9 @@ Route::prefix('v1')->group(function () {
                     Route::delete('/delete/{doctorSchedule}', [DoctorScheduleController::class, 'destroy']);
                 });
             });
+            Route::prefix('staff')->group(function () {
+                Route::post('/store', [ClinicDataController::class, 'storeStaff']);
+            });
             Route::prefix('rooms')->group(function () {
                 Route::get('/resource', [RoomController::class, 'roomResource']);
                 Route::get('/', [RoomController::class, 'index']);

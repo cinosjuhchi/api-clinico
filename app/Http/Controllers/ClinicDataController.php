@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\ClinicResource;
 use App\Http\Requests\StoreDoctorClinicRequest;
+use App\Http\Requests\StoreStaffRequest;
 
 class ClinicDataController extends Controller
 {
@@ -228,7 +229,7 @@ class ClinicDataController extends Controller
             ], 500);
         }
     }
-    public function storeStaff(StoreDoctorClinicRequest $request)
+    public function storeStaff(StoreStaffRequest $request)
     {
         $validated = $request->validated();
         $user = Auth::user();

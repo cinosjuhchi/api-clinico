@@ -73,4 +73,9 @@ class Staff extends Model
     {
         return $this->hasOne(StaffFinancialInformation::class, 'staff_id');
     }
+
+    public function employmentInformation(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class, 'employee_id', 'id');
+    }
 }

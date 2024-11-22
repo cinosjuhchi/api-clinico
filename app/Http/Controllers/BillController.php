@@ -49,6 +49,7 @@ class BillController extends Controller
         $clinic = match ($user->role) {
             'clinic' => $user->clinic,
             'doctor' => $user->doctor->clinic,
+            'staff' => $user->staff->clinic,
             default => abort(401, 'Unauthorized access. Invalid role.'),
         };
 
@@ -77,6 +78,7 @@ class BillController extends Controller
         $clinic = match ($user->role) {
             'clinic' => $user->clinic,
             'doctor' => $user->doctor->clinic,
+            'staff' => $user->staff->clinic,
             default => abort(401, 'Unauthorized access. Invalid role.'),
         };
 
@@ -118,6 +120,7 @@ class BillController extends Controller
         $clinic = match ($user->role) {
             'clinic' => $user->clinic,
             'doctor' => $user->doctor->clinic,
+            'staff' => $user->staff->clinic,
             default => abort(401, 'Unauthorized access. Invalid role.'),
         };
 
@@ -154,6 +157,7 @@ class BillController extends Controller
         $clinic = match ($user->role) {
             'clinic' => $user->clinic,
             'doctor' => $user->doctor->clinic,
+            'staff' => $user->staff->clinic,
             default => abort(401, 'Unauthorized access. Invalid role.'),
         };
 
@@ -298,7 +302,7 @@ class BillController extends Controller
             $billing = Billing::find($validated['bill_id']);
             $billing->update([
                 'billz_id' => $responseData['id'],
-                'total_cost' => $validated['amount']
+                'total_cost' => $validated['amount'],
             ]);
             return response()->json([
                 'status' => 'success',

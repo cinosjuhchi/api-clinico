@@ -18,6 +18,7 @@ class OnlineEmployeeController extends Controller
         $clinic = match ($user->role) {
             'clinic' => $user->clinic,
             'doctor' => $user->doctor->clinic,
+            'staff' => $user->staff->clinic,
             default => abort(401, 'Unauthorized access. Invalid role.'),
         };
 

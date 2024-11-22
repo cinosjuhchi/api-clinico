@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreInjectionRequest;
 use App\Models\Injection;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Requests\StoreInjectionRequest;
-use App\Http\Requests\UpdateInjectionRequest;
+use Illuminate\Support\Facades\DB;
 
 class InjectionController extends Controller
 {
@@ -16,62 +15,64 @@ class InjectionController extends Controller
      * Display a listing of the resource.
      */
 
-     public function doctorResource(Request $request)
+    public function doctorResource(Request $request)
     {
         $user = Auth::user();
         $doctor = $user->doctor;
 
-        if(!$doctor)
-        {
-                        
+        if (!$doctor) {
+
             return response()->json([
                 'status' => 'failed',
-                'message' => 'user not found'
-            ]);                        
-            
-        }        
+                'message' => 'user not found',
+            ]);
+
+        }
 
         $clinic = $doctor->clinic;
-                        
+
         // Mengambil data obat berdasarkan clinic dan melakukan pencarian jika parameter 'q' ada
         $injections = $clinic->injections()->with(['pregnancyCategory'])->get();
 
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully fetched data',
-            'data' => $injections
+            'data' => $injections,
         ]);
     }
 
     public function index(Request $request)
     {
         $user = Auth::user();
-        $clinic = $user->clinic;
-        if(!$clinic)
-        {
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            default => abort(401, 'Unauthorized access. Invalid role.'),
+        };
+
+        if (!$clinic) {
             $clinic = $user->doctor->clinic;
-            if(!$clinic)
-            {
+            if (!$clinic) {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'user not found'
-                ]);                
+                    'message' => 'user not found',
+                ]);
             }
-            
-        }        
-        $query = $request->input('q');       
+
+        }
+        $query = $request->input('q');
         $injections = $clinic->injections()->with(['pregnancyCategory'])
-        ->when($query, function ($q, $query) {
-            $q->where('name', 'like', "%{$query}%")
-            ->orWhere('sku_code', 'like', "%{$query}%")
-            ->orWhere('price', 'like', "%{$query}%")
-            ->orWhere('expired_date', 'like', "%{$query}%");
-        })
-        ->paginate(10);
+            ->when($query, function ($q, $query) {
+                $q->where('name', 'like', "%{$query}%")
+                    ->orWhere('sku_code', 'like', "%{$query}%")
+                    ->orWhere('price', 'like', "%{$query}%")
+                    ->orWhere('expired_date', 'like', "%{$query}%");
+            })
+            ->paginate(10);
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully fetch data',
-            'data' => $injections
+            'data' => $injections,
         ]);
     }
 
@@ -93,12 +94,12 @@ class InjectionController extends Controller
         try {
             DB::transaction(function () use ($validated) {
                 Injection::create($validated);
-            });             
+            });
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data successfully stored.',
             ], 201);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'status' => 'error',
@@ -131,13 +132,13 @@ class InjectionController extends Controller
     {
         $validated = $request->validate([
             'name' => 'string|sometimes|max:255|min:3',
-            'price' => 'numeric|sometimes',            
+            'price' => 'numeric|sometimes',
             'brand' => 'string|sometimes|max:255|min:3',
             'pregnancy_category_id' => 'sometimes|exists:pregnancy_categories,id',
             'sku_code' => 'string|sometimes|max:255|min:5',
             'paediatric_dose' => 'integer|sometimes',
-            'unit' => 'string|sometimes|max:255',            
-            'expired_date' => 'date|sometimes',                    
+            'unit' => 'string|sometimes|max:255',
+            'expired_date' => 'date|sometimes',
         ]);
 
         $injection->fill($validated);
@@ -149,7 +150,7 @@ class InjectionController extends Controller
                 });
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'Update successfully!'
+                    'message' => 'Update successfully!',
                 ], 200);
             } catch (\Exception $e) {
                 DB::rollBack();
@@ -163,24 +164,24 @@ class InjectionController extends Controller
 
         return response()->json([
             'status' => 'info',
-            'message' => 'No changes made.'
+            'message' => 'No changes made.',
         ], 200);
     }
 
     public function addBatch(Request $request, Injection $injection)
     {
-        $validated = $request->validate([            
-            'total_amount' => 'integer|required'
+        $validated = $request->validate([
+            'total_amount' => 'integer|required',
         ]);
         $injection->total_amount += $validated['total_amount'];
         $injection->batch += 1;
-        try {            
+        try {
             DB::transaction(function () use ($injection) {
                 $injection->save();
             });
             return response()->json([
                 'status' => 'success',
-                'message' => 'Successfully restock'
+                'message' => 'Successfully restock',
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -188,7 +189,7 @@ class InjectionController extends Controller
                 'status' => 'error',
                 'message' => 'Failed to restock data.',
                 'error' => $e->getMessage(),
-            ], 500);  
+            ], 500);
         }
     }
 

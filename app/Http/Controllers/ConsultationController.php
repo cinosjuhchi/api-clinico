@@ -36,8 +36,12 @@ class ConsultationController extends Controller
     public function complete(Appointment $appointment, Request $request)
     {
         $user = Auth::user();
-        $doctor = $user->doctor;
-        $clinic = $doctor->clinic;
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            'staff' => $user->staff->clinic,
+            default => abort(401, 'Unauthorized access. Invalid role.'),
+        };
 
         DB::beginTransaction();
 
@@ -219,7 +223,13 @@ class ConsultationController extends Controller
     public function dispensary(Request $request)
     {
         $user = Auth::user();
-        $clinic = $user->clinic;
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            'staff' => $user->staff->clinic,
+            default => abort(401, 'Unauthorized access. Invalid role.'),
+        };
+
         $query = $request->input('q');
 
         if (!$clinic) {
@@ -256,7 +266,13 @@ class ConsultationController extends Controller
     public function consultationEntry(Request $request)
     {
         $user = Auth::user();
-        $clinic = $user->clinic;
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            'staff' => $user->staff->clinic,
+            default => abort(401, 'Unauthorized access. Invalid role.'),
+        };
+
         $query = $request->input('q');
 
         if (!$clinic) {

@@ -660,6 +660,42 @@ class ClinicDataController extends Controller
             'data' => $doctor,
         ], 200);
     }
+
+    public function destroyDoctor(Doctor $doctor)
+    {
+        try {
+            DB::beginTransaction();
+            $doctor->user()->delete();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Doctor deleted'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'something wrong happen'
+            ]);
+        }
+    }
+    public function destroyStaff(Staff $staff)
+    {
+        try {
+            DB::beginTransaction();
+            $staff->user()->delete();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Staff deleted'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'something wrong happen'
+            ]);
+        }
+    }
+
     public function staffs(Request $request)
     {
         $user = Auth::user();

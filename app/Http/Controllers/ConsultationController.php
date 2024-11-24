@@ -37,6 +37,7 @@ class ConsultationController extends Controller
     {
         $user = Auth::user();
         $doctor = $user->doctor;
+        $clinic = $doctor->clinic;
 
         DB::beginTransaction();
 

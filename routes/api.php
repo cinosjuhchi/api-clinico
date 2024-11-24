@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\RoomController;
@@ -157,8 +156,7 @@ Route::prefix('v1')->group(function () {
 
             // appointment route
             Route::prefix('appointment')->group(function () {
-                Route::get('/', [AppointmentController::class, 'index']);
-                Route::get('/my-appointment', [AppointmentController::class, 'myAppointment']);
+                Route::get('/', [AppointmentController::class, 'index']);                
                 Route::get('/show/{slug}', [AppointmentController::class, 'show']);
                 Route::get('/destroy/{slug}', [AppointmentController::class, 'destroy']);
                 Route::get('/waiting-number', [AppointmentController::class, 'waitingNumber']);

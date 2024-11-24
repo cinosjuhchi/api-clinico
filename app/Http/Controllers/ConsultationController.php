@@ -36,12 +36,7 @@ class ConsultationController extends Controller
     public function complete(Appointment $appointment, Request $request)
     {
         $user = Auth::user();
-        $clinic = match ($user->role) {
-            'clinic' => $user->clinic,
-            'doctor' => $user->doctor->clinic,
-            'staff' => $user->staff->clinic,
-            default => abort(401, 'Unauthorized access. Invalid role.'),
-        };
+        $doctor = $user->doctor;
 
         DB::beginTransaction();
 

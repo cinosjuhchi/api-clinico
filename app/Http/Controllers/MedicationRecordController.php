@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\MedicationRecordStoreRequest;
 use App\Models\Patient;
 use Illuminate\Http\Request;
 use App\Models\MedicationRecord;
@@ -21,13 +22,15 @@ class MedicationRecordController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(MedicationRecordStoreRequest $request)
     {
-        $validated = $request->validate([
-            'patient_id' => 'required|exists:patients,id',
-            'medicine' => 'required|string|max:255',
-            'frequency' => 'required|string|max:255',            
-        ]);
+        // $validated = $request->validate([
+        //     'patient_id' => 'required|exists:patients,id',
+        //     'medicine' => 'required|string|max:255',
+        //     'frequency' => 'required|string|max:255',            
+        // ]);
+
+        $validated = $request->validated();
 
         try {
             DB::transaction(function () use ($validated) {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BillStoreRequest;
 use App\Models\Billing;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -268,18 +269,20 @@ class BillController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(BillStoreRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'description' => 'required|string',
-            'due_date' => 'required|date',
-            'email' => 'required|email',
-            'amount' => 'required|numeric',
-            'bill_id' => 'required|exists:billings,id',
-            'reference_1_label' => 'nullable|string',
-            'reference_1' => 'nullable|string',
-        ]);
+        // $validated = $request->validate([
+        //     'name' => 'required|string',
+        //     'description' => 'required|string',
+        //     'due_date' => 'required|date',
+        //     'email' => 'required|email',
+        //     'amount' => 'required|numeric',
+        //     'bill_id' => 'required|exists:billings,id',
+        //     'reference_1_label' => 'nullable|string',
+        //     'reference_1' => 'nullable|string',
+        // ]);
+
+        $validated = $request->validated();
 
         $billData = [
             'collection_id' => env('BILLPLZ_COLLECTION'),

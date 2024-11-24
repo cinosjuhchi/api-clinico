@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PatientStoreRequest;
 use App\Models\Patient;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -141,16 +142,16 @@ class PatientController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(PatientStoreRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
-            'user_id' => 'required|exists:users,id',
-            'family_id' => 'required|exists:families,id',
-            'family_relationships_id' => 'required|exists:family_relationships,id',
-        ]);
-
+        // $validated = $request->validate([
+        //     'name' => 'required|string|max:255',
+        //     'address' => 'required|string|max:255',
+        //     'user_id' => 'required|exists:users,id',
+        //     'family_id' => 'required|exists:families,id',
+        //     'family_relationships_id' => 'required|exists:family_relationships,id',
+        // ]);
+        $validated = $request->validated();
         try {
             // Declare the variable outside of the transaction closure
             $patient = null;

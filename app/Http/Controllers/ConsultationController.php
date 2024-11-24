@@ -229,24 +229,12 @@ class ConsultationController extends Controller
         $query = $request->input('q');
 
         if (!$clinic) {
-            $doctor = $user->doctor;
-            if (!$doctor) {
-                return response()->json([
-                    'status' => 'failed',
-                    'message' => 'user not found',
-                ]);
-            }
-            $appointments = $doctor->consultationTakeMedicine()->with(['patient', 'doctor.category', 'clinic', 'service', 'bill', 'medicalRecord', 'medicalRecord.clinicService', 'medicalRecord.serviceRecord', 'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords', 'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords', 'medicalRecord.diagnosisRecord'])->when($query, function ($q) use ($query) {
-                $q->where(function ($subQuery) use ($query) {
-                    $subQuery->where('waiting_number', 'like', "%{$query}%")
-                        ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {
-                            $categoryQuery->where('name', 'like', "%{$query}%");
-                        });
-                });
-            })->latest()->paginate(5);
-            return response()->json($appointments);
-
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'user not found',
+            ]);
         }
+
         $appointments = $clinic->consultationTakeMedicine()->with(['patient', 'doctor.category', 'clinic', 'service', 'bill', 'medicalRecord', 'medicalRecord.clinicService', 'medicalRecord.serviceRecord', 'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords', 'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords', 'medicalRecord.diagnosisRecord'])->when($query, function ($q) use ($query) {
             $q->where(function ($subQuery) use ($query) {
                 $subQuery->where('waiting_number', 'like', "%{$query}%")

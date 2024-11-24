@@ -1,4 +1,5 @@
 <?php
+use App\Models\ClinicUpdateRequest;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\RoomController;
@@ -205,6 +206,7 @@ Route::prefix('v1')->group(function () {
             Route::prefix('me')->group(function () {
                 Route::get('/logout-clinic', [ClinicAuthController::class, 'logout']);
                 Route::get('/user', [ClinicDataController::class, 'me']);
+                Route::post('/update-profile-request', [ClinicUpdateRequest::class, 'requestUpdate']);
                 Route::get('/clinic-patient', [ClinicProfileController::class, 'clinicPatient']);
             });
         });

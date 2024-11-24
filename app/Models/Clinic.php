@@ -150,4 +150,9 @@ class Clinic extends Authenticatable
     {
         return $this->hasMany(Billing::class, 'clinic_id');
     }
+
+    public function requestUpdate()
+    {
+        return $this->hasMany(ClinicUpdateRequest::class, 'clinic_id');
+    }
 }

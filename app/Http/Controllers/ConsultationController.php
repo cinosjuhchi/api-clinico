@@ -243,7 +243,10 @@ class ConsultationController extends Controller
                     });
             });
         })->latest()->paginate(5);
-        return response()->json($appointments);
+        return response()->json([
+            'data' => $appointments,
+            'clinic' => $clinic
+        ]);
 
     }
 

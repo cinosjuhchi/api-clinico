@@ -219,10 +219,12 @@ class ConsultationController extends Controller
     public function dispensary(Request $request)
     {
         $user = Auth::user();
+
+        // Determine the clinic based on user role with more explicit handling
         $clinic = match ($user->role) {
             'clinic' => $user->clinic,
-            'doctor' => $user->doctor->clinic,
-            'staff' => $user->staff->clinic,
+            'doctor' => optional($user->doctor)->clinic, // Use optional to handle potential null
+            'staff' => optional($user->staff)->clinic, // Use optional to handle potential null
             default => abort(401, 'Unauthorized access. Invalid role.'),
         };
 
@@ -231,22 +233,42 @@ class ConsultationController extends Controller
         if (!$clinic) {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'user not found',
-            ]);
+                'message' => 'Clinic not found for this user',
+            ], 404);
         }
 
-        $appointments = $clinic->consultationTakeMedicine()->with(['patient', 'doctor.category', 'clinic', 'service', 'bill', 'medicalRecord', 'medicalRecord.clinicService', 'medicalRecord.serviceRecord', 'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords', 'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords', 'medicalRecord.diagnosisRecord'])->when($query, function ($q) use ($query) {
-            $q->where(function ($subQuery) use ($query) {
-                $subQuery->where('waiting_number', 'like', "%{$query}%")
-                    ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {
-                        $categoryQuery->where('name', 'like', "%{$query}%");
-                    });
-            });
-        })->latest()->paginate(5);
-        return response()->json(
-            $appointments
-        );
+        $appointments = $clinic->consultationTakeMedicine()
+            ->with([
+                'patient',
+                'doctor.category',
+                'clinic',
+                'service',
+                'bill',
+                'medicalRecord' => function ($query) {
+                    // Ensure eager loading works correctly
+                    $query->with([
+                        'clinicService',
+                        'serviceRecord',
+                        'investigationRecord',
+                        'medicationRecords',
+                        'procedureRecords',
+                        'injectionRecords',
+                        'diagnosisRecord',
+                    ]);
+                },
+            ])
+            ->when($query, function ($q) use ($query) {
+                $q->where(function ($subQuery) use ($query) {
+                    $subQuery->where('waiting_number', 'like', "%{$query}%")
+                        ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {
+                            $categoryQuery->where('name', 'like', "%{$query}%");
+                        });
+                });
+            })
+            ->latest()
+            ->paginate(5);
 
+        return response()->json($appointments);
     }
 
     public function consultationEntry(Request $request)

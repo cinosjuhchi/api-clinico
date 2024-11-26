@@ -245,7 +245,7 @@ class ConsultationController extends Controller
         })->latest()->paginate(5);
         return response()->json([
             'data' => $appointments,
-            'clinic' => $clinic->consultationTakeMedicine
+            'clinic' => $clinic->load('consultationTakeMedicine')
         ]);
 
     }

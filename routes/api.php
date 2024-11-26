@@ -38,6 +38,7 @@ use App\Http\Controllers\PregnancyCategoryController;
 use App\Http\Controllers\Api\V1\AppointmentController;
 use App\Http\Controllers\FamilyRelationshipController;
 use App\Http\Controllers\Api\V1\User\ProfileController;
+use App\Http\Controllers\ClinicUpdateRequestController;
 use App\Http\Controllers\InvestigationClinicController;
 use App\Http\Controllers\PatientNotificationController;
 use App\Http\Controllers\Api\V1\ClinicProfileController;
@@ -206,7 +207,7 @@ Route::prefix('v1')->group(function () {
             Route::prefix('me')->group(function () {
                 Route::get('/logout-clinic', [ClinicAuthController::class, 'logout']);
                 Route::get('/user', [ClinicDataController::class, 'me']);
-                Route::post('/update-profile-request', [ClinicUpdateRequest::class, 'requestUpdate']);
+                Route::post('/update-profile-request', [ClinicUpdateRequestController::class, 'requestUpdate']);
                 Route::get('/clinic-patient', [ClinicProfileController::class, 'clinicPatient']);
             });
         });

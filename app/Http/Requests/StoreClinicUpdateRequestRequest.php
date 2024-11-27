@@ -23,17 +23,21 @@ class StoreClinicUpdateRequestRequest extends FormRequest
      */
     public function rules(): array
     {
-        $user = Auth::user();        
+        $user = Auth::user();
         return [
-            'name' => 'required|string',
             'bank_name' => 'required|string',
             'ac_name' => 'required|string',
             'bank_account_number' => 'required|string',
             'bank_detail' => 'required|string',
+            'phone_number' => [
+                'required',
+                'string',
+                Rule::unique('users')->ignore($user->id),
+            ],
             'email' => [
-            'required',
-            'email',
-            Rule::unique('users')->ignore($user->id)
+                'required',
+                'email',
+                Rule::unique('users')->ignore($user->id),
             ],
         ];
     }

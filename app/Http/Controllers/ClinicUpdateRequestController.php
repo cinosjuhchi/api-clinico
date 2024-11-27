@@ -73,10 +73,7 @@ class ClinicUpdateRequestController extends Controller
 
             if ($validated['status'] === 'approved') {
                 $clinic = $updateRequest->clinic;
-                $requestedData = $updateRequest->requested_data;
-                $clinic->update([
-                    'name' => $requestedData['name'],
-                ]);
+                $requestedData = $updateRequest->requested_data;                
                 // Update clinic data
                 $clinic->financial()->update([
                     'bank_name' => $requestedData['bank_name'],
@@ -87,6 +84,7 @@ class ClinicUpdateRequestController extends Controller
 
                 $user = $clinic->user()->update([
                     'email' => $requestedData['email'],
+                    'phone_number' => $requestedData['phone_number'],
                 ]);
 
             }

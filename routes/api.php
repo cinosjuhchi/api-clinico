@@ -34,6 +34,7 @@ use App\Http\Controllers\OnlineEmployeeController;
 use App\Http\Controllers\Api\V1\ContactUsController;
 use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\MedicationRecordController;
+use App\Http\Controllers\BackOfficeRevenueController;
 use App\Http\Controllers\PregnancyCategoryController;
 use App\Http\Controllers\Api\V1\AppointmentController;
 use App\Http\Controllers\FamilyRelationshipController;
@@ -52,7 +53,8 @@ Route::prefix('v1')->group(function () {
         Route::post('login', [BackOfficeController::class, 'login']);
         Route::middleware(['auth:sanctum', 'abilities:backOffice'])->group(function () {
             Route::prefix('bills')->group(function () {
-                Route::get('/total-revenue-clinico', [BillController::class, 'totalRevenueTaxOnly']);
+                Route::get('/revenue', [BackOfficeRevenueController::class, 'index']);
+                Route::get('/total-revenue-clinico', [BackOfficeRevenueController::class, 'totalRevenueTaxOnly']);
             });
             Route::get('/logout', [BackOfficeController::class, 'logout']);
             Route::prefix('clinic')->group(function () {

@@ -369,7 +369,7 @@ class ConsultationController extends Controller
             return response([
                 'status' => 'failed',
                 'message' => 'Error something wrong happened',
-                'error' => $e->getMessage(),
+                'error' => $e->getMessage()
             ], 500);
         }
     }

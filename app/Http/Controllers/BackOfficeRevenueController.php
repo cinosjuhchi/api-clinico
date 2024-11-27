@@ -13,11 +13,33 @@ class BackOfficeRevenueController extends Controller
      */
     public function index()
     {
+
         $billing = Billing::with([
             'clinic',
             'user',
-            'doctor'
+            'doctor',
         ])->paginate();
+        return response()->json($billing);
+    }
+
+    public function getRevenueByDate(Request $request)
+    {
+        // Get the from and to dates from the request
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
+
+        // Validate the date inputs
+        $request->validate([
+            'from_date' => 'required|date',
+            'to_date' => 'required|date|after_or_equal:from_date',
+        ]);
+
+        // Query the Billing model with the date range filter
+        $billing = Billing::with(['clinic', 'user', 'doctor'])
+            ->whereBetween('transaction_date', [$fromDate, $toDate])
+            ->get();
+
+        // Return the filtered billing records as a JSON response
         return response()->json($billing);
     }
 

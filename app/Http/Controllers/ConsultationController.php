@@ -333,33 +333,45 @@ class ConsultationController extends Controller
             'medicine.*.medicine_qty' => 'nullable|integer',
         ]);
         $medicalRecord = $appointment->medicalRecord;
-        $bill = $appointment->bill;
-        $medicalRecord->medicationRecords()->delete();
-        if (!empty($validated['medicine'])) {
-            foreach ($validated['medicine'] as $medicine) {
-                $medication = Medication::find($medicine['medicine_id']);
-                $price = $medication->price;
-                $medicalRecord->medicationRecords()->create([
-                    'medicine' => $medicine['name'],
-                    'frequency' => $medicine['frequency'],
-                    'price' => $price,
-                    'total_cost' => $medicine['cost'],
-                    'qty' => $medicine['medicine_qty'],
-                    'patient_id' => $appointment->patient_id,
-                    'billing_id' => $bill->id,
-                ]);
+        try {
+            DB::beginTransaction();
+            $bill = $appointment->bill;
+            $medicalRecord->medicationRecords()->delete();
+            if (!empty($validated['medicine'])) {
+                foreach ($validated['medicine'] as $medicine) {
+                    $medication = Medication::find($medicine['medicine_id']);
+                    $price = $medication->price;
+                    $medicalRecord->medicationRecords()->create([
+                        'medicine' => $medicine['name'],
+                        'frequency' => $medicine['frequency'],
+                        'price' => $price,
+                        'total_cost' => $medicine['cost'],
+                        'qty' => $medicine['medicine_qty'],
+                        'patient_id' => $appointment->patient_id,
+                        'billing_id' => $bill->id,
+                    ]);
+                }
             }
+
+            $bill->total_cost = $validated['total_cost'];
+            $bill->save();
+
+            $appointment->status = 'waiting-payment';
+            $appointment->save();
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Appointment in-progress successfully',
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response([
+                'status' => 'failed',
+                'message' => 'Error something wrong happened',
+                'error' => $e->getMessage(),
+            ]);
         }
-
-        $bill->total_cost = $validated['total_cost'];
-        $bill->save();
-
-        $appointment->status = 'waiting-payment';
-        $appointment->save();
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Appointment in-progress successfully',
-        ], 200);
     }
 
     public function callPatient(Appointment $appointment)

@@ -370,7 +370,7 @@ class ConsultationController extends Controller
                 'status' => 'failed',
                 'message' => 'Error something wrong happened',
                 'error' => $e->getMessage(),
-            ]);
+            ], 500);
         }
     }
 

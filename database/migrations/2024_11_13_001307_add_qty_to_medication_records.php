@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('medication_records', function (Blueprint $table) {
             $table->decimal('total_cost', 8, 2)->nullable();
             $table->integer('qty')->nullable();
-            $table->foreignId('medication_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('medication_id')->nullable()->constrained()->nullOnDelete();
         });
     }
 

@@ -62,6 +62,7 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/delete/{clinic}', [RequestClinicController::class, 'destroy']);
                 Route::put('/accept-request/{clinic}', [RequestClinicController::class, 'update']);
             });
+            
         });
     });
     Route::prefix('doctor-category')->group(function () {

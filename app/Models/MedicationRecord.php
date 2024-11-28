@@ -15,4 +15,9 @@ class MedicationRecord extends Model
     {
         return $this->belongsTo(Patient::class, 'patient_id');
     }
+
+    public function medication()
+    {
+        return $this->belongsTo(Medication::class,'medication_id');
+    }
 }

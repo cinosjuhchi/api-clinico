@@ -61,14 +61,17 @@ class ConsultationController extends Controller
                 // Treatment
                 'investigations' => 'nullable|array',
                 'investigations.*.investigation_type' => 'required|string',
+                'investigations.*.remark' => 'nullable|string',
                 'investigations.*.name' => 'required|string',
                 'investigations.*.cost' => 'required|numeric',
                 // Treatment
                 'procedure' => 'nullable|array',
                 'procedure.*.name' => 'required|string',
+                'procedure.*.remark' => 'nullable|string',
                 'procedure.*.cost' => 'required|numeric',
 
                 'injection' => 'nullable|array',
+                'injection.*.injection_id' => 'nullable|exists:injections,id',
                 'injection.*.name' => 'required|string',
                 'injection.*.price' => 'required|numeric',
                 'injection.*.cost' => 'required|numeric',
@@ -141,7 +144,7 @@ class ConsultationController extends Controller
 
             if (!empty($validated['investigations'])) {
                 foreach ($validated['investigations'] as $investigation) {
-                    $medicalRecord->investigationRecord()->create([
+                    $medicalRecord->investigationRecord()->create([                        
                         'type' => $investigation['investigation_type'],
                         'item' => $investigation['name'],
                         'cost' => $investigation['cost'],
@@ -163,6 +166,7 @@ class ConsultationController extends Controller
             if (!empty($validated['injection'])) {
                 foreach ($validated['injection'] as $injection) {
                     $medicalRecord->injectionRecords()->create([
+                        'injection_id' => $injection['injection_id'],
                         'name' => $injection['name'],
                         'price' => $injection['price'],
                         'cost' => $injection['cost'],
@@ -177,6 +181,7 @@ class ConsultationController extends Controller
                     $medication = Medication::find($medicine['medicine_id']);
                     $price = $medication->price;
                     $medicalRecord->medicationRecords()->create([
+                        'medication_id' => $medicine['medicine_id'],
                         'medicine' => $medicine['name'],
                         'frequency' => $medicine['frequency'],
                         'price' => $price,

@@ -18,4 +18,9 @@ class InjectionRecord extends Model
     {
         return $this->belongsTo(Patient::class);
     }
+
+    public function injection()
+    {
+        return $this->belongsTo(Injection::class,'injection_id');
+    }
 }

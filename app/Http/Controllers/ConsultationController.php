@@ -371,8 +371,7 @@ class ConsultationController extends Controller
                 $medicalRecord->injectionRecords()->delete();
                 foreach ($validated['injection'] as $injection) {
                     $medicalRecord->injectionRecords()->create([
-                        'name' => $injection['name'],
-                        'price' => $price,
+                        'name' => $injection['name'],                        
                         'cost' => $injection['cost'],
                         'patient_id' => $appointment->patient_id,
                         'billing_id' => $bill->id,
@@ -384,8 +383,7 @@ class ConsultationController extends Controller
                 $medicalRecord->procedureRecords()->delete();
                 foreach ($validated['procedure'] as $procedure) {
                     $medicalRecord->procedureRecords()->create([
-                        'name' => $procedure['name'],
-                        'price' => $price,
+                        'name' => $procedure['name'],                        
                         'cost' => $procedure['cost'],
                         'patient_id' => $appointment->patient_id,
                         'billing_id' => $bill->id,                        

@@ -144,7 +144,7 @@ class ConsultationController extends Controller
 
             if (!empty($validated['investigations'])) {
                 foreach ($validated['investigations'] as $investigation) {
-                    $medicalRecord->investigationRecord()->create([                        
+                    $medicalRecord->investigationRecord()->create([
                         'type' => $investigation['investigation_type'],
                         'item' => $investigation['name'],
                         'cost' => $investigation['cost'],
@@ -336,13 +336,23 @@ class ConsultationController extends Controller
             'medicine.*.frequency' => 'nullable|string',
             'medicine.*.cost' => 'required|numeric',
             'medicine.*.medicine_qty' => 'nullable|integer',
+
+            'injection' => 'nullable|array',
+            'injection.*.injection_id' => 'nullable|exists:injections,id',
+            'injection.*.name' => 'required|string',
+            'injection.*.cost' => 'required|numeric',
+
+            'procedure' => 'nullable|array',
+            'procedure.*.name' => 'required|string',
+            'procedure.*.remark' => 'nullable|string',
+            'procedure.*.cost' => 'required|numeric',
         ]);
         $medicalRecord = $appointment->medicalRecord;
         try {
             DB::beginTransaction();
             $bill = $appointment->bill;
-            $medicalRecord->medicationRecords()->delete();
             if (!empty($validated['medicine'])) {
+                $medicalRecord->medicationRecords()->delete();
                 foreach ($validated['medicine'] as $medicine) {
                     $medication = Medication::find($medicine['medicine_id']);
                     $price = $medication->price;
@@ -354,6 +364,31 @@ class ConsultationController extends Controller
                         'qty' => $medicine['medicine_qty'],
                         'patient_id' => $appointment->patient_id,
                         'billing_id' => $bill->id,
+                    ]);
+                }
+            }
+            if (!empty($validated['injection'])) {
+                $medicalRecord->injectionRecords()->delete();
+                foreach ($validated['injection'] as $injection) {
+                    $medicalRecord->injectionRecords()->create([
+                        'name' => $injection['name'],
+                        'price' => $price,
+                        'cost' => $injection['cost'],
+                        'patient_id' => $appointment->patient_id,
+                        'billing_id' => $bill->id,
+                        'injection_id' => $injection['injection_id'],
+                    ]);
+                }
+            }
+            if (!empty($validated['procedure'])) {
+                $medicalRecord->procedureRecords()->delete();
+                foreach ($validated['procedure'] as $procedure) {
+                    $medicalRecord->procedureRecords()->create([
+                        'name' => $procedure['name'],
+                        'price' => $price,
+                        'cost' => $procedure['cost'],
+                        'patient_id' => $appointment->patient_id,
+                        'billing_id' => $bill->id,                        
                     ]);
                 }
             }
@@ -374,7 +409,7 @@ class ConsultationController extends Controller
             return response([
                 'status' => 'failed',
                 'message' => 'Error something wrong happened',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

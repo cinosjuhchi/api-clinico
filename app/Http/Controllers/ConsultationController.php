@@ -255,8 +255,8 @@ class ConsultationController extends Controller
                         'clinicService',
                         'serviceRecord',
                         'investigationRecord',
-                        'medicationRecords',
-                        'procedureRecords',
+                        'medicationRecords.medication',
+                        'procedureRecords.injection',
                         'injectionRecords',
                         'diagnosisRecord',
                     ]);

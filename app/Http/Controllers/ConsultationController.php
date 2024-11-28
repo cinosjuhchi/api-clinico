@@ -385,6 +385,7 @@ class ConsultationController extends Controller
                     $medicalRecord->procedureRecords()->create([
                         'name' => $procedure['name'],                        
                         'cost' => $procedure['cost'],
+                        'remark' => $procedure['remark'],
                         'patient_id' => $appointment->patient_id,
                         'billing_id' => $bill->id,                        
                     ]);

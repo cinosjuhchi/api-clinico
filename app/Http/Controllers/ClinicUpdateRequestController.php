@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
-use App\Models\ClinicUpdateRequest;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreClinicUpdateRequestRequest;
 use App\Http\Requests\UpdateClinicUpdateRequestRequest;
+use App\Models\ClinicUpdateRequest;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ClinicUpdateRequestController extends Controller
 {
@@ -36,9 +36,13 @@ class ClinicUpdateRequestController extends Controller
         $user = Auth::user();
         $clinic = $user->clinic;
         $validated = $request->validated();
+
+        // Serialize the validated data
+        $serializedData = json_encode($validated);
+
         $updateRequest = ClinicUpdateRequest::create([
-            'clinic_id' => $clinic->id, // asumsi menggunakan auth untuk clinic
-            'requested_data' => $validated,
+            'clinic_id' => $clinic->id, // assuming using auth for clinic
+            'requested_data' => $serializedData,
             'status' => 'pending',
         ]);
 
@@ -73,7 +77,7 @@ class ClinicUpdateRequestController extends Controller
 
             if ($validated['status'] === 'approved') {
                 $clinic = $updateRequest->clinic;
-                $requestedData = $updateRequest->requested_data;                
+                $requestedData = $updateRequest->requested_data;
                 // Update clinic data
                 $clinic->financial()->update([
                     'bank_name' => $requestedData['bank_name'],

@@ -501,12 +501,13 @@ class ClinicDataController extends Controller
             }
 
             $doctor->employmentInformation()->update($employeeFieldsToUpdate);
+            $user = $doctor->user;
 
             // Update related information (demographic, educational, etc.)
             $doctor->demographic()->updateOrCreate([], [
                 'nric' => $validated['nric'],
                 'name' => $validated['name'],
-                'email' => $validated['email'],
+                'email' => $user->email,
                 'birth_date' => $validated['birth_date'],
                 'place_of_birth' => $validated['place_of_birth'],
                 'marital_status' => $validated['marital_status'],

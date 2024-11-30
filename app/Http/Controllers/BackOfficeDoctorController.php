@@ -12,7 +12,7 @@ class BackOfficeDoctorController extends Controller
      */
     public function index()
     {
-        $doctors = Doctor::with(['category', 'clinic', 'demographic', 'educational', 'reference', 'employmentInformation', 'financialInformation']);
+        $doctors = Doctor::with(['category', 'clinic', 'demographic', 'educational', 'reference', 'employmentInformation', 'financialInformation'])->paginate();
         return response()->json($doctors);
     }
 

@@ -506,6 +506,7 @@ class ClinicDataController extends Controller
             $doctor->demographic()->updateOrCreate([], [
                 'nric' => $validated['nric'],
                 'name' => $validated['name'],
+                'email' => $validated['email'],
                 'birth_date' => $validated['birth_date'],
                 'place_of_birth' => $validated['place_of_birth'],
                 'marital_status' => $validated['marital_status'],

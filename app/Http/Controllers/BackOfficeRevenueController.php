@@ -72,6 +72,10 @@ class BackOfficeRevenueController extends Controller
             'status' => 'success',
             'message' => 'Success to fetch the total tax revenue.',
             'total_tax_revenue' => $totalTaxRevenue,
+            'month_year' => [
+                $month,
+                $year
+            ]
         ], 200);
     }
 

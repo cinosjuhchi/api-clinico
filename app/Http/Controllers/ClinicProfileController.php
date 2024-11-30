@@ -22,7 +22,7 @@ class ClinicProfileController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(ClinicProfileRequest $request)
+    public function storeProfile(ClinicProfileRequest $request)
     {
         $user = Auth::user();
         $clinic = $user->clinic;

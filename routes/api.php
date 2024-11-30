@@ -217,7 +217,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('/update-profile-request', [ClinicUpdateRequestController::class, 'requestUpdate']);
                 Route::get('/clinic-patient', [ClinicProfileController::class, 'clinicPatient']);                
                 Route::post('/{clinic}/images', [ClinicImageController::class, 'store']);
-                Route::post('/store-profile-image', [ClinicProfileController::class, 'store']);
+                Route::post('/store-profile-image', [ClinicImageController::class, 'storeProfile']);
             });
         });
         Route::middleware(['auth:sanctum', 'abilities:hasAccessResource'])->group(function () {

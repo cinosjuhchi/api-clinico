@@ -13,12 +13,14 @@ class BackOfficeRevenueController extends Controller
      */
     public function index()
     {
-
         $billing = Billing::with([
             'clinic',
             'user',
             'doctor',
+            'service',
+            'appointment.patient.demographics',
         ])->paginate();
+
         return response()->json($billing);
     }
 

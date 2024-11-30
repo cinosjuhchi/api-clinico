@@ -16,6 +16,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ChronicController;
 use App\Http\Controllers\ClinicController;
 use App\Http\Controllers\ClinicDataController;
+use App\Http\Controllers\ClinicImageController;
 use App\Http\Controllers\ClinicServiceController;
 use App\Http\Controllers\ClinicUpdateRequestController;
 use App\Http\Controllers\ConsultationController;
@@ -215,7 +216,8 @@ Route::prefix('v1')->group(function () {
                 Route::get('/user', [ClinicDataController::class, 'me']);
                 Route::post('/update-profile-request', [ClinicUpdateRequestController::class, 'requestUpdate']);
                 Route::get('/clinic-patient', [ClinicProfileController::class, 'clinicPatient']);                
-                Route::post('/{clinic}/images', [ClinicController::class, 'store']);
+                Route::post('/{clinic}/images', [ClinicImageController::class, 'store']);
+                Route::post('/store-profile-image', [ClinicProfileController::class, 'store']);
             });
         });
         Route::middleware(['auth:sanctum', 'abilities:hasAccessResource'])->group(function () {

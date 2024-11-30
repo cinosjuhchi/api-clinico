@@ -80,12 +80,23 @@ class ClinicUpdateRequestController extends Controller
                 $requestedData = json_decode($updateRequest->requested_data, true); // Decode JSON string to associative array
 
                 // Update clinic data
-                $clinic->financial()->update([
-                    'bank_name' => $requestedData['bank_name'],
-                    'ac_name' => $requestedData['ac_name'],
-                    'bank_account_number' => $requestedData['bank_account_number'],
-                    'bank_detail' => $requestedData['bank_detail'],
-                ]);
+                $financial = $clinic->financial;
+
+                if ($financial) {
+                    $financial->update([
+                        'bank_name' => $requestedData['bank_name'],
+                        'ac_name' => $requestedData['ac_name'],
+                        'bank_account_number' => $requestedData['bank_account_number'],
+                        'bank_detail' => $requestedData['bank_detail'],
+                    ]);
+                } else {
+                    $clinic->financial()->create([
+                        'bank_name' => $requestedData['bank_name'],
+                        'ac_name' => $requestedData['ac_name'],
+                        'bank_account_number' => $requestedData['bank_account_number'],
+                        'bank_detail' => $requestedData['bank_detail'],
+                    ]);
+                }
 
                 $user = $clinic->user()->update([
                     'email' => $requestedData['email'],

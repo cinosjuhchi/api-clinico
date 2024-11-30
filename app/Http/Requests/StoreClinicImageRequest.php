@@ -22,6 +22,7 @@ class StoreClinicImageRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'images' => 'array|required',
             'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',            
         ];
     }

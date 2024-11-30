@@ -18,6 +18,6 @@ class ClinicUpdateRequest extends Model
 
     public function admin()
     {
-        return $this->belongsTo(User::class, 'approved_by');
+        return $this->belongsTo(User::class, 'approved_by', 'id');
     }
 }

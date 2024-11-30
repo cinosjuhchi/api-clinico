@@ -89,6 +89,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function requestUpdate()
     {
-        return $this->hasMany(ClinicUpdateRequest::class, 'approved_by');
+        return $this->hasMany(ClinicUpdateRequest::class, 'approved_by', 'id');
     }
 }

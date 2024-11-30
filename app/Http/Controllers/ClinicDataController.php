@@ -427,8 +427,8 @@ class ClinicDataController extends Controller
             'apc' => 'required|string',
             'staff_id' => 'required|string',
             'tenure' => 'required|string',
-            'basic_salary' => 'required|numeric|max:8',
-            'elaun' => 'required|numeric|max:8',
+            'basic_salary' => 'required|numeric|max:99999999',
+            'elaun' => 'required|numeric|max:99999999',
             // Financial Information
             'bank_name' => 'required|string',
             'account_number' => 'required|string|max:20',

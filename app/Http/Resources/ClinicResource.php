@@ -24,7 +24,8 @@ class ClinicResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'slug' => $this->slug,            
+            'slug' => $this->slug,           
+            'image_profile' => $this->image_profile, 
             'address' => $this->address,  
             'company' => $this->company,
             'ssm_number' => $this->ssm_number,

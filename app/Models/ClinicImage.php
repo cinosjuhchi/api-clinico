@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ClinicUpdateRequest extends Model
+class ClinicImage extends Model
 {
     use HasFactory;
 
@@ -13,11 +13,6 @@ class ClinicUpdateRequest extends Model
 
     public function clinic()
     {
-        return $this->belongsTo(Clinic::class);
-    }
-
-    public function admin()
-    {
-        return $this->belongsTo(User::class, 'approved_by', 'id');
+        return $this->belongsTo(Clinic::class, 'clinic_id');
     }
 }

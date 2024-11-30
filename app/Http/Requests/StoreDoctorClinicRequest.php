@@ -60,8 +60,8 @@ class StoreDoctorClinicRequest extends FormRequest
             'apc' => 'required|string',
             'staff_id' => 'required|string',
             'tenure' => 'required|string',
-            'basic_salary' => 'required|numeric',
-            'elaun' => 'required|numeric',
+            'basic_salary' => 'required|numeric|max:99999999',
+            'elaun' => 'required|numeric|max:99999999',
             // Financial Information
             'bank_name' => 'required|string',            
             'account_number' => 'required|string|max:20',

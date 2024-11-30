@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->decimal('cost', 8,2);
+            $table->string('remark')->nullable();
             $table->foreignId('medical_record_id')->constrained()->cascadeOnDelete();
             $table->foreignId('patient_id')->constrained()->cascadeOnDelete();
             $table->foreignId('billing_id')->constrained()->cascadeOnDelete();

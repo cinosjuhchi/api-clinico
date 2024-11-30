@@ -61,14 +61,17 @@ class ConsultationController extends Controller
                 // Treatment
                 'investigations' => 'nullable|array',
                 'investigations.*.investigation_type' => 'required|string',
+                'investigations.*.remark' => 'nullable|string',
                 'investigations.*.name' => 'required|string',
                 'investigations.*.cost' => 'required|numeric',
                 // Treatment
                 'procedure' => 'nullable|array',
                 'procedure.*.name' => 'required|string',
+                'procedure.*.remark' => 'nullable|string',
                 'procedure.*.cost' => 'required|numeric',
 
                 'injection' => 'nullable|array',
+                'injection.*.injection_id' => 'nullable|exists:injections,id',
                 'injection.*.name' => 'required|string',
                 'injection.*.price' => 'required|numeric',
                 'injection.*.cost' => 'required|numeric',
@@ -163,6 +166,7 @@ class ConsultationController extends Controller
             if (!empty($validated['injection'])) {
                 foreach ($validated['injection'] as $injection) {
                     $medicalRecord->injectionRecords()->create([
+                        'injection_id' => $injection['injection_id'],
                         'name' => $injection['name'],
                         'price' => $injection['price'],
                         'cost' => $injection['cost'],
@@ -177,6 +181,7 @@ class ConsultationController extends Controller
                     $medication = Medication::find($medicine['medicine_id']);
                     $price = $medication->price;
                     $medicalRecord->medicationRecords()->create([
+                        'medication_id' => $medicine['medicine_id'],
                         'medicine' => $medicine['name'],
                         'frequency' => $medicine['frequency'],
                         'price' => $price,
@@ -250,9 +255,9 @@ class ConsultationController extends Controller
                         'clinicService',
                         'serviceRecord',
                         'investigationRecord',
-                        'medicationRecords',
+                        'medicationRecords.medication',
                         'procedureRecords',
-                        'injectionRecords',
+                        'injectionRecords.injection',
                         'diagnosisRecord',
                     ]);
                 },
@@ -331,13 +336,23 @@ class ConsultationController extends Controller
             'medicine.*.frequency' => 'nullable|string',
             'medicine.*.cost' => 'required|numeric',
             'medicine.*.medicine_qty' => 'nullable|integer',
+
+            'injection' => 'nullable|array',
+            'injection.*.injection_id' => 'nullable|exists:injections,id',
+            'injection.*.name' => 'required|string',
+            'injection.*.cost' => 'required|numeric',
+
+            'procedure' => 'nullable|array',
+            'procedure.*.name' => 'required|string',
+            'procedure.*.remark' => 'nullable|string',
+            'procedure.*.cost' => 'required|numeric',
         ]);
         $medicalRecord = $appointment->medicalRecord;
         try {
             DB::beginTransaction();
             $bill = $appointment->bill;
-            $medicalRecord->medicationRecords()->delete();
             if (!empty($validated['medicine'])) {
+                $medicalRecord->medicationRecords()->delete();
                 foreach ($validated['medicine'] as $medicine) {
                     $medication = Medication::find($medicine['medicine_id']);
                     $price = $medication->price;
@@ -349,6 +364,30 @@ class ConsultationController extends Controller
                         'qty' => $medicine['medicine_qty'],
                         'patient_id' => $appointment->patient_id,
                         'billing_id' => $bill->id,
+                    ]);
+                }
+            }
+            if (!empty($validated['injection'])) {
+                $medicalRecord->injectionRecords()->delete();
+                foreach ($validated['injection'] as $injection) {
+                    $medicalRecord->injectionRecords()->create([
+                        'name' => $injection['name'],                        
+                        'cost' => $injection['cost'],
+                        'patient_id' => $appointment->patient_id,
+                        'billing_id' => $bill->id,
+                        'injection_id' => $injection['injection_id'],
+                    ]);
+                }
+            }
+            if (!empty($validated['procedure'])) {
+                $medicalRecord->procedureRecords()->delete();
+                foreach ($validated['procedure'] as $procedure) {
+                    $medicalRecord->procedureRecords()->create([
+                        'name' => $procedure['name'],                        
+                        'cost' => $procedure['cost'],
+                        'remark' => $procedure['remark'],
+                        'patient_id' => $appointment->patient_id,
+                        'billing_id' => $bill->id,                        
                     ]);
                 }
             }

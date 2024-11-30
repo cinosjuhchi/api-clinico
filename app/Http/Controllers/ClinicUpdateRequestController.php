@@ -77,7 +77,8 @@ class ClinicUpdateRequestController extends Controller
 
             if ($validated['status'] === 'approved') {
                 $clinic = $updateRequest->clinic;
-                $requestedData = $updateRequest->requested_data;
+                $requestedData = json_decode($updateRequest->requested_data, true); // Decode JSON string to associative array
+
                 // Update clinic data
                 $clinic->financial()->update([
                     'bank_name' => $requestedData['bank_name'],
@@ -90,7 +91,6 @@ class ClinicUpdateRequestController extends Controller
                     'email' => $requestedData['email'],
                     'phone_number' => $requestedData['phone_number'],
                 ]);
-
             }
 
             DB::commit();
@@ -99,7 +99,6 @@ class ClinicUpdateRequestController extends Controller
                 'message' => 'Update request processed successfully',
                 'data' => $updateRequest,
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -107,7 +106,6 @@ class ClinicUpdateRequestController extends Controller
                 'message' => 'Failed to process update request',
                 'error' => $e->getMessage(),
             ], 500);
-
         }
     }
 

@@ -40,7 +40,8 @@ class ClinicResource extends JsonResource
             'location' => new LocationResource($this->whenLoaded('location')),
             'schedule' => new ScheduleResource($this->whenLoaded('schedule')),            
             'user' => new UserResource($this->whenLoaded('user')),
-            'financial' => new ClinicFinancialResource($this->whenLoaded('financial'))
+            'financial' => new ClinicFinancialResource($this->whenLoaded('financial')),
+            'images' => new ClinicImageResource($this->whenLoaded('images')),
         ];
     }
 }

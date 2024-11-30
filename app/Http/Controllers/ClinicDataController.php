@@ -29,6 +29,7 @@ class ClinicDataController extends Controller
             'user',
             'services',
             'financial',
+            'images',
             'doctors.category',
         ])
             ->where('user_id', $user->id)

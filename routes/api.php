@@ -33,6 +33,7 @@ use App\Http\Controllers\BackOfficeUserController;
 use App\Http\Controllers\DoctorScheduleController;
 use App\Http\Controllers\OnlineEmployeeController;
 use App\Http\Controllers\Api\V1\ContactUsController;
+use App\Http\Controllers\BackOfficeDoctorController;
 use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\MedicationRecordController;
 use App\Http\Controllers\BackOfficeRevenueController;
@@ -61,6 +62,9 @@ Route::prefix('v1')->group(function () {
             Route::prefix('user')->group(function () {
                 Route::get('/total-user', [BackOfficeUserController::class, 'getTotal']);
                 Route::get('/patient', [BackOfficeUserController::class, 'patients']);
+            });
+            Route::prefix('doctor')->group(function () {                
+                Route::get('/', [BackOfficeDoctorController::class, 'index']);
             });
             Route::prefix('clinic')->group(function () {
                 Route::get('/request-clinic', [RequestClinicController::class, 'index']);

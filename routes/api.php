@@ -214,7 +214,8 @@ Route::prefix('v1')->group(function () {
                 Route::get('/logout-clinic', [ClinicAuthController::class, 'logout']);
                 Route::get('/user', [ClinicDataController::class, 'me']);
                 Route::post('/update-profile-request', [ClinicUpdateRequestController::class, 'requestUpdate']);
-                Route::get('/clinic-patient', [ClinicProfileController::class, 'clinicPatient']);
+                Route::get('/clinic-patient', [ClinicProfileController::class, 'clinicPatient']);                
+                Route::post('/{clinic}/images', [ClinicController::class, 'store']);
             });
         });
         Route::middleware(['auth:sanctum', 'abilities:hasAccessResource'])->group(function () {

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name', 125)->unique(); 
             $table->string('company');
+            $table->string('image_profile')->nullable();
             $table->bigInteger('ssm_number');
             $table->bigInteger('registration_number');
             $table->bigInteger('referral_number');

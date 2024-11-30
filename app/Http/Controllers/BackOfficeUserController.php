@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Patient;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 
 class BackOfficeUserController extends Controller
 {
@@ -14,6 +16,13 @@ class BackOfficeUserController extends Controller
     {
         $users = User::with('patients')->paginate();
         return response()->json($users);
+    }
+
+    public function patients()
+    {
+        $patient = Patient::with(['demographics', 'user'])->paginate();
+
+        return response()->json($patient);
     }
 
     public function getTotal()

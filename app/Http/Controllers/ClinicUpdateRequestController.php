@@ -67,50 +67,46 @@ class ClinicUpdateRequestController extends Controller
         $validated = $request->validate([
             'status' => 'required|in:approved,rejected',
         ]);
-        $requestedData = json_decode($requestUpdate->requested_data, true); // Decode JSON string to associative array
+        try {
+            DB::beginTransaction();
+            $updateRequest = ClinicUpdateRequest::findOrFail($requestUpdate->id);
+            $updateRequest->status = $validated['status'];
+            $updateRequest->approved_by = auth()->id();
+            $updateRequest->approved_at = now();
+            $updateRequest->save();
 
-        return response()->json($requestedData);
+            if ($validated['status'] === 'approved') {
+                $clinic = $updateRequest->clinic;
+                $requestedData = json_decode($updateRequest->requested_data, true); // Decode JSON string to associative array
 
-        // try {
-        //     DB::beginTransaction();
-        //     $updateRequest = ClinicUpdateRequest::findOrFail($requestUpdate->id);
-        //     $updateRequest->status = $validated['status'];
-        //     $updateRequest->approved_by = auth()->id();
-        //     $updateRequest->approved_at = now();
-        //     $updateRequest->save();
+                // Update clinic data
+                $clinic->financial()->update([
+                    'bank_name' => $requestedData['bank_name'],
+                    'ac_name' => $requestedData['ac_name'],
+                    'bank_account_number' => $requestedData['bank_account_number'],
+                    'bank_detail' => $requestedData['bank_detail'],
+                ]);
 
-        //     if ($validated['status'] === 'approved') {
-        //         $clinic = $updateRequest->clinic;
-        //         $requestedData = json_decode($updateRequest->requested_data, true); // Decode JSON string to associative array
+                $user = $clinic->user()->update([
+                    'email' => $requestedData['email'],
+                    'phone_number' => $requestedData['phone_number'],
+                ]);
+            }
 
-        //         // Update clinic data
-        //         $clinic->financial()->update([
-        //             'bank_name' => $requestedData['bank_name'],
-        //             'acc_name' => $requestedData['acc_name'],
-        //             'bank_account_number' => $requestedData['bank_account_number'],
-        //             'bank_detail' => $requestedData['bank_detail'],
-        //         ]);
+            DB::commit();
 
-        //         $user = $clinic->user()->update([
-        //             'email' => $requestedData['email'],
-        //             'phone_number' => $requestedData['phone_number'],
-        //         ]);
-        //     }
+            return response()->json([
+                'message' => 'Update request processed successfully',
+                'data' => $updateRequest,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
 
-        //     DB::commit();
-
-        //     return response()->json([
-        //         'message' => 'Update request processed successfully',
-        //         'data' => $updateRequest,
-        //     ]);
-        // } catch (\Exception $e) {
-        //     DB::rollBack();
-
-        //     return response()->json([
-        //         'message' => 'Failed to process update request',
-        //         'error' => $e->getMessage(),
-        //     ], 500);
-        // }
+            return response()->json([
+                'message' => 'Failed to process update request',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

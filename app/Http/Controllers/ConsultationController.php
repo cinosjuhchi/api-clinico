@@ -348,6 +348,7 @@ class ConsultationController extends Controller
         }
         $validated = $request->validate([
             'total_cost' => 'required|numeric',
+            'type' => 'required|in:cash,panel,clinico',
             'medicine' => 'nullable|array',
             'medicine.*.medicine_id' => 'nullable|exists:medications,id',
             'medicine.*.name' => 'required|string',
@@ -412,9 +413,16 @@ class ConsultationController extends Controller
             }
 
             $bill->total_cost = $validated['total_cost'];
+            if($validated['type'] == 'cash' || $validated == 'panel') 
+            {
+                $appointment->status = 'completed';
+                $bill->type = $validated['type'];
+                $bill->is_paid = true;
+            } else{
+                $appointment->status = 'waiting-payment';
+            }
+            
             $bill->save();
-
-            $appointment->status = 'waiting-payment';
             $appointment->save();
             DB::commit();
             return response()->json([

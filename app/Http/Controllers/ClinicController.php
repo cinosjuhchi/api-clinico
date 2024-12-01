@@ -23,6 +23,7 @@ class ClinicController extends Controller
             'rooms',
             'location',
             'schedule',
+            'images'
         ])
             ->where('status', true)
             ->paginate($perPage);

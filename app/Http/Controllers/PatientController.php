@@ -83,7 +83,6 @@ class PatientController extends Controller
                 'doctor_id' => $appointment->doctor_id,
                 'patient_condition' => $appointment->current_condition,                
                 'blood_pressure' => $validated['blood_pressure'],
-                'plan' => $validated['plan'],
                 'sp02' => $validated['sp02'],
                 'temperature' => $validated['temperature'],
                 'pulse_rate' => $validated['pulse_rate'],
@@ -102,6 +101,7 @@ class PatientController extends Controller
             DB::commit();
             return response()->json([
                 'status' => 'success',
+                'medical_record' => $medicalRecord,
                 'message' => 'Add vital sign successfully add',
             ]);
         } catch (\Exception $e) {

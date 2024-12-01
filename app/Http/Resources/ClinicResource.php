@@ -24,7 +24,8 @@ class ClinicResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'slug' => $this->slug,            
+            'slug' => $this->slug,           
+            'image_profile' => $this->image_profile, 
             'address' => $this->address,  
             'company' => $this->company,
             'ssm_number' => $this->ssm_number,
@@ -39,6 +40,8 @@ class ClinicResource extends JsonResource
             'location' => new LocationResource($this->whenLoaded('location')),
             'schedule' => new ScheduleResource($this->whenLoaded('schedule')),            
             'user' => new UserResource($this->whenLoaded('user')),
+            'financial' => new ClinicFinancialResource($this->whenLoaded('financial')),
+            'images' => new ClinicImageResource($this->whenLoaded('images')),
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ChronicStoreRequest;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -21,15 +22,17 @@ class ChronicController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(ChronicStoreRequest $request)
     {
         // Validasi input dari request
-        $validated = $request->validate([
-            'chronic_medical' => 'required|string|max:125',
-            'father_chronic_medical' => 'nullable|string|max:125',
-            'mother_chronic_medical' => 'nullable|string|max:125',
-            'patient_id' => 'required|exists:patients,id',
-        ]);
+        // $validated = $request->validate([
+        //     'chronic_medical' => 'required|string|max:125',
+        //     'father_chronic_medical' => 'nullable|string|max:125',
+        //     'mother_chronic_medical' => 'nullable|string|max:125',
+        //     'patient_id' => 'required|exists:patients,id',
+        // ]);
+
+        $validated = $request->validated();
 
         try {
             // Jalankan transaksi database

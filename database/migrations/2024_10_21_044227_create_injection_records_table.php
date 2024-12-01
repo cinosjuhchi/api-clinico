@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('medical_record_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('patient_id')->constrained()->cascadeOnDelete();
             $table->foreignId('billing_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('injection_id')->nullable()->constrained()->nullOnDelete();
             $table->timestamps();
         });
     }

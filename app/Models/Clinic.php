@@ -86,9 +86,9 @@ class Clinic extends Authenticatable
     {
         return $this->hasMany(Appointment::class, 'clinic_id')->where('status', 'pending');
     }
-    public function consultationTakeMedicine()
+    public function consultationTakeMedicine(): HasMany
     {
-        return $this->hasMany(Appointment::class, 'doctor_id')->where('status', 'take-medicine');
+        return $this->hasMany(Appointment::class, 'clinic_id')->where('status', 'take-medicine');
     }
     public function completedAppointments(): HasMany
     {
@@ -149,5 +149,15 @@ class Clinic extends Authenticatable
     public function bills(): HasMany
     {
         return $this->hasMany(Billing::class, 'clinic_id');
+    }
+
+    public function requestUpdate()
+    {
+        return $this->hasMany(ClinicUpdateRequest::class, 'clinic_id');
+    }
+
+    public function images()
+    {
+        return $this->hasMany(ClinicImage::class, 'clinic_id');
     }
 }

@@ -22,7 +22,7 @@ class ClinicController extends Controller
             'doctors.doctorSchedules',
             'rooms',
             'location',
-            'schedule',
+            'schedule'            
         ])
             ->where('status', true)
             ->paginate($perPage);
@@ -83,6 +83,7 @@ class ClinicController extends Controller
             'rooms',
             'location',
             'schedule',
+            'images',
             'appointments' => function ($query) use ($date) {
                 // Hanya ambil appointment yang memiliki tanggal hari ini
                 $query->whereDate('appointment_date', $date)

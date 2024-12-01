@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('price', 8, 2)->nullable();               
             $table->foreignId('patient_id')->constrained()->onDelete('cascade');
             $table->foreignId('medical_record_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->foreignId('billing_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('billing_id')->nullable()->constrained()->cascadeOnDelete();            
             $table->timestamps();
         });
     }

@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\RoomController;
@@ -23,22 +22,27 @@ use App\Http\Controllers\MedicationController;
 use App\Http\Controllers\OccupationController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\ClinicImageController;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\ImmunizationController;
 use App\Http\Controllers\ClinicServiceController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\ParentChronicController;
 use App\Http\Controllers\RequestClinicController;
+use App\Http\Controllers\BackOfficeUserController;
 use App\Http\Controllers\DoctorScheduleController;
 use App\Http\Controllers\OnlineEmployeeController;
 use App\Http\Controllers\Api\V1\ContactUsController;
+use App\Http\Controllers\BackOfficeDoctorController;
 use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\MedicationRecordController;
+use App\Http\Controllers\BackOfficeRevenueController;
 use App\Http\Controllers\PregnancyCategoryController;
 use App\Http\Controllers\Api\V1\AppointmentController;
 use App\Http\Controllers\Api\V1\AttendanceController;
 use App\Http\Controllers\FamilyRelationshipController;
 use App\Http\Controllers\Api\V1\User\ProfileController;
+use App\Http\Controllers\ClinicUpdateRequestController;
 use App\Http\Controllers\InvestigationClinicController;
 use App\Http\Controllers\PatientNotificationController;
 use App\Http\Controllers\Api\V1\ClinicProfileController;
@@ -52,14 +56,27 @@ Route::prefix('v1')->group(function () {
         Route::post('login', [BackOfficeController::class, 'login']);
         Route::middleware(['auth:sanctum', 'abilities:backOffice'])->group(function () {
             Route::prefix('bills')->group(function () {
-                Route::get('/total-revenue-clinico', [BillController::class, 'totalRevenueTaxOnly']);
+                Route::get('/revenue', [BackOfficeRevenueController::class, 'index']);
+                Route::get('/total-revenue-clinico', [BackOfficeRevenueController::class, 'totalRevenueTaxOnly']);
             });
             Route::get('/logout', [BackOfficeController::class, 'logout']);
+            Route::prefix('user')->group(function () {
+                Route::get('/total-user', [BackOfficeUserController::class, 'getTotal']);
+                Route::get('/patient', [BackOfficeUserController::class, 'patients']);
+            });
+            Route::prefix('doctor')->group(function () {                
+                Route::get('/', [BackOfficeDoctorController::class, 'index']);
+            });
             Route::prefix('clinic')->group(function () {
                 Route::get('/request-clinic', [RequestClinicController::class, 'index']);
                 Route::delete('/delete/{clinic}', [RequestClinicController::class, 'destroy']);
                 Route::put('/accept-request/{clinic}', [RequestClinicController::class, 'update']);
+                Route::prefix('update-request')->group(function () {
+                    Route::get('/', [ClinicUpdateRequestController::class, 'getPendingUpdates']);
+                    Route::put('/proccess-update/{requestUpdate}', [ClinicUpdateRequestController::class, 'processUpdateRequest']);
+                });
             });
+
         });
     });
     Route::prefix('doctor-category')->group(function () {
@@ -159,7 +176,6 @@ Route::prefix('v1')->group(function () {
             // appointment route
             Route::prefix('appointment')->group(function () {
                 Route::get('/', [AppointmentController::class, 'index']);
-                Route::get('/my-appointment', [AppointmentController::class, 'myAppointment']);
                 Route::get('/show/{slug}', [AppointmentController::class, 'show']);
                 Route::get('/destroy/{slug}', [AppointmentController::class, 'destroy']);
                 Route::get('/waiting-number', [AppointmentController::class, 'waitingNumber']);
@@ -208,7 +224,10 @@ Route::prefix('v1')->group(function () {
             Route::prefix('me')->group(function () {
                 Route::get('/logout-clinic', [ClinicAuthController::class, 'logout']);
                 Route::get('/user', [ClinicDataController::class, 'me']);
-                Route::get('/clinic-patient', [ClinicProfileController::class, 'clinicPatient']);
+                Route::post('/update-profile-request', [ClinicUpdateRequestController::class, 'requestUpdate']);
+                Route::get('/clinic-patient', [ClinicProfileController::class, 'clinicPatient']);                
+                Route::post('/{clinic}/images', [ClinicImageController::class, 'store']);
+                Route::post('/store-profile-image', [ClinicImageController::class, 'storeProfile']);
             });
         });
         Route::middleware(['auth:sanctum', 'abilities:hasAccessResource'])->group(function () {
@@ -263,7 +282,6 @@ Route::prefix('v1')->group(function () {
                 Route::put('/delete/{room}', [RoomController::class, 'destroy']);
             });
             Route::prefix('employee')->group(function () {
-                Route::get('/', [EmployeeController::class, 'index']);
                 Route::delete('/delete/{employee}', [EmployeeController::class, 'destroy']);
             });
             Route::prefix('services')->group(function () {
@@ -281,11 +299,14 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/delete/{investigationClinic}', [InvestigationClinicController::class, 'destroy']);
             });
             Route::prefix('appointments')->group(function () {
+                Route::put('/patient/{patient}/add-vital-sign', [PatientController::class, 'addVitalSign']);
+                Route::put('/patient/{appointment}/add-status', [PatientController::class, 'addStatus']);
                 Route::get('/patient', [PatientController::class, 'index']);
                 Route::get('/today-patient', [ClinicProfileController::class, 'clinicPatient']);
                 Route::get('/booking-patient', [PatientController::class, 'bookingPatient']);
                 Route::get('/waiting-patient', [PatientController::class, 'waitingPatient']);
                 Route::get('/completed-patient', [PatientController::class, 'completedPatient']);
+                
             });
         });
 
@@ -309,7 +330,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/show/{slug}', [DoctorDataController::class, 'showConsultation']);
                 Route::get('/consultation-entry', [DoctorDataController::class, 'consultationEntry']);
                 Route::get('/completed-entry', [DoctorDataController::class, 'completedEntry']);
-                Route::delete('/cancel-appointment/{slug}', [AppointmentController::class, 'destroy']);
+                Route::delete('/cancel-appointment/{slug}', [AppointmentController::class, 'destroy']);                
             });
 
             Route::get('/dispensary', [ConsultationController::class, 'dispensary']);

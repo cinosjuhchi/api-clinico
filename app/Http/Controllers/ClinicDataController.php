@@ -28,6 +28,8 @@ class ClinicDataController extends Controller
             'schedule',
             'user',
             'services',
+            'financial',
+            'images',
             'doctors.category',
         ])
             ->where('user_id', $user->id)
@@ -426,8 +428,8 @@ class ClinicDataController extends Controller
             'apc' => 'required|string',
             'staff_id' => 'required|string',
             'tenure' => 'required|string',
-            'basic_salary' => 'required|numeric',
-            'elaun' => 'required|numeric',
+            'basic_salary' => 'required|numeric|max:99999999',
+            'elaun' => 'required|numeric|max:99999999',
             // Financial Information
             'bank_name' => 'required|string',
             'account_number' => 'required|string|max:20',
@@ -500,10 +502,13 @@ class ClinicDataController extends Controller
             }
 
             $doctor->employmentInformation()->update($employeeFieldsToUpdate);
+            $user = $doctor->user;
 
             // Update related information (demographic, educational, etc.)
             $doctor->demographic()->updateOrCreate([], [
                 'nric' => $validated['nric'],
+                'name' => $validated['name'],
+                'email' => $user->email,
                 'birth_date' => $validated['birth_date'],
                 'place_of_birth' => $validated['place_of_birth'],
                 'marital_status' => $validated['marital_status'],
@@ -660,6 +665,42 @@ class ClinicDataController extends Controller
             'data' => $doctor,
         ], 200);
     }
+
+    public function destroyDoctor(Doctor $doctor)
+    {
+        try {
+            DB::beginTransaction();
+            $doctor->user()->delete();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Doctor deleted'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'something wrong happen'
+            ]);
+        }
+    }
+    public function destroyStaff(Staff $staff)
+    {
+        try {
+            DB::beginTransaction();
+            $staff->user()->delete();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Staff deleted'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'something wrong happen'
+            ]);
+        }
+    }
+
     public function staffs(Request $request)
     {
         $user = Auth::user();

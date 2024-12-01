@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PhysicalStoreRequest;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -20,15 +21,17 @@ class PhysicalController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(PhysicalStoreRequest $request)
     {
         // Validasi input dari request
-        $validated = $request->validate([
-            'height' => 'nullable|numeric|min:0',
-            'weight' => 'nullable|numeric|min:0',
-            'blood_type' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-,Unknown',
-            'patient_id' => 'required|exists:patients,id',
-        ]);        
+        // $validated = $request->validate([
+        //     'height' => 'nullable|numeric|min:0',
+        //     'weight' => 'nullable|numeric|min:0',
+        //     'blood_type' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-,Unknown',
+        //     'patient_id' => 'required|exists:patients,id',
+        // ]);        
+
+        $validated = $request->validated();
 
         try {
             // Jalankan transaksi database

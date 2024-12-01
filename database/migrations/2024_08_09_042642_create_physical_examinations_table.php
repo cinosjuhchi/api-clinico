@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('sp02')->nullable();
             $table->integer('temperature')->nullable();
             $table->integer('pulse_rate')->nullable();
+            $table->integer('respiratory_rate')->nullable();
             $table->foreignId('patient_id')->constrained()->onDelete('cascade');
 
             $table->timestamps();

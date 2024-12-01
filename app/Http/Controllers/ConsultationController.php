@@ -50,6 +50,7 @@ class ConsultationController extends Controller
                 'height' => 'required|numeric',
                 'sp02' => 'required|numeric',
                 'pain_score' => 'required|numeric',
+                'respiratory_rate' => 'required|numeric',
                 // History
                 'patient_condition' => 'required|string',
                 'consultation_note' => 'required|string',
@@ -109,22 +110,40 @@ class ConsultationController extends Controller
                 'weight' => $validated['weight'],
                 'height' => $validated['height'],
             ]);
-
-            $medicalRecord = $appointment->medicalRecord()->create([
-                'patient_id' => $appointment->patient_id,
-                'clinic_id' => $appointment->clinic_id,
-                'doctor_id' => $appointment->doctor_id,
-                'patient_condition' => $appointment->current_condition,
-                'consultation_note' => $validated['consultation_note'],
-                'physical_examination' => $validated['examination'],
-                'blood_pressure' => $validated['blood_pressure'],
-                'plan' => $validated['plan'],
-                'sp02' => $validated['sp02'],
-                'temperature' => $validated['temperature'],
-                'pulse_rate' => $validated['pulse_rate'],
-                'pain_score' => $validated['pain_score'],
-                'clinic_service_id' => $validated['service_id'],
-            ]);
+            $medicalRecord = $appointment->medicalRecord;
+            if($medicalRecord) {
+                $medicalRecord->update([
+                    'patient_id' => $appointment->patient_id,
+                    'clinic_id' => $appointment->clinic_id,
+                    'doctor_id' => $appointment->doctor_id,
+                    'patient_condition' => $appointment->current_condition,
+                    'consultation_note' => $validated['consultation_note'],
+                    'physical_examination' => $validated['examination'],
+                    'blood_pressure' => $validated['blood_pressure'],
+                    'plan' => $validated['plan'],
+                    'sp02' => $validated['sp02'],
+                    'temperature' => $validated['temperature'],
+                    'pulse_rate' => $validated['pulse_rate'],
+                    'pain_score' => $validated['pain_score'],
+                    'clinic_service_id' => $validated['service_id'],
+                ]);
+            } else{
+                  $medicalRecord = $appointment->medicalRecord()->create([
+                    'patient_id' => $appointment->patient_id,
+                    'clinic_id' => $appointment->clinic_id,
+                    'doctor_id' => $appointment->doctor_id,
+                    'patient_condition' => $appointment->current_condition,
+                    'consultation_note' => $validated['consultation_note'],
+                    'physical_examination' => $validated['examination'],
+                    'blood_pressure' => $validated['blood_pressure'],
+                    'plan' => $validated['plan'],
+                    'sp02' => $validated['sp02'],
+                    'temperature' => $validated['temperature'],
+                    'pulse_rate' => $validated['pulse_rate'],
+                    'pain_score' => $validated['pain_score'],
+                    'clinic_service_id' => $validated['service_id'],
+                ]);
+            }         
 
             $service = ClinicService::find($validated['service_id']);
 

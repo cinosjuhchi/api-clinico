@@ -51,16 +51,16 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    
+
     public function patients(): HasMany
     {
         return $this->hasMany(Patient::class, 'user_id', 'id');
     }
-    
+
     public function family(): HasOne
     {
         return $this->hasOne(Family::class);
-    }    
+    }
 
     public function clinic(): HasOne
     {
@@ -77,9 +77,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Staff::class);
     }
 
-    public function bills() 
-    { 
-        return $this->hasMany(Billing::class, 'user_id'); 
+    public function bills()
+    {
+        return $this->hasMany(Billing::class, 'user_id');
     }
 
     public function medicalRecords()
@@ -87,6 +87,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasManyThrough(MedicalRecord::class, Patient::class);
     }
 
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+  
     public function requestUpdate()
     {
         return $this->hasMany(ClinicUpdateRequest::class, 'approved_by', 'id');

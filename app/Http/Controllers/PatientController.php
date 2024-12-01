@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AddVitalSignRequest;
-use App\Http\Requests\PatientStoreRequest;
 use App\Models\Patient;
+use App\Models\Appointment;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\AddVitalSignRequest;
+use App\Http\Requests\PatientStoreRequest;
 
 class PatientController extends Controller
 {
@@ -49,8 +50,22 @@ class PatientController extends Controller
     public function addVitalSign(AddVitalSignRequest $request, Patient $patient)
     {
         $validated = $request->validated();
+        $appointment = Appointment::find($validated['appointment_id']);
         try {
             DB::beginTransaction();
+            $medicalRecord = $appointment->medicalRecord()->create([
+                'patient_id' => $appointment->patient_id,
+                'clinic_id' => $appointment->clinic_id,
+                'doctor_id' => $appointment->doctor_id,
+                'patient_condition' => $appointment->current_condition,                
+                'blood_pressure' => $validated['blood_pressure'],
+                'plan' => $validated['plan'],
+                'sp02' => $validated['sp02'],
+                'temperature' => $validated['temperature'],
+                'pulse_rate' => $validated['pulse_rate'],
+                'pain_score' => $validated['pain_score'],                
+            ]);
+
             $patient->physicalExaminations()->update([
                 'height' => $validated['height'],
                 'weight' => $validated['weight'],
@@ -63,13 +78,13 @@ class PatientController extends Controller
             DB::commit();
             return response()->json([
                 'status' => 'success',
-                'message' => 'Add vital sign successfully add'
+                'message' => 'Add vital sign successfully add',
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'status' => 'failed',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }

@@ -22,6 +22,7 @@ class AddVitalSignRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'appointment_id' => 'required|exists:appointments,id',
             'height' => 'required|numeric',
             'weight' => 'required|numeric',
             'blood_pressure' => 'required|string',
@@ -29,7 +30,7 @@ class AddVitalSignRequest extends FormRequest
             'temperature' => 'required|numeric',
             'pulse_rate' => 'required|numeric',
             'respiratory_rate' => 'required|numeric',
-            
+            'pain_score' => 'required|numeric'
         ];
     }
 }

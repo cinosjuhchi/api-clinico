@@ -56,6 +56,7 @@ class PatientController extends Controller
                 'weight' => $validated['weight'],
                 'blood_pressure' => $validated['blood_pressure'],
                 'sp02' => $validated['sp02'],
+                'respiratory_rate' => $validated['respiratory_rate'],
                 'temperature' => $validated['temperature'],
                 'pulse_rate' => $validated['pulse_rate'],
             ]);

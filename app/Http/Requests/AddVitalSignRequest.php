@@ -22,8 +22,8 @@ class AddVitalSignRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'height' => 'requiered|numeric',
-            'weight' => 'requiered|numeric',
+            'height' => 'required|numeric',
+            'weight' => 'required|numeric',
             'blood_pressure' => 'required|string',
             'sp02' => 'required|numeric',
             'temperature' => 'required|numeric',

@@ -50,6 +50,7 @@ class ConsultationController extends Controller
                 'height' => 'required|numeric',
                 'sp02' => 'required|numeric',
                 'pain_score' => 'required|numeric',
+                'respiratory_rate' => 'required|numeric',
                 // History
                 'patient_condition' => 'required|string',
                 'consultation_note' => 'required|string',

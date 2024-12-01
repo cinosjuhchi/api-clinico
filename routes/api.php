@@ -298,11 +298,13 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/delete/{investigationClinic}', [InvestigationClinicController::class, 'destroy']);
             });
             Route::prefix('appointments')->group(function () {
+                Route::put('/patient/{patient}/add-vital-sign', [PatientController::class, 'addVitalSign']);
                 Route::get('/patient', [PatientController::class, 'index']);
                 Route::get('/today-patient', [ClinicProfileController::class, 'clinicPatient']);
                 Route::get('/booking-patient', [PatientController::class, 'bookingPatient']);
                 Route::get('/waiting-patient', [PatientController::class, 'waitingPatient']);
                 Route::get('/completed-patient', [PatientController::class, 'completedPatient']);
+                
             });
         });
 

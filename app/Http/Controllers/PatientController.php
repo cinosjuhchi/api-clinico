@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AddVitalSignRequest;
 use App\Http\Requests\PatientStoreRequest;
 use App\Models\Patient;
 use Illuminate\Http\Request;
@@ -43,6 +44,33 @@ class PatientController extends Controller
         })->paginate(5);
 
         return response()->json($appointments);
+    }
+
+    public function addVitalSign(AddVitalSignRequest $request, Patient $patient)
+    {
+        $validated = $request->validated();
+        try {
+            DB::beginTransaction();
+            $patient->physicalExaminations()->update([
+                'height' => $validated['height'],
+                'weight' => $validated['weight'],
+                'blood_pressure' => $validated['blood_pressure'],
+                'sp02' => $validated['sp02'],
+                'temperature' => $validated['temperature'],
+                'pulse_rate' => $validated['pulse_rate'],
+            ]);
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Add vital sign successfully add'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 
     public function waitingPatient(Request $request)

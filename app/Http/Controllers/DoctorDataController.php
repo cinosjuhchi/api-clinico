@@ -30,7 +30,7 @@ class DoctorDataController extends Controller
         }
         $query = $request->input('q');
 
-        $appointments = $doctor->consultationAppointments()->with(['patient.demographics', 'doctor.category', 'clinic', 'service'])->when($query, function ($q) use ($query) {
+        $appointments = $doctor->consultationAppointments()->with(['patient.demographics', 'doctor.category', 'clinic', 'service', 'medicalRecord'])->when($query, function ($q) use ($query) {
             $q->where(function ($subQuery) use ($query) {
                 $subQuery->where('waiting_number', 'like', "%{$query}%")
                     ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {

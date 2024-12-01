@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AddStatusAppointmentRequest;
 use App\Models\Patient;
 use App\Models\Appointment;
 use Illuminate\Http\Request;
@@ -45,6 +46,29 @@ class PatientController extends Controller
         })->paginate(5);
 
         return response()->json($appointments);
+    }
+
+
+    public function addStatus(AddStatusAppointmentRequest $request, Appointment $appointment)
+    {
+        $validated = $request->validated();
+        try{
+            DB::beginTransaction();
+            $appointment->update([
+                'status_patient' => $validated['status_patient']
+            ]);
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'patient_status' => $appointment->status_patient
+            ], 200);
+        } catch(\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'error something wrong happened'
+            ], 500);
+        }
     }
 
     public function addVitalSign(AddVitalSignRequest $request, Patient $patient)

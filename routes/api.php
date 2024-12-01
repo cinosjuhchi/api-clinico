@@ -299,6 +299,7 @@ Route::prefix('v1')->group(function () {
             });
             Route::prefix('appointments')->group(function () {
                 Route::put('/patient/{patient}/add-vital-sign', [PatientController::class, 'addVitalSign']);
+                Route::put('/patient/{appointment}/add-status', [PatientController::class, 'addStatus']);
                 Route::get('/patient', [PatientController::class, 'index']);
                 Route::get('/today-patient', [ClinicProfileController::class, 'clinicPatient']);
                 Route::get('/booking-patient', [PatientController::class, 'bookingPatient']);
@@ -328,7 +329,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/show/{slug}', [DoctorDataController::class, 'showConsultation']);
                 Route::get('/consultation-entry', [DoctorDataController::class, 'consultationEntry']);
                 Route::get('/completed-entry', [DoctorDataController::class, 'completedEntry']);
-                Route::delete('/cancel-appointment/{slug}', [AppointmentController::class, 'destroy']);
+                Route::delete('/cancel-appointment/{slug}', [AppointmentController::class, 'destroy']);                
             });
 
             Route::get('/dispensary', [ConsultationController::class, 'dispensary']);

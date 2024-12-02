@@ -19,19 +19,24 @@ class ProcedureController extends Controller
     public function doctorResource(Request $request)
     {
         $user = Auth::user();
-        $doctor = $user->doctor;
+        $clinic = match ($user->role) {
+    'clinic' => $user->clinic,
+    'doctor' => $user->doctor->clinic,
+    'staff' => $user->staff->clinic,
+    default => abort(401, 'Unauthorized access. Invalid role.'),
+};
 
-        if(!$doctor)
-        {
-                        
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'user not found'
-            ]);                        
-            
-        }        
+if (!$clinic) {
+    $clinic = $user->doctor->clinic;
+    if (!$clinic) {
+        return response()->json([
+            'status' => 'failed',
+            'message' => 'user not found',
+        ]);
+    }
 
-        $clinic = $doctor->clinic;
+}
+
                         
         // Mengambil data obat berdasarkan clinic dan melakukan pencarian jika parameter 'q' ada
         $procedure = $clinic->procedures()->get();

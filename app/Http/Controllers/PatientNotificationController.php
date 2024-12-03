@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class PatientNotificationController extends Controller
@@ -11,10 +12,15 @@ class PatientNotificationController extends Controller
         $user = $request->user();
 
         // Mengambil semua notifikasi
-        $notifications = $user->notifications()->latest()->get();
+        $notifications = $user->notifications()
+            ->where('expired_at', '>', Carbon::now())
+            ->latest()
+            ->get();
 
         // Menghitung jumlah notifikasi yang belum dibaca
-        $unreadCount = $user->unreadNotifications->count();
+        $unreadCount = $user->unreadNotifications
+            ->where('expired_at', '>', Carbon::now())
+            ->count();
 
         return response()->json([
             'notifications' => $notifications,

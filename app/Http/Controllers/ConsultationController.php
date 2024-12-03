@@ -143,7 +143,7 @@ class ConsultationController extends Controller
                     'pain_score' => $validated['pain_score'],
                     'clinic_service_id' => $validated['service_id'],
                 ]);
-            }         
+            }
 
             $service = ClinicService::find($validated['service_id']);
 
@@ -391,7 +391,7 @@ class ConsultationController extends Controller
                 $medicalRecord->injectionRecords()->delete();
                 foreach ($validated['injection'] as $injection) {
                     $medicalRecord->injectionRecords()->create([
-                        'name' => $injection['name'],                        
+                        'name' => $injection['name'],
                         'cost' => $injection['cost'],
                         'patient_id' => $appointment->patient_id,
                         'billing_id' => $bill->id,
@@ -403,17 +403,17 @@ class ConsultationController extends Controller
                 $medicalRecord->procedureRecords()->delete();
                 foreach ($validated['procedure'] as $procedure) {
                     $medicalRecord->procedureRecords()->create([
-                        'name' => $procedure['name'],                        
+                        'name' => $procedure['name'],
                         'cost' => $procedure['cost'],
                         'remark' => $procedure['remark'],
                         'patient_id' => $appointment->patient_id,
-                        'billing_id' => $bill->id,                        
+                        'billing_id' => $bill->id,
                     ]);
                 }
             }
 
             $bill->total_cost = $validated['total_cost'];
-            if($validated['type'] == 'cash' || $validated == 'panel') 
+            if($validated['type'] == 'cash' || $validated == 'panel')
             {
                 $appointment->status = 'completed';
                 $bill->type = $validated['type'];
@@ -421,7 +421,7 @@ class ConsultationController extends Controller
             } else{
                 $appointment->status = 'waiting-payment';
             }
-            
+
             $bill->save();
             $appointment->save();
             DB::commit();
@@ -453,6 +453,10 @@ class ConsultationController extends Controller
         $room = $appointment->room;
         try {
             $user->notify(new CallPatientNotification($room, $appointment->waiting_number));
+            $notification = $user->notifications()->latest()->first();
+            $notification->update([
+                'expired_at' => now()->addDay(),
+            ]);
         } catch (\Exception $e) {
             Log::error('Notification error: ' . $e->getMessage());
         }

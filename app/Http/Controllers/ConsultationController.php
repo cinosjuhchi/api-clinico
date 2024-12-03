@@ -111,7 +111,7 @@ class ConsultationController extends Controller
                 'height' => $validated['height'],
             ]);
             $medicalRecord = $appointment->medicalRecord;
-            if($medicalRecord) {
+            if ($medicalRecord) {
                 $medicalRecord->update([
                     'patient_id' => $appointment->patient_id,
                     'clinic_id' => $appointment->clinic_id,
@@ -127,8 +127,8 @@ class ConsultationController extends Controller
                     'pain_score' => $validated['pain_score'],
                     'clinic_service_id' => $validated['service_id'],
                 ]);
-            } else{
-                  $medicalRecord = $appointment->medicalRecord()->create([
+            } else {
+                $medicalRecord = $appointment->medicalRecord()->create([
                     'patient_id' => $appointment->patient_id,
                     'clinic_id' => $appointment->clinic_id,
                     'doctor_id' => $appointment->doctor_id,
@@ -143,7 +143,7 @@ class ConsultationController extends Controller
                     'pain_score' => $validated['pain_score'],
                     'clinic_service_id' => $validated['service_id'],
                 ]);
-            }         
+            }
 
             $service = ClinicService::find($validated['service_id']);
 
@@ -391,7 +391,7 @@ class ConsultationController extends Controller
                 $medicalRecord->injectionRecords()->delete();
                 foreach ($validated['injection'] as $injection) {
                     $medicalRecord->injectionRecords()->create([
-                        'name' => $injection['name'],                        
+                        'name' => $injection['name'],
                         'cost' => $injection['cost'],
                         'patient_id' => $appointment->patient_id,
                         'billing_id' => $bill->id,
@@ -403,25 +403,24 @@ class ConsultationController extends Controller
                 $medicalRecord->procedureRecords()->delete();
                 foreach ($validated['procedure'] as $procedure) {
                     $medicalRecord->procedureRecords()->create([
-                        'name' => $procedure['name'],                        
+                        'name' => $procedure['name'],
                         'cost' => $procedure['cost'],
                         'remark' => $procedure['remark'],
                         'patient_id' => $appointment->patient_id,
-                        'billing_id' => $bill->id,                        
+                        'billing_id' => $bill->id,
                     ]);
                 }
             }
 
             $bill->total_cost = $validated['total_cost'];
-            if($validated['type'] == 'cash' || $validated == 'panel') 
-            {
+            if ($validated['type'] == 'cash' || $validated == 'panel') {
                 $appointment->status = 'completed';
                 $bill->type = $validated['type'];
                 $bill->is_paid = true;
-            } else{
+            } else {
                 $appointment->status = 'waiting-payment';
             }
-            
+
             $bill->save();
             $appointment->save();
             DB::commit();
@@ -442,27 +441,42 @@ class ConsultationController extends Controller
 
     public function callPatient(Appointment $appointment)
     {
-        if ($appointment->status == 'on-consultation') {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'Appointment has been called!',
-            ], 403);
-        }
         $patient = Patient::find($appointment->patient_id);
         $user = $patient->user;
         $room = $appointment->room;
+
         try {
             $user->notify(new CallPatientNotification($room, $appointment->waiting_number));
         } catch (\Exception $e) {
             Log::error('Notification error: ' . $e->getMessage());
         }
-        $appointment->status = 'on-consultation';
-        $appointment->save();
+
+        // Cek apakah ini panggilan pertama atau bukan
+        if ($appointment->status != 'on-consultation') {
+            try {
+                DB::beginTransaction();
+                $appointment->status = 'on-consultation';
+                $appointment->save();
+                DB::commit();
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Appointment on-consultation successfully!',
+                ], 200);                
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'failed',
+                    'error' => $e->e->getMessage()
+                ]);
+            }
+        }
+
         return response()->json([
             'status' => 'success',
-            'messaage' => 'Appointment on-consultation successfully!',
+            'message' => 'Notification sent successfully!',
         ], 200);
     }
+
     /**
      * Display the specified resource.
      */

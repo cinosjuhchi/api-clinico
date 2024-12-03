@@ -225,6 +225,7 @@ class AppointmentController extends Controller
 
         // Check if there's another appointment on the same day with consultation status
         $existingConsultation = Appointment::where('doctor_id', $appointment->doctor_id)
+            ->where('patient_id', $appointment->patient_id)
             ->where('appointment_date', $appointment->appointment_date)
             ->where('status', 'consultation')
             ->exists();

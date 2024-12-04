@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class UpdateClinicScheduleRequest extends FormRequest
 {
@@ -11,7 +12,9 @@ class UpdateClinicScheduleRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        $user = Auth::user();
+        return $user->role == 'clinic';
+
     }
 
     /**
@@ -22,7 +25,8 @@ class UpdateClinicScheduleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time'
         ];
     }
 }

@@ -447,6 +447,10 @@ class ConsultationController extends Controller
 
         try {
             $user->notify(new CallPatientNotification($room, $appointment->waiting_number));
+            $notification = $user->notifications()->latest()->first();
+            $notification->update([
+                'expired_at' => now()->addDay(),
+            ]);
         } catch (\Exception $e) {
             Log::error('Notification error: ' . $e->getMessage());
         }

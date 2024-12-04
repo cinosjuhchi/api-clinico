@@ -40,6 +40,7 @@ use App\Http\Controllers\MedicationRecordController;
 use App\Http\Controllers\BackOfficeRevenueController;
 use App\Http\Controllers\PregnancyCategoryController;
 use App\Http\Controllers\Api\V1\AppointmentController;
+use App\Http\Controllers\Api\V1\AttendanceController;
 use App\Http\Controllers\FamilyRelationshipController;
 use App\Http\Controllers\Api\V1\User\ProfileController;
 use App\Http\Controllers\ClinicUpdateRequestController;
@@ -352,6 +353,9 @@ Route::prefix('v1')->group(function () {
             Route::get('/resource', [RoomController::class, 'roomResource']);
             Route::get('/', [RoomController::class, 'index']);
         });
-
+        Route::prefix('attendance')->group(function() {
+            Route::post('/clock-in', [AttendanceController::class, 'clockIn']);
+            Route::post('/clock-out', [AttendanceController::class, 'clockOut']);
+        });
     });
 });

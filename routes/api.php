@@ -64,7 +64,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/total-user', [BackOfficeUserController::class, 'getTotal']);
                 Route::get('/patient', [BackOfficeUserController::class, 'patients']);
             });
-            Route::prefix('doctor')->group(function () {                
+            Route::prefix('doctor')->group(function () {
                 Route::get('/', [BackOfficeDoctorController::class, 'index']);
             });
             Route::prefix('clinic')->group(function () {
@@ -225,7 +225,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/logout-clinic', [ClinicAuthController::class, 'logout']);
                 Route::get('/user', [ClinicDataController::class, 'me']);
                 Route::post('/update-profile-request', [ClinicUpdateRequestController::class, 'requestUpdate']);
-                Route::get('/clinic-patient', [ClinicProfileController::class, 'clinicPatient']);                
+                Route::get('/clinic-patient', [ClinicProfileController::class, 'clinicPatient']);
                 Route::post('/{clinic}/images', [ClinicImageController::class, 'store']);
                 Route::post('/store-profile-image', [ClinicImageController::class, 'storeProfile']);
             });
@@ -306,7 +306,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/booking-patient', [PatientController::class, 'bookingPatient']);
                 Route::get('/waiting-patient', [PatientController::class, 'waitingPatient']);
                 Route::get('/completed-patient', [PatientController::class, 'completedPatient']);
-                
+
             });
         });
 
@@ -330,7 +330,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/show/{slug}', [DoctorDataController::class, 'showConsultation']);
                 Route::get('/consultation-entry', [DoctorDataController::class, 'consultationEntry']);
                 Route::get('/completed-entry', [DoctorDataController::class, 'completedEntry']);
-                Route::delete('/cancel-appointment/{slug}', [AppointmentController::class, 'destroy']);                
+                Route::delete('/cancel-appointment/{slug}', [AppointmentController::class, 'destroy']);
             });
 
             Route::get('/dispensary', [ConsultationController::class, 'dispensary']);
@@ -349,6 +349,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/', [RoomController::class, 'index']);
         });
         Route::prefix('attendance')->group(function() {
+            Route::get('/', [AttendanceController::class, 'index']);
+            Route::get('/{attendance}', [AttendanceController::class, 'show']);
             Route::post('/clock-in', [AttendanceController::class, 'clockIn']);
             Route::post('/clock-out', [AttendanceController::class, 'clockOut']);
         });

@@ -9,7 +9,7 @@ class Attendance extends Model
 {
     use HasFactory;
 
-    protected $fillable = ["user_id", "date", "clock_in", "clock_out", 'is_late', 'total_working_hours'];
+    protected $fillable = ["user_id", "clock_in", "clock_out", 'is_late', 'total_working_hours'];
 
     public $timestamps = false;
 

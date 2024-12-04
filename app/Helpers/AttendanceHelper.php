@@ -20,6 +20,7 @@ class AttendanceHelper
         $dLat = $lat2 - $lat1;
         $dLon = $lon2 - $lon1;
 
+        // rumus -> https://www.movable-type.co.uk/scripts/latlong.html
         $a = sin($dLat / 2) ** 2 + cos($lat1) * cos($lat2) * sin($dLon / 2) ** 2;
 
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));

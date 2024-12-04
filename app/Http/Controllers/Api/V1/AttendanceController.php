@@ -15,11 +15,54 @@ use Illuminate\Support\Facades\Auth;
 
 class AttendanceController extends Controller
 {
+    public function index(Request $request)
+    {
+        $attendances = Attendance::with('user.doctor.clinic');
+
+        // filter: by user_id
+        $userId = $request->input('user_id');
+        if ($userId) {
+            $attendances = $attendances->where('user_id', $userId);
+        }
+
+        // filter: by clinic_id
+        $clinicId = $request->input('clinic_id');
+        if ($clinicId) {
+            $attendances = $attendances->whereHas('user.doctor.clinic', function ($query) use ($clinicId) {
+                $query->where('id', $clinicId);
+            });
+        }
+
+        // filter: by is_late
+        $isLate = $request->input('is_late');
+        if ($isLate !== null) {
+            $attendances = $attendances->where('is_late', $isLate);
+        }
+
+        // execute
+        $attendances = $attendances->get();
+
+        return response()->json([
+            "status" => "success",
+            "message" => "Attendances retrieved successfully",
+            "data" => $attendances
+        ]);
+    }
+
+    public function show(Attendance $attendance)
+    {
+        $attendance->load('user.doctor.clinic');
+        return response()->json([
+            "status" => "success",
+            "message" => "Attendance retrieved successfully",
+            "data" => $attendance
+        ]);
+    }
+
     public function clockIn(ClockInRequest $request)
-    { // jika case :doctor:
+    {
         $user = Auth::user();
         $userId = $user->id;
-        // $userWithClinic = User::with(['doctor.schedules', 'clinic', 'doctor'])->find($userId);
 
         // validasi: apakah user memiliki schedule dihari ini
         $userSchedule = match ($user->role) {
@@ -34,7 +77,6 @@ class AttendanceController extends Controller
                 "message" => "You have no schedule today",
             ], 400);
         }
-        // $userSchedule = AttendanceHelper::getDoctorSchedule($userWithClinic->doctor->id);
 
         // validasi: apakah user pernah absen dihari ini
         $existingAttendance = AttendanceHelper::getAttendanceByClockIn($userId);
@@ -64,6 +106,7 @@ class AttendanceController extends Controller
             return response()->json([
                 "status" => "error",
                 "message" => "You are too far from the clinic",
+                "data" => $clinicLocation
             ], 400);
         }
 
@@ -75,7 +118,7 @@ class AttendanceController extends Controller
             $isUserLate = true;
         }
 
-        // validasi lolos
+        // execute
         $attendance = Attendance::create([
             "user_id" => $userId,
             "clock_in" => now(),
@@ -152,6 +195,7 @@ class AttendanceController extends Controller
         }
 
         $totalWorkingHours = Carbon::parse($attendance->clock_in)->diffInMinutes(now()) / 60;
+        // NOTE: seharusnya totalWorkingHours dikurang durasi breakTime (inHour), tetapi breakTime belum dibuat
 
         $attendance->update([
             "clock_out" => now(),

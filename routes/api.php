@@ -30,6 +30,7 @@ use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\ParentChronicController;
 use App\Http\Controllers\RequestClinicController;
 use App\Http\Controllers\BackOfficeUserController;
+use App\Http\Controllers\ClinicScheduleController;
 use App\Http\Controllers\DoctorScheduleController;
 use App\Http\Controllers\OnlineEmployeeController;
 use App\Http\Controllers\Api\V1\ContactUsController;
@@ -304,8 +305,12 @@ Route::prefix('v1')->group(function () {
                 Route::get('/today-patient', [ClinicProfileController::class, 'clinicPatient']);
                 Route::get('/booking-patient', [PatientController::class, 'bookingPatient']);
                 Route::get('/waiting-patient', [PatientController::class, 'waitingPatient']);
-                Route::get('/completed-patient', [PatientController::class, 'completedPatient']);
-                
+                Route::get('/completed-patient', [PatientController::class, 'completedPatient']);                
+            });
+
+            Route::prefix('schedule')->group(function () {
+                Route::post('/store', [ClinicScheduleController::class, 'store']);
+                Route::put('/update/{clinicSchedule}', [ClinicScheduleController::class, 'update']);
             });
         });
 

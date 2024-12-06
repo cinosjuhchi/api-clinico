@@ -149,10 +149,13 @@ Route::prefix('v1')->group(function () {
             Route::prefix('medicines')->group(function () {
                 Route::post('/store', [MedicationRecordController::class, 'store']);
                 Route::put('/update/{patient}', [MedicationRecordController::class, 'update']);
+                Route::delete('/delete/{medicationRecord}', [MedicationRecordController::class, 'destroy']);
+
             });
             Route::prefix('immunization')->group(function () {
                 Route::post('/store', [ImmunizationController::class, 'store']);
                 Route::put('/update/{patient}', [ImmunizationController::class, 'update']);
+                Route::delete('/delete/{immunizationRecord}', [ImmunizationController::class, 'destroy']);
             });
             Route::prefix('occupation')->group(function () {
                 Route::post('/store', [OccupationController::class, 'store']);
@@ -165,6 +168,8 @@ Route::prefix('v1')->group(function () {
             Route::prefix('chronic')->group(function () {
                 Route::post('/store', [ChronicController::class, 'store']);
                 Route::put('/update/{patient}', [ChronicController::class, 'update']);
+                Route::delete('/delete/{chronicHealthRecord}', [ChronicController::class, 'destroy']);
+
             });
             Route::prefix('parent-chronic')->group(function () {
                 Route::post('/store', [ParentChronicController::class, 'store']);

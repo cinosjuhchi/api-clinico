@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ChronicStoreRequest;
+use App\Models\ChronicHealthRecord;
+use App\Models\Patient;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
-use App\Models\ChronicHealthRecord;
-use App\Models\Patient;
 
 class ChronicController extends Controller
 {
@@ -55,7 +55,6 @@ class ChronicController extends Controller
         }
     }
 
-
     /**
      * Display the specified resource.
      */
@@ -71,7 +70,7 @@ class ChronicController extends Controller
     {
         $validated = $request->validate([
             'chronics' => 'required|array',
-            'chronics.*.chronic_medical' => 'required|string'
+            'chronics.*.chronic_medical' => 'required|string',
         ]);
 
         DB::beginTransaction();
@@ -79,20 +78,20 @@ class ChronicController extends Controller
             $patient->chronics()->delete();
             foreach ($validated['chronics'] as $item) {
                 $patient->chronics()->create([
-                    'chronic_medical' => $item['chronic_medical']
+                    'chronic_medical' => $item['chronic_medical'],
                 ]);
             }
             DB::commit();
             return response()->json([
                 'status' => 'success',
-                'message' => 'Success update data.'
+                'message' => 'Success update data.',
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Fail update the data.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -102,6 +101,22 @@ class ChronicController extends Controller
      */
     public function destroy(ChronicHealthRecord $chronicHealthRecord)
     {
-        //
+        try {
+            DB::beginTransaction();
+            $chronicHealthRecord->delete();
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Successfully delete the data.',
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'success',
+                'message' => $e->getMessage(),
+            ], 500);
+
+        }
+
     }
 }

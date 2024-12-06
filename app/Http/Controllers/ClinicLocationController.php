@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ClinicLocation;
 use App\Http\Requests\StoreClinicLocationRequest;
 use App\Http\Requests\UpdateClinicLocationRequest;
+use App\Models\ClinicLocation;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ClinicLocationController extends Controller
 {
@@ -29,7 +32,27 @@ class ClinicLocationController extends Controller
      */
     public function store(StoreClinicLocationRequest $request)
     {
-        //
+        $user = Auth::user();
+        $clinic = $user->clinic;
+        $validated = $request->validated();
+        try {
+            DB::beginTransaction();
+            $clinic->location()->create([
+                'longitude' => $validated['longitude'],
+                'latitude' => $validated['latitude'],
+            ]);
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Success to store location!',
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -53,7 +76,41 @@ class ClinicLocationController extends Controller
      */
     public function update(UpdateClinicLocationRequest $request, ClinicLocation $clinicLocation)
     {
-        //
+        $validated = $request->validated();
+
+        try {
+            DB::beginTransaction();
+
+            // Mengisi data model dengan data yang sudah divalidasi
+            $clinicLocation->fill($validated);
+
+            // Memeriksa apakah ada perubahan pada data model
+            if ($clinicLocation->isDirty()) {
+                $clinicLocation->save();
+
+                DB::commit();
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Clinic Location successfully updated!',
+                ], 200);
+            } else {
+                DB::rollBack();
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'No changes detected. Clinic Location not updated.',
+                ], 200);
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'failed',
+                'message' => $e->getMessage(),
+            ], 500); // Menambahkan kode status 500 untuk error internal server
+        }
+
     }
 
     /**

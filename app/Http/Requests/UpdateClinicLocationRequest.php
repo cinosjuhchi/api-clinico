@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class UpdateClinicLocationRequest extends FormRequest
 {
@@ -11,7 +12,9 @@ class UpdateClinicLocationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        $user = Auth::user();
+        return $user->role == 'clinic';
+
     }
 
     /**
@@ -22,7 +25,8 @@ class UpdateClinicLocationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'longitude' => 'required|numeric|between:-180,180',
+            'latitude' => 'required|numeric|between:-90,90'
         ];
     }
 }

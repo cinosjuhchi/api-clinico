@@ -30,6 +30,7 @@ use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\ParentChronicController;
 use App\Http\Controllers\RequestClinicController;
 use App\Http\Controllers\BackOfficeUserController;
+use App\Http\Controllers\ClinicLocationController;
 use App\Http\Controllers\ClinicScheduleController;
 use App\Http\Controllers\DoctorScheduleController;
 use App\Http\Controllers\OnlineEmployeeController;
@@ -37,10 +38,10 @@ use App\Http\Controllers\Api\V1\ContactUsController;
 use App\Http\Controllers\BackOfficeDoctorController;
 use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\MedicationRecordController;
+use App\Http\Controllers\Api\V1\AttendanceController;
 use App\Http\Controllers\BackOfficeRevenueController;
 use App\Http\Controllers\PregnancyCategoryController;
 use App\Http\Controllers\Api\V1\AppointmentController;
-use App\Http\Controllers\Api\V1\AttendanceController;
 use App\Http\Controllers\FamilyRelationshipController;
 use App\Http\Controllers\Api\V1\User\ProfileController;
 use App\Http\Controllers\ClinicUpdateRequestController;
@@ -312,6 +313,11 @@ Route::prefix('v1')->group(function () {
             Route::prefix('schedule')->group(function () {
                 Route::post('/store', [ClinicScheduleController::class, 'store']);
                 Route::put('/update/{clinicSchedule}', [ClinicScheduleController::class, 'update']);
+            });
+
+            Route::prefix('location')->group(function () {
+                Route::post('/store', [ClinicLocationController::class, 'store']);
+                Route::put('/update/{clinicLocation}', [ClinicLocationController::class, 'update']);
             });
         });
 

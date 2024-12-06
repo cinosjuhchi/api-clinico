@@ -25,6 +25,7 @@ class UpdateClinicLocationRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'address' => 'nullable|string',
             'longitude' => 'required|numeric|between:-180,180',
             'latitude' => 'required|numeric|between:-90,90'
         ];

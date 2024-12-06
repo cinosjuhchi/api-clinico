@@ -41,6 +41,11 @@ class ClinicLocationController extends Controller
                 'longitude' => $validated['longitude'],
                 'latitude' => $validated['latitude'],
             ]);
+            if (isset($validated['address'])) {
+                $clinic->update([
+                    'address' => $validated['address'],
+                ]);
+            }
             DB::commit();
             return response()->json([
                 'status' => 'success',
@@ -76,6 +81,8 @@ class ClinicLocationController extends Controller
      */
     public function update(UpdateClinicLocationRequest $request, ClinicLocation $clinicLocation)
     {
+        $user = Auth::user();
+        $clinic = $user->clinic;
         $validated = $request->validated();
 
         try {
@@ -85,8 +92,12 @@ class ClinicLocationController extends Controller
             $clinicLocation->fill($validated);
 
             // Memeriksa apakah ada perubahan pada data model
-            if ($clinicLocation->isDirty()) {
+            if ($clinicLocation->isDirty() || isset($validated['address'])) {
                 $clinicLocation->save();
+
+                if (isset($validated['address'])) {
+                    $clinic->update(['address' => $validated['address']]);
+                }
 
                 DB::commit();
 
@@ -110,7 +121,6 @@ class ClinicLocationController extends Controller
                 'message' => $e->getMessage(),
             ], 500); // Menambahkan kode status 500 untuk error internal server
         }
-
     }
 
     /**

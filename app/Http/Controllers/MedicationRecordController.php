@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\MedicationRecordStoreRequest;
+use App\Models\MedicationRecord;
 use App\Models\Patient;
 use Illuminate\Http\Request;
-use App\Models\MedicationRecord;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 
@@ -27,7 +27,7 @@ class MedicationRecordController extends Controller
         // $validated = $request->validate([
         //     'patient_id' => 'required|exists:patients,id',
         //     'medicine' => 'required|string|max:255',
-        //     'frequency' => 'required|string|max:255',            
+        //     'frequency' => 'required|string|max:255',
         // ]);
 
         $validated = $request->validated();
@@ -67,24 +67,23 @@ class MedicationRecordController extends Controller
     {
         $validated = $request->validate([
             'medications' => 'required|array',
-            'medications.*.medicine' => 'required|string',            
+            'medications.*.medicine' => 'required|string',
             'medications.*.frequency' => 'required|string',
         ]);
 
         DB::beginTransaction();
         try {
             $patient->medications()->delete();
-            foreach($validated['medications'] as $item) 
-            {
+            foreach ($validated['medications'] as $item) {
                 $patient->medications()->create([
                     'medicine' => $item['medicine'],
-                    'frequency' => $item['frequency']
+                    'frequency' => $item['frequency'],
                 ]);
             }
             DB::commit();
             return response()->json([
                 'status' => 'success',
-                'message' => 'Success to update data.'
+                'message' => 'Success to update data.',
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -94,8 +93,7 @@ class MedicationRecordController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
-        
-        
+
     }
 
     /**
@@ -103,6 +101,21 @@ class MedicationRecordController extends Controller
      */
     public function destroy(MedicationRecord $medicationRecord)
     {
-        //
+        try {
+            DB::beginTransaction();
+            $medicationRecord->delete();
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Successfully delete the data.',
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'success',
+                'message' => $e->getMessage(),
+            ], 500);
+
+        }
     }
 }

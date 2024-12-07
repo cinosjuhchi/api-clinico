@@ -3,18 +3,15 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 
-class UpdateClinicLocationRequest extends FormRequest
+class StorePasswordResetRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        $user = Auth::user();
-        return $user->role == 'clinic';
-
+        return false;
     }
 
     /**
@@ -25,9 +22,7 @@ class UpdateClinicLocationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'address' => 'nullable|string',
-            'longitude' => 'required|numeric|between:-180,180',
-            'latitude' => 'required|numeric|between:-90,90'
+            //
         ];
     }
 }

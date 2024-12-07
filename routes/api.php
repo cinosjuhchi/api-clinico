@@ -28,7 +28,9 @@ use App\Http\Controllers\ImmunizationController;
 use App\Http\Controllers\ClinicServiceController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\ParentChronicController;
+use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\RequestClinicController;
+use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\BackOfficeUserController;
 use App\Http\Controllers\ClinicLocationController;
 use App\Http\Controllers\ClinicScheduleController;
@@ -97,6 +99,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/user-register', [AuthController::class, 'store']);
         Route::post('/clinic-register', [ClinicAuthController::class, 'store']);
         Route::post('/contact-us', [ContactUsController::class, 'send']);
+        Route::post('/send-forgot-password', [PasswordResetController::class, 'sendResetLink']);
         Route::get('/email/resend', [AuthController::class, 'resendVerificationEmail'])->middleware('auth:sanctum', 'abilities:user')->name('verification.resend');
     });
     Route::middleware(['auth:sanctum', 'abilities:user'])->group(function () {

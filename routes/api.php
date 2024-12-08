@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\RoomController;
@@ -78,7 +79,6 @@ Route::prefix('v1')->group(function () {
                     Route::put('/proccess-update/{requestUpdate}', [ClinicUpdateRequestController::class, 'processUpdateRequest']);
                 });
             });
-
         });
     });
     Route::prefix('doctor-category')->group(function () {
@@ -129,7 +129,6 @@ Route::prefix('v1')->group(function () {
                 Route::put('/update/emergency/{id}', [ProfileController::class, 'setEmergencyContact']);
                 Route::put('/update/medication-record/{id}', [ProfileController::class, 'setMedicationRecord']);
                 Route::put('/update/immunization/{id}', [ProfileController::class, 'setImmunizationRecord']);
-
             });
 
             Route::prefix('demographic')->group(function () {
@@ -201,6 +200,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/doctor-patient', [DoctorProfileController::class, 'doctorPatient']);
             });
             Route::prefix('consultation')->group(function () {
+                Route::get('/previous', [ConsultationController::class, 'getPreviousConsultation']);
                 Route::put('/complete/{appointment}', [ConsultationController::class, 'complete']);
                 Route::put('/call-patient/{appointment}', [ConsultationController::class, 'callPatient']);
             });
@@ -307,7 +307,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/today-patient', [ClinicProfileController::class, 'clinicPatient']);
                 Route::get('/booking-patient', [PatientController::class, 'bookingPatient']);
                 Route::get('/waiting-patient', [PatientController::class, 'waitingPatient']);
-                Route::get('/completed-patient', [PatientController::class, 'completedPatient']);                
+                Route::get('/completed-patient', [PatientController::class, 'completedPatient']);
             });
 
             Route::prefix('schedule')->group(function () {
@@ -320,7 +320,6 @@ Route::prefix('v1')->group(function () {
                 Route::put('/update/{clinicLocation}', [ClinicLocationController::class, 'update']);
             });
         });
-
     });
 
     Route::middleware(['auth:sanctum', 'abilities:hasAccessResource'])->group(function () {
@@ -359,7 +358,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/resource', [RoomController::class, 'roomResource']);
             Route::get('/', [RoomController::class, 'index']);
         });
-        Route::prefix('attendance')->group(function() {
+        Route::prefix('attendance')->group(function () {
             Route::get('/', [AttendanceController::class, 'index']);
             Route::get('/{attendance}', [AttendanceController::class, 'show']);
             Route::post('/clock-in', [AttendanceController::class, 'clockIn']);

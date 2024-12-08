@@ -228,7 +228,6 @@ class ConsultationController extends Controller
                 'status' => 'success',
                 'message' => 'Appointment completed successfully',
             ], 200);
-
         } catch (\Exception $e) {
             DB::rollback();
 
@@ -324,7 +323,6 @@ class ConsultationController extends Controller
                 });
             })->latest()->paginate(5);
             return response()->json($appointments);
-
         }
         $appointments = $clinic->consultationAppointments()->with(['patient', 'doctor.category', 'clinic', 'service', 'bill', 'medicalRecord', 'medicalRecord.clinicService', 'medicalRecord.serviceRecord', 'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords', 'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords', 'medicalRecord.diagnosisRecord'])->when($query, function ($q) use ($query) {
             $q->where(function ($subQuery) use ($query) {
@@ -335,7 +333,6 @@ class ConsultationController extends Controller
             });
         })->latest()->paginate(5);
         return response()->json($appointments);
-
     }
 
     public function takeMedicine(Request $request, Appointment $appointment)
@@ -428,7 +425,6 @@ class ConsultationController extends Controller
                 'status' => 'success',
                 'message' => 'Appointment in-progress successfully',
             ], 200);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response([
@@ -465,7 +461,7 @@ class ConsultationController extends Controller
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Appointment on-consultation successfully!',
-                ], 200);                
+                ], 200);
             } catch (\Exception $e) {
                 DB::rollBack();
                 return response()->json([
@@ -503,5 +499,52 @@ class ConsultationController extends Controller
     public function destroy(Appointment $appointment)
     {
         //
+    }
+
+    public function getPreviousConsultation(Request $request)
+    {
+        // param required: id_clinic, patient_id
+        $clinicId = $request->input("clinic_id");
+        if (!$clinicId) {
+            return response()->json([
+                "status" => "failed",
+                "message" => "parameter clinic_id is required",
+            ], 400);
+        }
+
+        $patientId = $request->input("patient_id");
+        if (!$patientId) {
+            return response()->json([
+                "status" => "failed",
+                "message" => "parameter patient_id is required",
+            ], 400);
+        }
+
+        // get prev cons by clinic_id, patient_id
+        $appointments = Appointment::with('clinic', 'patient')
+            ->where("clinic_id", $clinicId)
+            ->where("patient_id", $patientId)
+            ->where("status", "completed")
+            ->orderBy('appointment_date', 'desc')
+            ->get();
+
+        // jika data kosong, maka return error empty
+        if ($appointments->isEmpty()) {
+            return response()->json(['error' => 'No completed consultations found.'], 404);
+        }
+        // jika data 1, maka return data
+        if ($appointments->count() == 1) {
+            $appointment = $appointments->first();
+        }
+        // jika data > 1, maka ambil data terakhir kedua
+        if ($appointments->count() > 1) {
+            $previousAppointment = $appointments->slice(1, 1)->first(); // Ambil janji temu kedua
+            $appointment = $previousAppointment;
+        }
+
+        return response()->json([
+            "status" => "success",
+            "data" => $appointment
+        ]);
     }
 }

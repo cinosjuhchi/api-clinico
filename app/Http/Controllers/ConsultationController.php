@@ -532,15 +532,8 @@ class ConsultationController extends Controller
         if ($appointments->isEmpty()) {
             return response()->json(['error' => 'No completed consultations found.'], 404);
         }
-        // jika data 1, maka return data
-        if ($appointments->count() == 1) {
-            $appointment = $appointments->first();
-        }
-        // jika data > 1, maka ambil data terakhir kedua
-        if ($appointments->count() > 1) {
-            $previousAppointment = $appointments->slice(1, 1)->first(); // Ambil janji temu kedua
-            $appointment = $previousAppointment;
-        }
+
+        $appointment = $appointments->first();
 
         return response()->json([
             "status" => "success",

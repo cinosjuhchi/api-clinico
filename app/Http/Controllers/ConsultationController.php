@@ -521,25 +521,16 @@ class ConsultationController extends Controller
         }
 
         // get prev cons by clinic_id, patient_id
-        $appointments = Appointment::with('clinic', 'patient')
+        $appointment = Appointment::with('clinic', 'patient')
             ->where("clinic_id", $clinicId)
             ->where("patient_id", $patientId)
             ->where("status", "completed")
             ->orderBy('appointment_date', 'desc')
-            ->get();
+            ->first();
 
         // jika data kosong, maka return error empty
-        if ($appointments->isEmpty()) {
+        if (!$appointment) {
             return response()->json(['error' => 'No completed consultations found.'], 404);
-        }
-        // jika data 1, maka return data
-        if ($appointments->count() == 1) {
-            $appointment = $appointments->first();
-        }
-        // jika data > 1, maka ambil data terakhir kedua
-        if ($appointments->count() > 1) {
-            $previousAppointment = $appointments->slice(1, 1)->first(); // Ambil janji temu kedua
-            $appointment = $previousAppointment;
         }
 
         return response()->json([

@@ -11,7 +11,7 @@ class StorePasswordResetRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +21,10 @@ class StorePasswordResetRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            //
+        return [            
+            'password' => 'required|string|min:3',
+            'confirm_password' => 'required|string|min:3',
+            'token' => 'required'
         ];
     }
 }

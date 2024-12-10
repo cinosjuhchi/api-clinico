@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ReportClinic;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\RoomController;
@@ -80,6 +81,11 @@ Route::prefix('v1')->group(function () {
                     Route::get('/', [ClinicUpdateRequestController::class, 'getPendingUpdates']);
                     Route::put('/proccess-update/{requestUpdate}', [ClinicUpdateRequestController::class, 'processUpdateRequest']);
                 });
+                Route::prefix('report')->group(function () {
+                    Route::get('/pending', [ReportClinic::class, 'getPendingReport']);
+                    Route::get('/complete', [ReportClinic::class, 'getCompleteReport']);
+                    Route::put('/process-update/{reportClinic}', [ReportClinic::class, 'approved']);
+                });
             });
         });
     });
@@ -122,6 +128,10 @@ Route::prefix('v1')->group(function () {
 
             Route::prefix('family')->group(function () {
                 Route::get('/', [FamilyController::class, 'index']);
+            });
+
+            Route::prefix('report')->group(function () {
+                Route::post('/store', [ReportClinic::class, 'store']);    
             });
 
             // profile route

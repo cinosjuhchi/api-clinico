@@ -101,6 +101,8 @@ Route::prefix('v1')->group(function () {
         Route::post('/contact-us', [ContactUsController::class, 'send']);
         Route::post('/send-forgot-password', [PasswordResetController::class, 'sendResetLink']);
         Route::get('/email/resend', [AuthController::class, 'resendVerificationEmail'])->middleware('auth:sanctum', 'abilities:user')->name('verification.resend');
+        Route::get('/validate/token/change-password/{token}', [PasswordResetController::class, 'validateResetToken']);
+        Route::post('/change-password/store', [PasswordResetController::class, 'store']);
     });
     Route::middleware(['auth:sanctum', 'abilities:user'])->group(function () {
         Route::prefix('patient')->group(function () {

@@ -9,6 +9,7 @@ use App\Models\PasswordReset;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
@@ -43,12 +44,32 @@ class PasswordResetController extends Controller
         ]);
 
         Mail::to($user->email)->send(new ResetPassword([
-            'resetLink' => url(env('WEB_CLINICO_URL') . '/reset-password/{$token}'),
+            'resetLink' => url(env('WEB_CLINICO_URL') . '/reset-password/' . $token),
             'email' => $user->email,
         ]));
 
         return response()->json([
             'message' => 'Link reset password telah dikirim',
+        ]);
+    }
+
+    public function validateResetToken($token)
+    {
+        $resetRequest = PasswordReset::where('token', $token)
+            ->where('is_used', false)
+            ->where('expires_at', '>', now())
+            ->first();
+
+        if (!$resetRequest) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Token reset tidak valid atau sudah kedaluwarsa',
+            ], 400);
+        }
+
+        return response()->json([
+            'valid' => true,
+            'email' => $resetRequest->email,
         ]);
     }
 
@@ -65,7 +86,46 @@ class PasswordResetController extends Controller
      */
     public function store(StorePasswordResetRequest $request)
     {
-        //
+        $validate = $request->validated();
+        if ($validate['password'] != $validate['confirm_password']) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Please input correctly the password field same as the confirm password',
+            ], 400);
+        }
+        $resetRequest = PasswordReset::where('token', $request->token)
+            ->where('is_used', false)
+            ->where('expires_at', '>', now())
+            ->first();
+
+        if (!$resetRequest) {
+            return response()->json([
+                'message' => 'Token reset tidak valid',
+            ], 400);
+        }
+        $user = User::where('email', $resetRequest->email)->first();
+
+        try {
+            DB::beginTransaction();
+            $user->update([
+                'password' => bcrypt($validate['password']),
+            ]);
+            $resetRequest->update([
+                'is_used' => true
+            ]);
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Password successfully updated!',
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Failed to update password',
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     /**

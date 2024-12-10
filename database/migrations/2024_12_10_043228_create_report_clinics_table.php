@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('report_clinics', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('reported_by')->constrained('users')->nullOnDelete();
+            $table->foreignId('reported_by')->constrained('users')->cascadeOnDelete();
             $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('clinic_id')->constrained()->cascadeOnDelete();
             $table->string('title', 125);

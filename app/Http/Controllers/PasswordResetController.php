@@ -33,24 +33,35 @@ class PasswordResetController extends Controller
 
         // Generate unique token
         $token = Str::random(60);
+        try {
+            DB::beginTransaction();
+            PasswordReset::create([
+                'email' => $user->email,
+                'token' => $token,
+                'created_at' => now(),
+                'expires_at' => now()->addHours(1),
+                'is_used' => false,
+            ]);
 
+            Mail::to($user->email)->send(new ResetPassword([
+                'resetLink' => url(env('WEB_CLINICO_URL') . '/reset-password/' . $token),
+                'email' => $user->email,
+            ]));
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Link reset password telah dikirim',
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status'=>'failed',
+                'message' => $e->getMessage()
+            ], 500);
+        }
         // Simpan token reset
-        PasswordReset::create([
-            'email' => $user->email,
-            'token' => $token,
-            'created_at' => now(),
-            'expires_at' => now()->addHours(1),
-            'is_used' => false,
-        ]);
 
-        Mail::to($user->email)->send(new ResetPassword([
-            'resetLink' => url(env('WEB_CLINICO_URL') . '/reset-password/' . $token),
-            'email' => $user->email,
-        ]));
-
-        return response()->json([
-            'message' => 'Link reset password telah dikirim',
-        ]);
     }
 
     public function validateResetToken($token)
@@ -111,7 +122,7 @@ class PasswordResetController extends Controller
                 'password' => bcrypt($validate['password']),
             ]);
             $resetRequest->update([
-                'is_used' => true
+                'is_used' => true,
             ]);
             DB::commit();
             return response()->json([

@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ClockInRequest;
 use App\Models\Attendance;
 use App\Models\Doctor;
-use App\Models\DoctorSchedule;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -45,7 +44,7 @@ class AttendanceController extends Controller
         return response()->json([
             "status" => "success",
             "message" => "Attendances retrieved successfully",
-            "data" => $attendances
+            "data" => $attendances,
         ]);
     }
 
@@ -55,7 +54,7 @@ class AttendanceController extends Controller
         return response()->json([
             "status" => "success",
             "message" => "Attendance retrieved successfully",
-            "data" => $attendance
+            "data" => $attendance,
         ]);
     }
 
@@ -84,7 +83,7 @@ class AttendanceController extends Controller
             return response()->json([
                 "status" => "error",
                 "message" => "You have already clock in today",
-                "data" => $existingAttendance
+                "data" => $existingAttendance,
             ], 400);
         }
 
@@ -106,7 +105,7 @@ class AttendanceController extends Controller
             return response()->json([
                 "status" => "error",
                 "message" => "You are too far from the clinic",
-                "data" => $clinicLocation
+                "data" => $clinicLocation,
             ], 400);
         }
 
@@ -122,7 +121,7 @@ class AttendanceController extends Controller
         $attendance = Attendance::create([
             "user_id" => $userId,
             "clock_in" => now(),
-            "is_late" => $isUserLate
+            "is_late" => $isUserLate,
         ]);
 
         return response()->json([
@@ -131,7 +130,49 @@ class AttendanceController extends Controller
             "data" => $attendance,
         ]);
     }
+    public function checkTodayAttendance()
+    {
+        $user = Auth::user();
+        $userId = $user->id;
 
+        // Get today's attendance record
+        $todayAttendance = Attendance::where('user_id', $userId)
+            ->whereDate('clock_in', now()->toDateString())
+            ->first();
+
+        // If no attendance record found today
+        if (!$todayAttendance) {
+            return response()->json([
+                "status" => "error",
+                "message" => "No clock-in record found for today",
+            ], 404);
+        }
+
+        // Calculate time since clock-in
+        $clockInTime = Carbon::parse($todayAttendance->clock_in);
+        $currentTime = now();
+
+        // Calculate interval
+        $interval = $clockInTime->diff($currentTime);
+
+        // Format interval details
+        $intervalDetails = [
+            'hours' => $interval->h,
+            'minutes' => $interval->i,
+            'seconds' => $interval->s,
+            'total_minutes' => $interval->h * 60 + $interval->i,
+            'is_late' => $todayAttendance->is_late,
+        ];
+
+        return response()->json([
+            "status" => "success",
+            "message" => "Attendance found",
+            "data" => [
+                "attendance" => $todayAttendance,
+                "interval" => $intervalDetails,
+            ],
+        ]);
+    }
     public function clockOut(ClockInRequest $request)
     {
         $user = Auth::user();
@@ -145,7 +186,7 @@ class AttendanceController extends Controller
             return response()->json([
                 "status" => "error",
                 "message" => "You have not clocked in yet",
-                "data" => $attendance
+                "data" => $attendance,
             ], 400);
         }
 
@@ -154,7 +195,7 @@ class AttendanceController extends Controller
             return response()->json([
                 "status" => "error",
                 "message" => "You have already clocked out today",
-                "data" => $attendance
+                "data" => $attendance,
             ], 400);
         }
 

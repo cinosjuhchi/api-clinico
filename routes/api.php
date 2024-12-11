@@ -383,6 +383,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/{attendance}', [AttendanceController::class, 'show']);
             Route::post('/clock-in', [AttendanceController::class, 'clockIn']);
             Route::post('/clock-out', [AttendanceController::class, 'clockOut']);
+            Route::post('/today-attendance', [AttendanceController::class, 'checkTodayAttendance']);
         });
     });
 });

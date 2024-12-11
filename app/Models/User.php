@@ -2,20 +2,13 @@
 
 namespace App\Models;
 
-use App\Models\EmergencyContact;
-use App\Models\MedicationRecord;
-use App\Models\OccupationRecord;
-use Laravel\Sanctum\HasApiTokens;
-use App\Models\ImmunizationRecord;
-use App\Models\ChronicHealthRecord;
-use App\Models\PhysicalExamination;
-use App\Models\DemographicInformation;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -51,6 +44,19 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
+    // Chat Messages
+
+    public function sender()
+    {
+        return $this->belongsTo(User::class, 'sender_id');
+    }
+
+    public function receiver()
+    {
+        return $this->belongsTo(User::class, 'receiver_id');
+    }
+
+    // end
 
     public function patients(): HasMany
     {
@@ -91,7 +97,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Attendance::class);
     }
-  
+
     public function requestUpdate()
     {
         return $this->hasMany(ClinicUpdateRequest::class, 'approved_by', 'id');

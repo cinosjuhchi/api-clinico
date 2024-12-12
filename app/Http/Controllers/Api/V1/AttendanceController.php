@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Doctor;
+use App\Models\Attendance;
+use Illuminate\Http\Request;
 use App\Helpers\AttendanceHelper;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ClockInRequest;
-use App\Models\Attendance;
-use App\Models\Doctor;
-use App\Models\DoctorSchedule;
-use App\Models\User;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\ClockInRequest;
+
 
 class AttendanceController extends Controller
 {
@@ -45,7 +45,7 @@ class AttendanceController extends Controller
         return response()->json([
             "status" => "success",
             "message" => "Attendances retrieved successfully",
-            "data" => $attendances
+            "data" => $attendances,
         ]);
     }
 
@@ -55,9 +55,55 @@ class AttendanceController extends Controller
         return response()->json([
             "status" => "success",
             "message" => "Attendance retrieved successfully",
-            "data" => $attendance
+            "data" => $attendance,
         ]);
     }
+
+    public function getTotalWorkingMonth(Request $request)
+    {
+        // param: user_id, month, year
+        $userId = $request->input('user_id');
+        $month = $request->input('month');
+        $year = $request->input('year');
+
+        // default adalah bulan dan tahun saat ini
+        $month = $month ?: date('m');
+        $year = $year ?: date('Y');
+
+        if ($month < 1 || $month > 12) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Month should between 1 and 12.'
+            ], 400);
+        }
+
+        // ambil data attendance berdasarkan user_id, month, dan year
+        $attendances = Attendance::query();
+
+        if ($userId) {
+            $attendances->where('user_id', $userId);
+        }
+
+        // filter berdasarkan clock_in
+        $attendances->whereRaw('MONTH(clock_in) = ?', [$month])
+                    ->whereRaw('YEAR(clock_in) = ?', [$year]);
+
+        // calculate
+        $totalWorkingHours = $attendances->sum('total_working_hours');
+
+        // return
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Total working hours retrieved successfully',
+            'data' => [
+                'user_id' => $userId,
+                'month' => $month,
+                'year' => $year,
+                'total_working_hours' => $totalWorkingHours
+            ]
+        ], 200);
+    }
+
 
     public function clockIn(ClockInRequest $request)
     {
@@ -84,7 +130,7 @@ class AttendanceController extends Controller
             return response()->json([
                 "status" => "error",
                 "message" => "You have already clock in today",
-                "data" => $existingAttendance
+                "data" => $existingAttendance,
             ], 400);
         }
 
@@ -106,7 +152,7 @@ class AttendanceController extends Controller
             return response()->json([
                 "status" => "error",
                 "message" => "You are too far from the clinic",
-                "data" => $clinicLocation
+                "data" => $clinicLocation,
             ], 400);
         }
 
@@ -122,7 +168,7 @@ class AttendanceController extends Controller
         $attendance = Attendance::create([
             "user_id" => $userId,
             "clock_in" => now(),
-            "is_late" => $isUserLate
+            "is_late" => $isUserLate,
         ]);
 
         return response()->json([
@@ -130,6 +176,48 @@ class AttendanceController extends Controller
             "message" => "Clock-in successful",
             "data" => $attendance,
         ]);
+    }
+    public function checkTodayAttendance(Request $request)
+    {
+        $user = Auth::user();
+        $userId = $user->id;
+        // Get today's attendance record
+        $todayAttendance = Attendance::where('user_id', $userId)
+            ->whereDate('clock_in', now()->toDateString())
+            ->first();
+
+        // If no attendance record found todaytu
+        if (!$todayAttendance) {
+            return response()->json([
+                "status" => "error",
+                "message" => "No clock-in record found for today",
+            ], 404);
+        }
+
+        // Calculate time since clock-in
+        $clockInTime = Carbon::parse($todayAttendance->clock_in);
+        $currentTime = now();
+
+        // Calculate interval
+        $interval = $clockInTime->diff($currentTime);
+
+        // Format interval details
+        $intervalDetails = [
+            'hours' => $interval->h,
+            'minutes' => $interval->i,
+            'seconds' => $interval->s,
+            'total_minutes' => $interval->h * 60 + $interval->i,
+            'is_late' => $todayAttendance->is_late,
+        ];
+
+        return response()->json([
+            "status" => "success",
+            "message" => "Attendance found",
+            "data" => [
+                "attendance" => $todayAttendance,
+                "interval" => $intervalDetails,
+            ],
+        ], 200);
     }
 
     public function clockOut(ClockInRequest $request)
@@ -145,7 +233,7 @@ class AttendanceController extends Controller
             return response()->json([
                 "status" => "error",
                 "message" => "You have not clocked in yet",
-                "data" => $attendance
+                "data" => $attendance,
             ], 400);
         }
 
@@ -154,7 +242,7 @@ class AttendanceController extends Controller
             return response()->json([
                 "status" => "error",
                 "message" => "You have already clocked out today",
-                "data" => $attendance
+                "data" => $attendance,
             ], 400);
         }
 

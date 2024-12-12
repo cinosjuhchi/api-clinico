@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ReportClinic;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\RoomController;
@@ -26,6 +27,7 @@ use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\ClinicImageController;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\ImmunizationController;
+use App\Http\Controllers\ReportClinicController;
 use App\Http\Controllers\ClinicServiceController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\ParentChronicController;
@@ -80,6 +82,11 @@ Route::prefix('v1')->group(function () {
                     Route::get('/', [ClinicUpdateRequestController::class, 'getPendingUpdates']);
                     Route::put('/proccess-update/{requestUpdate}', [ClinicUpdateRequestController::class, 'processUpdateRequest']);
                 });
+                Route::prefix('report')->group(function () {
+                    Route::get('/pending', [ReportClinicController::class, 'getPendingReport']);
+                    Route::get('/complete', [ReportClinicController::class, 'getCompleteReport']);
+                    Route::put('/process-update/{reportClinic}', [ReportClinicController::class, 'approved']);
+                });
             });
         });
     });
@@ -122,6 +129,10 @@ Route::prefix('v1')->group(function () {
 
             Route::prefix('family')->group(function () {
                 Route::get('/', [FamilyController::class, 'index']);
+            });
+
+            Route::prefix('report')->group(function () {
+                Route::post('/store', [ReportClinicController::class, 'store']);
             });
 
             // profile route
@@ -369,8 +380,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/', [RoomController::class, 'index']);
         });
         Route::prefix('attendance')->group(function () {
+            Route::get('/show/{attendance}', [AttendanceController::class, 'show']);
+            Route::get('/daily', [AttendanceController::class, 'checkTodayAttendance']);
+            Route::get('/total-working-month', [AttendanceController::class, 'getTotalWorkingMonth']);
             Route::get('/', [AttendanceController::class, 'index']);
-            Route::get('/{attendance}', [AttendanceController::class, 'show']);
             Route::post('/clock-in', [AttendanceController::class, 'clockIn']);
             Route::post('/clock-out', [AttendanceController::class, 'clockOut']);
         });

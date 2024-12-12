@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\GetAdminHelper;
 use App\Http\Requests\StoreClinicUpdateRequestRequest;
 use App\Http\Requests\UpdateClinicUpdateRequestRequest;
 use App\Models\ClinicUpdateRequest;
@@ -63,15 +64,23 @@ class ClinicUpdateRequestController extends Controller
     }
 
     public function processUpdateRequest(Request $request, ClinicUpdateRequest $requestUpdate)
-    {
+    {        
         $validated = $request->validate([
             'status' => 'required|in:approved,rejected',
-        ]);
+        ]);  
+        $user = GetAdminHelper::getAdminData();
+        if(!$user)
+        {
+            return response()->json([
+                'status' => 'forbidden',
+                'message' => "You can't access this."
+            ], 403);
+        }              
         try {
             DB::beginTransaction();
             $updateRequest = ClinicUpdateRequest::findOrFail($requestUpdate->id);
             $updateRequest->status = $validated['status'];
-            $updateRequest->approved_by = auth()->id();
+            $updateRequest->approved_by = $user->id;
             $updateRequest->approved_at = now();
             $updateRequest->save();
 

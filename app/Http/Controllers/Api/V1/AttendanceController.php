@@ -140,7 +140,7 @@ class AttendanceController extends Controller
             ->whereDate('clock_in', now()->toDateString())
             ->first();
 
-        // If no attendance record found today
+        // If no attendance record found todaytu
         if (!$todayAttendance) {
             return response()->json([
                 "status" => "error",

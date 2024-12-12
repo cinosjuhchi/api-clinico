@@ -380,10 +380,9 @@ Route::prefix('v1')->group(function () {
             Route::get('/', [RoomController::class, 'index']);
         });
         Route::prefix('attendance')->group(function () {
+            Route::get('/show/{attendance}', [AttendanceController::class, 'show']);
+            Route::get('/daily', [AttendanceController::class, 'checkTodayAttendance']);            
             Route::get('/', [AttendanceController::class, 'index']);
-            Route::get('/{attendance}', [AttendanceController::class, 'show']);
-            Route::get('/daily', [AttendanceController::class, 'checkTodayAttendance']);
-            Route::get('/daily-cino', [AttendanceController::class, 'showCino']);
             Route::post('/clock-in', [AttendanceController::class, 'clockIn']);
             Route::post('/clock-out', [AttendanceController::class, 'clockOut']);
         });

@@ -173,11 +173,7 @@ class AttendanceController extends Controller
             ],
         ], 200);
     }
-
-    public function showCino()
-    {
-        return response()->json(200);
-    }
+ 
     public function clockOut(ClockInRequest $request)
     {
         $user = Auth::user();

@@ -59,6 +59,52 @@ class AttendanceController extends Controller
         ]);
     }
 
+    public function getTotalWorkingMonth(Request $request)
+    {
+        // param: user_id, month, year
+        $userId = $request->input('user_id');
+        $month = $request->input('month');
+        $year = $request->input('year');
+
+        // default adalah bulan dan tahun saat ini
+        $month = $month ?: date('m');
+        $year = $year ?: date('Y');
+
+        if ($month < 1 || $month > 12) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Month should between 1 and 12.'
+            ], 400);
+        }
+
+        // ambil data attendance berdasarkan user_id, month, dan year
+        $attendances = Attendance::query();
+
+        if ($userId) {
+            $attendances->where('user_id', $userId);
+        }
+
+        // filter berdasarkan clock_in
+        $attendances->whereRaw('MONTH(clock_in) = ?', [$month])
+                    ->whereRaw('YEAR(clock_in) = ?', [$year]);
+
+        // calculate
+        $totalWorkingHours = $attendances->sum('total_working_hours');
+
+        // return
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Total working hours retrieved successfully',
+            'data' => [
+                'user_id' => $userId,
+                'month' => $month,
+                'year' => $year,
+                'total_working_hours' => $totalWorkingHours
+            ]
+        ], 200);
+    }
+
+
     public function clockIn(ClockInRequest $request)
     {
         $user = Auth::user();
@@ -134,7 +180,7 @@ class AttendanceController extends Controller
     public function checkTodayAttendance(Request $request)
     {
         $user = Auth::user();
-        $userId = $user->id;        
+        $userId = $user->id;
         // Get today's attendance record
         $todayAttendance = Attendance::where('user_id', $userId)
             ->whereDate('clock_in', now()->toDateString())
@@ -173,7 +219,7 @@ class AttendanceController extends Controller
             ],
         ], 200);
     }
- 
+
     public function clockOut(ClockInRequest $request)
     {
         $user = Auth::user();

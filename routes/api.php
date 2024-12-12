@@ -132,7 +132,7 @@ Route::prefix('v1')->group(function () {
             });
 
             Route::prefix('report')->group(function () {
-                Route::post('/store', [ReportClinicController::class, 'store']);    
+                Route::post('/store', [ReportClinicController::class, 'store']);
             });
 
             // profile route
@@ -381,7 +381,8 @@ Route::prefix('v1')->group(function () {
         });
         Route::prefix('attendance')->group(function () {
             Route::get('/show/{attendance}', [AttendanceController::class, 'show']);
-            Route::get('/daily', [AttendanceController::class, 'checkTodayAttendance']);            
+            Route::get('/daily', [AttendanceController::class, 'checkTodayAttendance']);
+            Route::get('/total-working-month', [AttendanceController::class, 'getTotalWorkingMonth']);
             Route::get('/', [AttendanceController::class, 'index']);
             Route::post('/clock-in', [AttendanceController::class, 'clockIn']);
             Route::post('/clock-out', [AttendanceController::class, 'clockOut']);

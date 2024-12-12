@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Appointment;
 use App\Models\ClinicService;
+use App\Models\Injection;
 use App\Models\MedicalRecord;
 use App\Models\Medication;
 use App\Models\Patient;
@@ -381,6 +382,18 @@ class ConsultationController extends Controller
                         'billing_id' => $bill->id,
                         'injection_id' => $injection['injection_id'],
                     ]);
+
+                    $injection = Injection::find($injection['injection_id']);
+
+                    if (!$injection) {
+                        return response()->json([
+                            'status' => 'failed',
+                            'message' => 'Injection not found',
+                        ], 404);
+                    }
+
+                    $injection->total_amount -= 1;
+                    $injection->save();
                 }
             }
             if (!empty($validated['procedure'])) {

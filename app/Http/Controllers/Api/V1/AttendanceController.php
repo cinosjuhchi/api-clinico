@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Doctor;
+use App\Models\Attendance;
+use Illuminate\Http\Request;
 use App\Helpers\AttendanceHelper;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ClockInRequest;
-use App\Models\Attendance;
-use App\Models\Doctor;
-use App\Models\User;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\ClockInRequest;
+
 
 class AttendanceController extends Controller
 {
@@ -130,11 +131,10 @@ class AttendanceController extends Controller
             "data" => $attendance,
         ]);
     }
-    public function checkTodayAttendance()
+    public function checkTodayAttendance(Request $request)
     {
         $user = Auth::user();
-        $userId = $user->id;
-
+        $userId = $user->id;        
         // Get today's attendance record
         $todayAttendance = Attendance::where('user_id', $userId)
             ->whereDate('clock_in', now()->toDateString())
@@ -171,7 +171,12 @@ class AttendanceController extends Controller
                 "attendance" => $todayAttendance,
                 "interval" => $intervalDetails,
             ],
-        ]);
+        ], 200);
+    }
+
+    public function showCino()
+    {
+        return response()->json(200);
     }
     public function clockOut(ClockInRequest $request)
     {

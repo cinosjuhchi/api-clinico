@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\ClinicImageController;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\ImmunizationController;
+use App\Http\Controllers\ReportClinicController;
 use App\Http\Controllers\ClinicServiceController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\ParentChronicController;
@@ -82,9 +83,9 @@ Route::prefix('v1')->group(function () {
                     Route::put('/proccess-update/{requestUpdate}', [ClinicUpdateRequestController::class, 'processUpdateRequest']);
                 });
                 Route::prefix('report')->group(function () {
-                    Route::get('/pending', [ReportClinic::class, 'getPendingReport']);
-                    Route::get('/complete', [ReportClinic::class, 'getCompleteReport']);
-                    Route::put('/process-update/{reportClinic}', [ReportClinic::class, 'approved']);
+                    Route::get('/pending', [ReportClinicController::class, 'getPendingReport']);
+                    Route::get('/complete', [ReportClinicController::class, 'getCompleteReport']);
+                    Route::put('/process-update/{reportClinic}', [ReportClinicController::class, 'approved']);
                 });
             });
         });
@@ -131,7 +132,7 @@ Route::prefix('v1')->group(function () {
             });
 
             Route::prefix('report')->group(function () {
-                Route::post('/store', [ReportClinic::class, 'store']);    
+                Route::post('/store', [ReportClinicController::class, 'store']);    
             });
 
             // profile route
@@ -381,9 +382,10 @@ Route::prefix('v1')->group(function () {
         Route::prefix('attendance')->group(function () {
             Route::get('/', [AttendanceController::class, 'index']);
             Route::get('/{attendance}', [AttendanceController::class, 'show']);
+            Route::get('/daily', [AttendanceController::class, 'checkTodayAttendance']);
+            Route::get('/daily-cino', [AttendanceController::class, 'showCino']);
             Route::post('/clock-in', [AttendanceController::class, 'clockIn']);
             Route::post('/clock-out', [AttendanceController::class, 'clockOut']);
-            Route::get('/today-attendance', [AttendanceController::class, 'checkTodayAttendance']);
         });
     });
 });

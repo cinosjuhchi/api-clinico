@@ -17,22 +17,6 @@ use Illuminate\Support\Facades\Log;
 
 class ConsultationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
     public function complete(Appointment $appointment, Request $request)
     {
         $user = Auth::user();
@@ -382,6 +366,9 @@ class ConsultationController extends Controller
                         'patient_id' => $appointment->patient_id,
                         'billing_id' => $bill->id,
                     ]);
+
+                    $medication->total_amount -= $medicine['medicine_qty'];
+                    $medication->save();
                 }
             }
             if (!empty($validated['injection'])) {
@@ -475,30 +462,6 @@ class ConsultationController extends Controller
             'status' => 'success',
             'message' => 'Notification sent successfully!',
         ], 200);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Appointment $appointment)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Appointment $appointment)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Appointment $appointment)
-    {
-        //
     }
 
     public function getPreviousConsultation(Request $request)

@@ -9,7 +9,7 @@ class AttendanceHelper
 {
     public static function isDistanceGreaterThan1Km($lat1, $lon1, $lat2, $lon2)
     {
-        $earthRadius = 6371;
+        $earthRadius = 6371000; // 6.371.000 meter
 
         // konversi derajat ke radian
         $lat1 = deg2rad($lat1);
@@ -24,9 +24,9 @@ class AttendanceHelper
         $a = sin($dLat / 2) ** 2 + cos($lat1) * cos($lat2) * sin($dLon / 2) ** 2;
 
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-        $distance = $earthRadius * $c; // dalam kilometer
+        $distance = $earthRadius * $c; // dalam meter
 
-        return $distance > 1;
+        return $distance > 20; // lebih dari 20 meter
     }
 
     public static function getDoctorSchedule($doctorId)

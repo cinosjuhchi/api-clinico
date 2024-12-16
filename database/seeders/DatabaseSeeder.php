@@ -18,8 +18,11 @@ use App\Models\Medication;
 use App\Models\Patient;
 use App\Models\PregnancyCategory;
 use App\Models\Room;
+use App\Models\Staff;
+use App\Models\StaffDemographic;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -164,17 +167,8 @@ class DatabaseSeeder extends Seeder
             ]);
         });
 
-        User::factory()->create([
-            'email' => 'superadmin@clinico.com.my',
-            'password' => 'Clinico@00',
-            'role' => 'superadmin',
-        ]);
-
-        User::factory()->create([
-            'email' => 'admin@clinico.com.my',
-            'password' => 'Clinico@00',
-            'role' => 'admin',
+        $this->call([
+            BackofficeSeeder::class
         ]);
     }
-
 }

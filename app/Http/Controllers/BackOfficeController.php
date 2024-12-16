@@ -42,6 +42,10 @@ class BackOfficeController extends Controller
     public function me()
     {
         $user = Auth::user()->load('staff.demographic', 'staff.contributionInfo', 'staff.employmentInformation', 'staff.financialInformation');
-        return response()->json($user);
+        return response()->json([[
+            'status' => 'success',
+            'message' => 'get current user',
+            'data' => $user
+        ]]);
     }
 }

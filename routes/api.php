@@ -62,6 +62,7 @@ Route::prefix('v1')->group(function () {
     Route::prefix('back-office')->group(function () {
         Route::post('login', [BackOfficeController::class, 'login']);
         Route::middleware(['auth:sanctum', 'abilities:backOffice'])->group(function () {
+            Route::get('/me', [BackOfficeController::class, 'me']);
             Route::prefix('bills')->group(function () {
                 Route::get('/revenue', [BackOfficeRevenueController::class, 'index']);
                 Route::get('/total-revenue-clinico', [BackOfficeRevenueController::class, 'totalRevenueTaxOnly']);

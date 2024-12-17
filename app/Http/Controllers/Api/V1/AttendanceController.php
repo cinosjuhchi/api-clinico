@@ -146,7 +146,7 @@ class AttendanceController extends Controller
         $userLat = $request['latitude'];
         $userLong = $request['longitude'];
 
-        $isGreatedThan1km = AttendanceHelper::isDistanceGreaterThan1Km($ClinicLat, $ClinicLong, $userLat, $userLong);
+        $isGreatedThan1km = AttendanceHelper::isDistanceGreaterThan100m($ClinicLat, $ClinicLong, $userLat, $userLong);
 
         if ($isGreatedThan1km) {
             return response()->json([
@@ -252,7 +252,7 @@ class AttendanceController extends Controller
         $userAttendanceLat = $request['latitude'];
         $userAttendanceLong = $request['longitude'];
 
-        $isGreatedThan1km = AttendanceHelper::isDistanceGreaterThan1Km($userClinicLat, $userClinicLong, $userAttendanceLat, $userAttendanceLong);
+        $isGreatedThan1km = AttendanceHelper::isDistanceGreaterThan100m($userClinicLat, $userClinicLong, $userAttendanceLat, $userAttendanceLong);
 
         if ($isGreatedThan1km) {
             return response()->json([

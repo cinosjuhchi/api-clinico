@@ -7,7 +7,7 @@ use App\Models\DoctorSchedule;
 
 class AttendanceHelper
 {
-    public static function isDistanceGreaterThan1Km($lat1, $lon1, $lat2, $lon2)
+    public static function isDistanceGreaterThan100m($lat1, $lon1, $lat2, $lon2)
     {
         $earthRadius = 6371000; // 6.371.000 meter
 
@@ -26,7 +26,7 @@ class AttendanceHelper
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
         $distance = $earthRadius * $c; // dalam meter
 
-        return $distance > 20; // lebih dari 20 meter
+        return $distance > 100; // lebih dari 20 meter
     }
 
     public static function getDoctorSchedule($doctorId)

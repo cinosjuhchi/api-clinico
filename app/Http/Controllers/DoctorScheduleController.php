@@ -28,12 +28,15 @@ class DoctorScheduleController extends Controller
         try {
             $schedulesQuery = $clinic->doctorSchedule();
 
-            // ?day=sunday || ?day=monday ...
-            if ($request->has('day')) {
-                $schedulesQuery = $schedulesQuery->where('day', $request->day);
+            if ($request->filled('day')) {
+                $schedulesQuery->where('day', $request->day);
             }
 
-            $schedules = $schedulesQuery->with(['doctor.category', 'room'])->paginate(10);
+            $schedulesQuery->with(['doctor.category', 'room']);
+            $paginate = filter_var($request->input('paginate', 'true'), FILTER_VALIDATE_BOOLEAN);
+            $schedules = $paginate
+                ? $schedulesQuery->paginate($request->input('per_page', 10))
+                : $schedulesQuery->get();
 
             return response()->json([
                 'status' => 'success',

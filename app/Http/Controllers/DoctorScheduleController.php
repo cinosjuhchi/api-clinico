@@ -26,7 +26,14 @@ class DoctorScheduleController extends Controller
         };
 
         try {
-            $schedules = $clinic->doctorSchedule()->with(['doctor', 'room'])->paginate(10);
+            $schedulesQuery = $clinic->doctorSchedule();
+
+            // ?day=sunday || ?day=monday ...
+            if ($request->has('day')) {
+                $schedulesQuery = $schedulesQuery->where('day', $request->day);
+            }
+
+            $schedules = $schedulesQuery->with(['doctor.category', 'room'])->paginate(10);
 
             return response()->json([
                 'status' => 'success',

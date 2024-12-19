@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\ReportClinic;
+use App\Models\MessageClinico;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\RoomController;
@@ -38,8 +39,10 @@ use App\Http\Controllers\BackOfficeUserController;
 use App\Http\Controllers\ClinicLocationController;
 use App\Http\Controllers\ClinicScheduleController;
 use App\Http\Controllers\DoctorScheduleController;
+use App\Http\Controllers\MessageClinicoController;
 use App\Http\Controllers\OnlineEmployeeController;
 use App\Http\Controllers\Api\V1\ContactUsController;
+use App\Http\Controllers\Api\V1\InventoryController;
 use App\Http\Controllers\BackOfficeDoctorController;
 use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\MedicationRecordController;
@@ -56,7 +59,6 @@ use App\Http\Controllers\Api\V1\ClinicProfileController;
 use App\Http\Controllers\Api\V1\DoctorProfileController;
 use App\Http\Controllers\Api\V1\Auth\ClinicAuthController;
 use App\Http\Controllers\Api\V1\Auth\DoctorAuthController;
-use App\Http\Controllers\Api\V1\InventoryController;
 use App\Http\Controllers\DemographicInformationController;
 
 Route::prefix('v1')->group(function () {
@@ -389,6 +391,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/', [AttendanceController::class, 'index']);
             Route::post('/clock-in', [AttendanceController::class, 'clockIn']);
             Route::post('/clock-out', [AttendanceController::class, 'clockOut']);
+        });
+        Route::prefix('chat')->group(function () {
+            Route::get('/get-message/{user}', [MessageClinicoController::class, 'getMessages']);
+            Route::post('/send-message', [MessageClinicoController::class, 'sendMessage']);
         });
     });
 });

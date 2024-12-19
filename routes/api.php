@@ -56,6 +56,7 @@ use App\Http\Controllers\Api\V1\ClinicProfileController;
 use App\Http\Controllers\Api\V1\DoctorProfileController;
 use App\Http\Controllers\Api\V1\Auth\ClinicAuthController;
 use App\Http\Controllers\Api\V1\Auth\DoctorAuthController;
+use App\Http\Controllers\Api\V1\InventoryController;
 use App\Http\Controllers\DemographicInformationController;
 
 Route::prefix('v1')->group(function () {
@@ -256,6 +257,7 @@ Route::prefix('v1')->group(function () {
         });
         Route::middleware(['auth:sanctum', 'abilities:hasAccessResource'])->group(function () {
             Route::get('/clinic-information', [ClinicController::class, 'clinicInformation']);
+            Route::get('inventory', [InventoryController::class, 'index']);
             Route::prefix('medicines')->group(function () {
                 Route::get('/', [MedicationController::class, 'index']);
                 Route::get('/doctor-resource', [MedicationController::class, 'doctorResource']);

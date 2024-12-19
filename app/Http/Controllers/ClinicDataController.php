@@ -275,7 +275,7 @@ class ClinicDataController extends Controller
             // Create doctor profile
             $newStaff = $clinic->staffs()->create([
                 'user_id' => $newUser->id,
-                'name' => $validated['name'],                
+                'name' => $validated['name'],
                 'employee_id' => $newEmployee->id,
             ]);
 
@@ -715,8 +715,9 @@ class ClinicDataController extends Controller
             }
 
         }
-        $staffs = $clinic->staffs()->with(['employmentInformation',
+        $staffsQuery = $clinic->staffs()->with(['employmentInformation',
             'educational',
+            'clinic.schedule',
             'demographic',
             'contributionInfo',
             'emergencyContact',
@@ -725,7 +726,14 @@ class ClinicDataController extends Controller
             'parentInformation',
             'reference',
             'basicSkills',
-            'financialInformation'])->paginate(10);
+            'financialInformation']);
+
+        $paginate = filter_var($request->input('paginate', 'true'), FILTER_VALIDATE_BOOLEAN);
+
+        $staffs = $paginate
+            ? $staffsQuery->paginate($request->input('per_page', 10))
+            : $staffsQuery->get();
+
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully fetch data',
@@ -746,7 +754,7 @@ class ClinicDataController extends Controller
             'parentInformation',
             'reference',
             'basicSkills',
-            'financialInformation',            
+            'financialInformation',
         ]);
         return response()->json([
             'status' => 'success',
@@ -759,7 +767,7 @@ class ClinicDataController extends Controller
     {
         $data = Billing::all()->paginate(10);
         return response()->json($data);
-        
+
     }
 
 }

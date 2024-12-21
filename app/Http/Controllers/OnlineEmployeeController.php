@@ -49,6 +49,7 @@ class OnlineEmployeeController extends Controller
         // Map data to the required format
         $activeDoctorUsers = $activeDoctorUsers->map(function ($doctor) {
             return [
+                'user_id' => $doctor->id,
                 'doctor_id' => $doctor->doctor->id,
                 'doctor_name' => $doctor->doctor->name,
                 'image' => $doctor->doctor->employmentInformation->image_profile,

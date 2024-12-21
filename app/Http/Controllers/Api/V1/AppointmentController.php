@@ -227,13 +227,13 @@ class AppointmentController extends Controller
         $existingConsultation = Appointment::where('doctor_id', $appointment->doctor_id)
             ->where('patient_id', $appointment->patient_id)
             ->where('appointment_date', $appointment->appointment_date)
-            ->where('status', 'consultation')
+            ->whereIn('status', ['consultation', 'take-medicine', 'waiting-payment'])
             ->exists();
 
         if ($existingConsultation) {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'You already have an appointment with consultation status today.',
+                'message' => 'You already have an appointment that didn"t completed yet.',
             ], 403);
         }
 

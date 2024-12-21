@@ -92,9 +92,17 @@ class DoctorDataController extends Controller
                 'patient.allergy',
                 'patient.physicalExaminations',
                 'patient.demographics',
+                'patient.occupation',                
+                'patient.chronics',
+                'patient.medications',
+                'patient.immnunization',
                 'patient.occupation',
+                'patient.emergencyContact',
+                'patient.parentChronic',
+                'patient.familyRelationship',
                 'service',
-                'medicalRecord'
+                'medicalRecord',
+                
             ]
         )->where('slug', $slug)->first();
         if (!$appointment) {

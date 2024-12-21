@@ -92,6 +92,7 @@ class DoctorDataController extends Controller
                 'patient.allergy',
                 'patient.physicalExaminations',
                 'patient.demographics',
+                'patient.medicalRecords',
                 'patient.occupation',                
                 'patient.chronics',
                 'patient.medications',

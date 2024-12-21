@@ -227,7 +227,7 @@ class AppointmentController extends Controller
         $existingConsultation = Appointment::where('doctor_id', $appointment->doctor_id)
             ->where('patient_id', $appointment->patient_id)
             ->where('appointment_date', $appointment->appointment_date)
-            ->whereIn('status', ['consultation', 'take-medicine', 'waiting-payment'])
+            ->whereIn('status', ['consultation', 'take-medicine', 'waiting-payment', 'on-consultation'])
             ->exists();
 
         if ($existingConsultation) {

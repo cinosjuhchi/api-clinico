@@ -365,6 +365,7 @@ Route::prefix('v1')->group(function () {
             Route::prefix('doctor')->group(function () {
                 Route::get('/show/{slug}', [DoctorDataController::class, 'showConsultation']);
                 Route::get('/consultation-entry', [DoctorDataController::class, 'consultationEntry']);
+                Route::get('/pending-entry', [DoctorDataController::class, 'pendingEntry']);
                 Route::get('/completed-entry', [DoctorDataController::class, 'completedEntry']);
                 Route::delete('/cancel-appointment/{slug}', [AppointmentController::class, 'destroy']);
             });

@@ -15,4 +15,9 @@ class EmergencyContact extends Model
     {
         return $this->belongsTo(Patient::class, 'patient_id');
     }
+
+    public function familyRelationship()
+    {
+        return $this->belongsTo(FamilyRelationship::class, 'relationship', 'id');
+    }
 }

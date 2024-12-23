@@ -81,12 +81,12 @@ class PatientController extends Controller
                 'patient_id' => $appointment->patient_id,
                 'clinic_id' => $appointment->clinic_id,
                 'doctor_id' => $appointment->doctor_id,
-                'patient_condition' => $appointment->current_condition,                
+                'patient_condition' => $appointment->current_condition,
                 'blood_pressure' => $validated['blood_pressure'],
                 'sp02' => $validated['sp02'],
                 'temperature' => $validated['temperature'],
                 'pulse_rate' => $validated['pulse_rate'],
-                'pain_score' => $validated['pain_score'],                
+                'pain_score' => $validated['pain_score'],
             ]);
 
             $patient->physicalExaminations()->update([
@@ -212,32 +212,24 @@ class PatientController extends Controller
      */
     public function store(PatientStoreRequest $request)
     {
-        // $validated = $request->validate([
-        //     'name' => 'required|string|max:255',
-        //     'address' => 'required|string|max:255',
-        //     'user_id' => 'required|exists:users,id',
-        //     'family_id' => 'required|exists:families,id',
-        //     'family_relationships_id' => 'required|exists:family_relationships,id',
-        // ]);
-        $validated = $request->validated();
         try {
-            // Declare the variable outside of the transaction closure
+            $validated = $request->validated();
+            if ($validated['payment_type'] === 'CASH') {
+                $validated['user_id'] = null;
+            }
+
             $patient = null;
 
             DB::transaction(function () use ($validated, &$patient) {
-                // Create the patient within the transaction
                 $patient = Patient::create($validated);
             });
 
-            // Return success response after transaction
             return response()->json([
                 'status' => 'success',
                 'message' => 'Successfully stored patient data.',
                 'data' => $patient,
             ], 201);
-
         } catch (\Exception $e) {
-            // Handle exception and return error response
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to store patient data.',

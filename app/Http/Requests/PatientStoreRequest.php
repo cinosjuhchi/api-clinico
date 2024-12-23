@@ -24,9 +24,19 @@ class PatientStoreRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'address' => 'required|string|max:255',
-            'user_id' => 'required|exists:users,id',
+            'user_id' => 'nullable|exists:users,id', // Diubah menjadi nullable
             'family_id' => 'required|exists:families,id',
-            'family_relationships_id' => 'required|exists:family_relationships,id',
+            'family_relationship_id' => 'required|exists:family_relationships,id',
+            'payment_type' => 'required|in:CASH,ONLINE', // Validasi payment_type sebagai enum
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            if ($this->payment_type === 'ONLINE' && !$this->user_id) {
+                $validator->errors()->add('user_id', 'The user_id field is required when payment_type is ONLINE.');
+            }
+        });
     }
 }

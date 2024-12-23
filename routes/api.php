@@ -59,6 +59,7 @@ use App\Http\Controllers\Api\V1\ClinicProfileController;
 use App\Http\Controllers\Api\V1\DoctorProfileController;
 use App\Http\Controllers\Api\V1\Auth\ClinicAuthController;
 use App\Http\Controllers\Api\V1\Auth\DoctorAuthController;
+use App\Http\Controllers\Api\V1\OvertimePermissionController;
 use App\Http\Controllers\DemographicInformationController;
 
 Route::prefix('v1')->group(function () {
@@ -395,6 +396,19 @@ Route::prefix('v1')->group(function () {
         Route::prefix('chat')->group(function () {
             Route::get('/get-message/{user}', [MessageClinicoController::class, 'getMessages']);
             Route::post('/send-message', [MessageClinicoController::class, 'sendMessage']);
+        });
+
+        //================== Permission ==================//
+        Route::prefix('permission')->group(function() {
+            //================== Permission Overtime ==================//
+            Route::get('/overtime', [OvertimePermissionController::class, 'index']);
+            Route::post('/overtime', [OvertimePermissionController::class, 'store']);
+            Route::get('/overtime/{id}', [OvertimePermissionController::class, 'show']);
+            Route::put('/overtime/{id}/approve', [OvertimePermissionController::class, 'approve']);
+            Route::put('/overtime/{id}/decline', [OvertimePermissionController::class, 'decline']);
+
+            //================== Permission Claim ==================//
+            //================== Permission Leave ==================//
         });
     });
 });

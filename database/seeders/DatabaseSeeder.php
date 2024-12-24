@@ -168,7 +168,8 @@ class DatabaseSeeder extends Seeder
         });
 
         $this->call([
-            BackofficeSeeder::class
+            BackofficeSeeder::class,
+            ClaimItemSeeder::class,
         ]);
     }
 }

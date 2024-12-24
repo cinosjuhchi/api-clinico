@@ -19,6 +19,7 @@ class BackofficeSeeder extends Seeder
         $superAdmin = User::firstOrCreate(
             ['email' => 'superadmin@clinico.com.my'], // Cek data berdasarkan email
             [
+                'phone_number' => '0123456789',
                 'password' => bcrypt('Clinico@00'),
                 'role' => 'superadmin',
             ]
@@ -27,6 +28,7 @@ class BackofficeSeeder extends Seeder
         $admin = User::firstOrCreate(
             ['email' => 'admin@clinico.com.my'],
             [
+                'phone_number' => '097826',
                 'password' => bcrypt('Clinico@00'),
                 'role' => 'admin',
             ]

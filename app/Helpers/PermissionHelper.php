@@ -6,8 +6,8 @@ class PermissionHelper
 {
     public static function uploadAttachment($id, $file, $locationTarget)
     {
-        $filename = $id . "_" . time() . "_" . $file->getClientOriginalName();
-        $path = $file->storeAs('public/' . $locationTarget, $filename);
+        $filename = time() . "0" . $id . "." . $file->getClientOriginalExtension();
+        $path = $file->storeAs($locationTarget, $filename, 'public');
         return $path;
     }
 }

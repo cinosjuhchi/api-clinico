@@ -19,7 +19,8 @@ class OvertimePermissionController extends Controller
 
         $overtimePermissionsQuery = OvertimePermission::with(
                                                             'user.doctor.category',
-                                                            'user.doctor.employmentInformation'
+                                                            'user.doctor.employmentInformation',
+                                                            'user.staff.employmentInformation',
                                                         )->where('user_id', $userID);
         if ($request->has('status')) {
             $overtimePermissionsQuery->where('status', $request->status);
@@ -40,7 +41,6 @@ class OvertimePermissionController extends Controller
 
     public function store(StoreOvertimePermissionRequest $request)
     {
-        // GET USER & CLINIC ID
         $user = Auth::user();
         $userID = $user->id;
         $clinic = match ($user->role) {
@@ -62,7 +62,7 @@ class OvertimePermissionController extends Controller
         $overtimePermission->clinic_id = $clinicID;
         $overtimePermission->status = "pending";
 
-        $path = PermissionHelper::uploadAttachment($userID, $request->file('attachment'), ' permission/overtime');
+        $path = PermissionHelper::uploadAttachment($userID, $request->file('attachment'), 'permission/overtime');
         $overtimePermission->attachment = $path;
 
         $overtimePermission->save();
@@ -140,7 +140,7 @@ class OvertimePermissionController extends Controller
         if ($userID == $overtimePermission->user_id) {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'You cannot approve your own overtime permission.',
+                'message' => 'You cannot decline your own overtime permission.',
                 'id' => $id
             ], 400);
         }
@@ -152,6 +152,23 @@ class OvertimePermissionController extends Controller
             'status' => 'success',
             'message' => 'Overtime permission declined.',
             'data' => $overtimePermission,
+        ]);
+    }
+
+    public function destroy(int $id)
+    {
+        $overtimePermission = OvertimePermission::find($id);
+        if (!$overtimePermission) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Overtime permission not found.',
+                'id' => $id
+            ], 404);
+        }
+        $overtimePermission->delete();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Overtime permission deleted.',
         ]);
     }
 }

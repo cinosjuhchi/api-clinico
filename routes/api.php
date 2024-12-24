@@ -59,6 +59,7 @@ use App\Http\Controllers\Api\V1\ClinicProfileController;
 use App\Http\Controllers\Api\V1\DoctorProfileController;
 use App\Http\Controllers\Api\V1\Auth\ClinicAuthController;
 use App\Http\Controllers\Api\V1\Auth\DoctorAuthController;
+use App\Http\Controllers\Api\V1\ClaimPermissionController;
 use App\Http\Controllers\Api\V1\OvertimePermissionController;
 use App\Http\Controllers\DemographicInformationController;
 
@@ -406,8 +407,16 @@ Route::prefix('v1')->group(function () {
             Route::get('/overtime/{id}', [OvertimePermissionController::class, 'show']);
             Route::put('/overtime/{id}/approve', [OvertimePermissionController::class, 'approve']);
             Route::put('/overtime/{id}/decline', [OvertimePermissionController::class, 'decline']);
+            Route::delete('/overtime/{id}', [OvertimePermissionController::class, 'destroy']);
 
             //================== Permission Claim ==================//
+            Route::get('/claim', [ClaimPermissionController::class, 'index']);
+            Route::post('/claim', [ClaimPermissionController::class, 'store']);
+            Route::get('/claim/{id}', [ClaimPermissionController::class, 'show']);
+            Route::put('/claim/{id}/approve', [ClaimPermissionController::class, 'approve']);
+            Route::put('/claim/{id}/decline', [ClaimPermissionController::class, 'decline']);
+            Route::delete('/claim/{id}', [ClaimPermissionController::class, 'destroy']);
+
             //================== Permission Leave ==================//
         });
     });

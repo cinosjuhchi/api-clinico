@@ -56,6 +56,11 @@ class BackOfficeUserController extends Controller
         return response()->json($months);
     }
 
+    public function storeAdmin()
+    {
+
+    }
+
     /**
      * Store a newly created resource in storage.
      */

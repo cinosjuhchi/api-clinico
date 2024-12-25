@@ -17,6 +17,7 @@ class ClaimPermissionController extends Controller
             'user.doctor.category',
             'user.doctor.employmentInformation',
             'user.staff.employmentInformation',
+            'claimItem',
         );
 
         if ($request->has('status')) {

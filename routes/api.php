@@ -394,6 +394,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/clock-out', [AttendanceController::class, 'clockOut']);
         });
         Route::prefix('chat')->group(function () {
+            Route::get('/get-chat', [MessageClinicoController::class, 'index']);
             Route::get('/get-message/{user}', [MessageClinicoController::class, 'getMessages']);
             Route::post('/send-message', [MessageClinicoController::class, 'sendMessage']);
             Route::get('/history-chat/{user}', [MessageClinicoController::class, 'getChatHistory']);

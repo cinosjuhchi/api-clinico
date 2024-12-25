@@ -5,12 +5,31 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreMessageClinicoRequest;
 use App\Models\MessageClinico;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class MessageClinicoController extends Controller
 {
+
+    public function index(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            'staff' => $user->staff->clinic,
+            default => abort(401, 'Unauthorized access. Invalid role.'),
+        };
+
+        $clinic->load(['doctors.user', 'staffs.user', 'doctors.employmentInformation', 'staffs.employmentInformation']);
+        return response()->json([
+            'member' => $clinic
+        ]);
+
+    }
+
     public function sendMessage(StoreMessageClinicoRequest $request)
     {
         $validated = $request->validated();

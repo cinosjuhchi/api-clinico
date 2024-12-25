@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ClinicHelper;
 use App\Http\Resources\ClinicResource;
 use App\Models\Clinic;
 use Illuminate\Http\Request;
@@ -15,17 +16,21 @@ class ClinicController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = 3; // Set the number of clinics per page
-        $page = $request->input('page', 1); // Get the page number from the request
+        $perPage = 3;
         $clinics = Clinic::with([
             'doctors.category',
             'doctors.doctorSchedules',
             'rooms',
             'location',
-            'schedule'            
+            'schedule'
         ])
-            ->where('status', true)
-            ->paginate($perPage);
+            ->where('status', true);
+
+        if ($request->has('search')) {
+            $clinics = $clinics->where('name', 'like', "%{$request->search}%");
+        }
+
+        $clinics = $clinics->paginate($perPage);
 
         return ClinicResource::collection($clinics)
             ->additional([
@@ -34,14 +39,6 @@ class ClinicController extends Controller
                 'nextPage' => $clinics->hasMorePages() ? $clinics->currentPage() + 1 : null,
                 'totalPages' => $clinics->lastPage(),
             ]);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
     }
 
     public function clinicInformation(Request $request)
@@ -109,19 +106,22 @@ class ClinicController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Clinic $clinic)
+    public function nearby(Request $request)
     {
-        //
-    }
+        $latitude = $request->input('latitude');
+        $longitude = $request->input('longitude');
+        $radius = $request->input('radius', 5000); // default = 5000m
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Clinic $clinic)
-    {
-        //
+        $clinics = Clinic::with(['location', 'schedule'])
+            ->join('clinic_locations', 'clinic_locations.clinic_id', '=', 'clinics.id')
+            ->where('clinics.status', true)
+            ->whereRaw(ClinicHelper::nearbyClinic($latitude, $longitude, $radius))
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Success to get clinic data.',
+            'data' => $clinics,
+        ]);
     }
 }

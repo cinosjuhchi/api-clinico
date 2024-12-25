@@ -252,6 +252,7 @@ Route::prefix('v1')->group(function () {
     });
     Route::prefix('clinic')->group(function () {
         Route::get('/', [ClinicController::class, 'index']);
+        Route::get('/nearby', [ClinicController::class, 'nearby']);
         Route::get('/show/{slug}', [ClinicController::class, 'show']);
         Route::middleware(['auth:sanctum', 'abilities:clinic'])->group(function () {
             Route::prefix('me')->group(function () {

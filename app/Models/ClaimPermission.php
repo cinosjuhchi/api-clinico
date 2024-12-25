@@ -26,6 +26,6 @@ class ClaimPermission extends Model
 
     public function claimItem()
     {
-        return $this->belongsTo(ClaimPermission::class);
+        return $this->belongsTo(ClaimItem::class);
     }
 }

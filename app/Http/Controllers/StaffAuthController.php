@@ -29,7 +29,19 @@ class StaffAuthController extends Controller
         }
         $staff = $user->staff;
         $staff->with([
+            'staff',
             'clinic',
+            'demographic',
+            'educational',
+            'contributionInfo',
+            'emergencyContact',
+            'spouseInformation',
+            'childsInformation',
+            'parentInformation',
+            'reference',
+            'basicSkills',
+            'financialInformation',
+            'employmentInformation'
         ]);
 
         return response()->json([

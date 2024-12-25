@@ -41,6 +41,29 @@ class DoctorDataController extends Controller
 
         return response()->json($appointments);
     }
+    public function pendingEntry(Request $request)
+    {
+        $user = Auth::user();
+        $doctor = $user->doctor;
+        if (!$doctor) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'user not found',
+            ]);
+        }
+        $query = $request->input('q');
+
+        $appointments = $doctor->pendingAppointments()->with(['patient.demographics', 'doctor.category', 'clinic', 'service'])->when($query, function ($q) use ($query) {
+            $q->where(function ($subQuery) use ($query) {
+                $subQuery->where('waiting_number', 'like', "%{$query}%")
+                    ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {
+                        $categoryQuery->where('name', 'like', "%{$query}%");
+                    });
+            });
+        })->orderBy('waiting_number')->paginate(5);
+
+        return response()->json($appointments);
+    }
     public function completedEntry(Request $request)
     {
         $user = Auth::user();
@@ -90,11 +113,30 @@ class DoctorDataController extends Controller
                 'doctor.category',
                 'clinic',
                 'patient.allergy',
+                'patient.user',
                 'patient.physicalExaminations',
                 'patient.demographics',
+                'patient.medicalRecords',
+                'patient.occupation',                
+                'patient.chronics',
+                'patient.medications',
+                'patient.immunizations',
                 'patient.occupation',
+                'patient.emergencyContact.familyRelationship',
+                'patient.parentChronic',
+                'patient.familyRelationship',
                 'service',
-                'medicalRecord'
+                'medicalRecord.medicationRecords',
+                'medicalRecord.injectionRecords',
+                'medicalRecord.procedureRecords',
+                'medicalRecord.patient',
+                'medicalRecord.doctor',
+                'medicalRecord.clinic',
+                'medicalRecord.clinicService',
+                'medicalRecord.serviceRecord',
+                'medicalRecord.investigationRecord',
+                'medicalRecord.diagnosisRecord',
+                
             ]
         )->where('slug', $slug)->first();
         if (!$appointment) {

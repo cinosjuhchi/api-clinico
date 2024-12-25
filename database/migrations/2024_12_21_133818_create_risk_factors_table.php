@@ -11,16 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('emergency_contacts', function (Blueprint $table) {
+        Schema::create('risk_factors', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 255)->nullable();
-            $table->string('phone_number', 255)->nullable();
-            $table->string('relationship', 255)->nullable();
-            $table->foreignId('patient_id')->constrained()->onDelete('cascade');
-            
+            $table->string('name');
+            $table->foreignId('medical_record_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
-        
     }
 
     /**
@@ -28,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('emergency_contacts');
+        Schema::dropIfExists('risk_factors');
     }
 };

@@ -18,6 +18,19 @@ class DoctorProfileController extends Controller
             'clinic',
             'category',
             'schedules',
+            'doctorSchedules',
+            'financialInformation',
+            'parentInformation',
+            'childsInformation',
+            'spouseInformation',
+            'emergencyContact',
+            'contributionInfo',
+            'basicSkills',
+            'employmentInformation',
+            'reference',
+            'educational',
+            'demographic',
+            'user'
         ])
             ->where('user_id', $id)
             ->first();

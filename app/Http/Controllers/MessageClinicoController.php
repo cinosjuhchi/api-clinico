@@ -2,16 +2,34 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreMessageClinicoRequest;
+use App\Models\MessageClinico;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Models\MessageClinico;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Requests\StoreMessageClinicoRequest;
-use App\Http\Requests\UpdateMessageClinicoRequest;
 
 class MessageClinicoController extends Controller
 {
+
+    public function index(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            'staff' => $user->staff->clinic,
+            default => abort(401, 'Unauthorized access. Invalid role.'),
+        };
+
+        $clinic->load(['doctors.user', 'staffs.user', 'doctors.employmentInformation', 'staffs.employmentInformation']);
+        return response()->json([
+            'member' => $clinic
+        ]);
+
+    }
+
     public function sendMessage(StoreMessageClinicoRequest $request)
     {
         $validated = $request->validated();
@@ -26,7 +44,7 @@ class MessageClinicoController extends Controller
     }
 
     public function getMessages(User $user)
-    {        
+    {
         $messages = MessageClinico::where(function ($query) use ($user) {
             $query->where('sender_id', Auth::id())
                 ->where('receiver_id', $user->id);
@@ -37,59 +55,103 @@ class MessageClinicoController extends Controller
 
         return response()->json($messages, 201);
     }
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+
+    public function getChatHistory(User $user)
     {
-        //
+        $messages = MessageClinico::where(function ($query) use ($user) {
+            $query->where('sender_id', Auth::id())
+                ->where('receiver_id', $user->id);
+        })->orWhere(function ($query) use ($user) {
+            $query->where('sender_id', $user->id)
+                ->where('receiver_id', Auth::id());
+        })
+            ->with([
+                'sender.clinic:id,user_id,name as clinic_name',
+                'sender.doctor:id,user_id,name as doctor_name',
+                'receiver.clinic:id,user_id,name as clinic_name',
+                'receiver.doctor:id,user_id,name as doctor_name',
+                'sender.roles:id,name',
+                'receiver.roles:id,name',
+            ])
+            ->orderBy('created_at', 'asc')
+            ->get()
+            ->map(function ($message) {
+                $senderRole = $message->sender->roles->first()->name ?? null;
+                $receiverRole = $message->receiver->roles->first()->name ?? null;
+
+                return [
+                    'id' => $message->id,
+                    'message' => $message->message,
+                    'is_sender' => $message->sender_id === Auth::id(),
+                    'timestamp' => $message->created_at,
+                    'formatted_time' => $message->created_at->format('H:i'),
+                    'date' => $message->created_at->format('Y-m-d'),
+                    'sender' => [
+                        'id' => $message->sender->id,
+                        'name' => $this->getNameBasedOnRole($message->sender, $senderRole),
+                        'role' => $senderRole,
+                    ],
+                    'receiver' => [
+                        'id' => $message->receiver->id,
+                        'name' => $this->getNameBasedOnRole($message->receiver, $receiverRole),
+                        'role' => $receiverRole,
+                    ],
+                ];
+            })
+            ->groupBy('date')
+            ->map(function ($groupedMessages, $date) {
+                return [
+                    'date' => $date,
+                    'formatted_date' => $this->formatDate(Carbon::parse($date)),
+                    'messages' => $groupedMessages,
+                ];
+            })
+            ->values();
+
+        $userRole = $user->roles->first()->name ?? null;
+        $chatInfo = [
+            'user' => [
+                'id' => $user->id,
+                'name' => $this->getNameBasedOnRole($user, $userRole),
+                'role' => $userRole,
+                'is_online' => $user->is_online ?? false,
+            ],
+            'messages' => $messages,
+        ];
+
+        return response()->json($chatInfo);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    private function formatDate(Carbon $date): string
     {
-        //
+        $today = Carbon::today();
+        $yesterday = Carbon::yesterday();
+
+        if ($date->isSameDay($today)) {
+            return 'Today';
+        }
+        if ($date->isSameDay($yesterday)) {
+            return 'Yesterday';
+        }
+        if ($date->isCurrentYear()) {
+            return $date->format('j F');
+        }
+        return $date->format('j F Y');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreMessageClinicoRequest $request)
+    private function getNameBasedOnRole(?User $user, ?string $role): string
     {
-        //
-    }
+        if (!$user) {
+            return 'Unknown User';
+        }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(MessageClinico $messageClinico)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(MessageClinico $messageClinico)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateMessageClinicoRequest $request, MessageClinico $messageClinico)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(MessageClinico $messageClinico)
-    {
-        //
+        switch ($role) {
+            case 'clinic':
+                return $user->clinic?->clinic_name ?? 'Unknown Clinic';
+            case 'doctor':
+                return $user->doctor?->doctor_name ?? 'Unknown Doctor';
+            default:
+                return 'Unknown User';
+        }
     }
 }

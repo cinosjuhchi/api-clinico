@@ -46,18 +46,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     // Chat Messages
 
-    public function sender()
-    {
-        return $this->belongsTo(User::class, 'sender_id');
-    }
-
-    public function receiver()
-    {
-        return $this->belongsTo(User::class, 'receiver_id');
-    }
-
-    // end
-
     public function patients(): HasMany
     {
         return $this->hasMany(Patient::class, 'user_id', 'id');

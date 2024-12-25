@@ -372,6 +372,7 @@ Route::prefix('v1')->group(function () {
             Route::prefix('doctor')->group(function () {
                 Route::get('/show/{slug}', [DoctorDataController::class, 'showConsultation']);
                 Route::get('/consultation-entry', [DoctorDataController::class, 'consultationEntry']);
+                Route::get('/pending-entry', [DoctorDataController::class, 'pendingEntry']);
                 Route::get('/completed-entry', [DoctorDataController::class, 'completedEntry']);
                 Route::delete('/cancel-appointment/{slug}', [AppointmentController::class, 'destroy']);
             });
@@ -400,8 +401,10 @@ Route::prefix('v1')->group(function () {
             Route::post('/clock-out', [AttendanceController::class, 'clockOut']);
         });
         Route::prefix('chat')->group(function () {
+            Route::get('/get-chat', [MessageClinicoController::class, 'index']);
             Route::get('/get-message/{user}', [MessageClinicoController::class, 'getMessages']);
             Route::post('/send-message', [MessageClinicoController::class, 'sendMessage']);
+            Route::get('/history-chat/{user}', [MessageClinicoController::class, 'getChatHistory']);
         });
 
         //================== Permission (Overtime, Claim, Leave) ==================//

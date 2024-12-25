@@ -2,8 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Clinic;
+use App\Models\Doctor;
+use App\Models\Patient;
+use App\Models\RiskFactor;
+use App\Models\Appointment;
+use App\Models\ClinicService;
+use App\Models\ServiceRecord;
+use App\Models\DiagnosisRecord;
+use App\Models\InjectionRecord;
+use App\Models\ProcedureRecord;
+use App\Models\MedicationRecord;
+use App\Models\InvestigationRecord;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MedicalRecord extends Model
 {
@@ -13,6 +25,11 @@ class MedicalRecord extends Model
     public function medicationRecords()
     {
         return $this->hasMany(MedicationRecord::class, 'medical_record_id');
+    }
+
+    public function riskFactors()
+    {
+        return $this->hasMany(RiskFactor::class, 'medical_record_id');
     }
 
     public function injectionRecords()

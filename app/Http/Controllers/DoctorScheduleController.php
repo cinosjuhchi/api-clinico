@@ -28,8 +28,25 @@ class DoctorScheduleController extends Controller
         try {
             $schedulesQuery = $clinic->doctorSchedule();
 
+            // ?name=xx&day=xx&room=xx
+            if ($request->filled('name')) {
+                $name = $request->name;
+                $schedulesQuery->where(function ($query) use ($name) {
+                    $query->whereHas('doctor', function ($subQuery) use ($name) {
+                        $subQuery->where('name', 'like', '%' . $name . '%');
+                    });
+                });
+            }
+
             if ($request->filled('day')) {
                 $schedulesQuery->where('day', $request->day);
+            }
+
+            if ($request->filled('room')) {
+                $room = $request->room;
+                $schedulesQuery->whereHas('room', function ($query) use ($room) {
+                    $query->where('name', 'like', '%' . $room . '%');
+                });
             }
 
             $schedulesQuery->with(['doctor.category', 'room']);

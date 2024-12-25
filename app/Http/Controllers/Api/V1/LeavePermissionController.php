@@ -13,7 +13,12 @@ class LeavePermissionController extends Controller
 {
     public function index(Request $request)
     {
-        $leavePermissionQuery = LeavePermission::with('user', 'leaveType');
+        $leavePermissionQuery = LeavePermission::with(
+            'user.doctor.category',
+            'user.doctor.employmentInformation',
+            'user.staff.employmentInformation',
+            'leaveType',
+        );
 
         if ($request->has('status')) {
             $leavePermissionQuery->where('status', $request->status);

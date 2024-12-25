@@ -60,6 +60,7 @@ use App\Http\Controllers\Api\V1\DoctorProfileController;
 use App\Http\Controllers\Api\V1\Auth\ClinicAuthController;
 use App\Http\Controllers\Api\V1\Auth\DoctorAuthController;
 use App\Http\Controllers\Api\V1\ClaimPermissionController;
+use App\Http\Controllers\Api\V1\LeavePermissionController;
 use App\Http\Controllers\Api\V1\OvertimePermissionController;
 use App\Http\Controllers\DemographicInformationController;
 
@@ -399,25 +400,22 @@ Route::prefix('v1')->group(function () {
             Route::post('/send-message', [MessageClinicoController::class, 'sendMessage']);
         });
 
-        //================== Permission ==================//
-        Route::prefix('permission')->group(function() {
-            //================== Permission Overtime ==================//
-            Route::get('/overtime', [OvertimePermissionController::class, 'index']);
-            Route::post('/overtime', [OvertimePermissionController::class, 'store']);
-            Route::get('/overtime/{id}', [OvertimePermissionController::class, 'show']);
-            Route::put('/overtime/{id}/approve', [OvertimePermissionController::class, 'approve']);
-            Route::put('/overtime/{id}/decline', [OvertimePermissionController::class, 'decline']);
-            Route::delete('/overtime/{id}', [OvertimePermissionController::class, 'destroy']);
+        //================== Permission (Overtime, Claim, Leave) ==================//
+        Route::prefix('permission')->group(function () {
+            $permissionTypes = [
+                'overtime' => OvertimePermissionController::class,
+                'claim' => ClaimPermissionController::class,
+                'leave' => LeavePermissionController::class,
+            ];
 
-            //================== Permission Claim ==================//
-            Route::get('/claim', [ClaimPermissionController::class, 'index']);
-            Route::post('/claim', [ClaimPermissionController::class, 'store']);
-            Route::get('/claim/{id}', [ClaimPermissionController::class, 'show']);
-            Route::put('/claim/{id}/approve', [ClaimPermissionController::class, 'approve']);
-            Route::put('/claim/{id}/decline', [ClaimPermissionController::class, 'decline']);
-            Route::delete('/claim/{id}', [ClaimPermissionController::class, 'destroy']);
-
-            //================== Permission Leave ==================//
+            foreach ($permissionTypes as $type => $controller) {
+                Route::get("/$type", [$controller, 'index']);
+                Route::post("/$type", [$controller, 'store']);
+                Route::get("/$type/{id}", [$controller, 'show']);
+                Route::put("/$type/{id}/approve", [$controller, 'approve']);
+                Route::put("/$type/{id}/decline", [$controller, 'decline']);
+                Route::delete("/$type/{id}", [$controller, 'destroy']);
+            }
         });
     });
 });

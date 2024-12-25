@@ -14,20 +14,22 @@ class OvertimePermissionController extends Controller
 {
     public function index(Request $request)
     {
-        $user = Auth::user();
-        $userID = $user->id;
-
         $overtimePermissionsQuery = OvertimePermission::with(
-                                                            'user.doctor.category',
-                                                            'user.doctor.employmentInformation',
-                                                            'user.staff.employmentInformation',
-                                                        )->where('user_id', $userID);
+            'user.doctor.category',
+            'user.doctor.employmentInformation',
+            'user.staff.employmentInformation',
+        );
+
         if ($request->has('status')) {
             $overtimePermissionsQuery->where('status', $request->status);
         }
 
         if ($request->has('clinic_id')) {
             $overtimePermissionsQuery->where('clinic_id', $request->clinic_id);
+        }
+
+        if ($request->has('user_id')) {
+            $overtimePermissionsQuery->where('user_id', $request->user_id);
         }
 
         $overtimePermissions = $overtimePermissionsQuery->get();
@@ -42,7 +44,7 @@ class OvertimePermissionController extends Controller
     public function store(StoreOvertimePermissionRequest $request)
     {
         $user = Auth::user();
-        $userID = $user->id;
+
         $clinic = match ($user->role) {
             'clinic' => $user->clinic,
             'doctor' => $user->doctor->clinic,
@@ -54,7 +56,7 @@ class OvertimePermissionController extends Controller
         $validated = $request->validated();
 
         $overtimePermission = new OvertimePermission();
-        $overtimePermission->user_id = $userID;
+        $overtimePermission->user_id = $user->id;
         $overtimePermission->date = $validated['date'];
         $overtimePermission->start_time = $validated['start_time'];
         $overtimePermission->end_time = $validated['end_time'];
@@ -62,7 +64,7 @@ class OvertimePermissionController extends Controller
         $overtimePermission->clinic_id = $clinicID;
         $overtimePermission->status = "pending";
 
-        $path = PermissionHelper::uploadAttachment($userID, $request->file('attachment'), 'permission/overtime');
+        $path = PermissionHelper::uploadAttachment($user->id, $request->file('attachment'), 'permission/overtime');
         $overtimePermission->attachment = $path;
 
         $overtimePermission->save();

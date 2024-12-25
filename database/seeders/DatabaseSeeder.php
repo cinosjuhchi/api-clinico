@@ -170,6 +170,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             BackofficeSeeder::class,
             ClaimItemSeeder::class,
+            LeavetypeSeeder::class,
         ]);
     }
 }

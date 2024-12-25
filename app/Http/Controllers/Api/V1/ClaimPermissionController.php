@@ -13,13 +13,11 @@ class ClaimPermissionController extends Controller
 {
     public function index(Request $request)
     {
-        $user = Auth::user();
-
         $claimPermissionsQuery = ClaimPermission::with(
             'user.doctor.category',
             'user.doctor.employmentInformation',
             'user.staff.employmentInformation',
-        )->where('user_id', $user->id);
+        );
 
         if ($request->has('status')) {
             $claimPermissionsQuery->where('status', $request->status);
@@ -27,6 +25,10 @@ class ClaimPermissionController extends Controller
 
         if ($request->has('clinic_id')) {
             $claimPermissionsQuery->where('clinic_id', $request->clinic_id);
+        }
+
+        if ($request->has('user_id')) {
+            $claimPermissionsQuery->where('user_id', $request->user_id);
         }
 
         $claimPermissions = $claimPermissionsQuery->get();
@@ -41,7 +43,7 @@ class ClaimPermissionController extends Controller
     public function store(StoreClaimPermissionRequest $request)
     {
         $user = Auth::user();
-        $userID = $user->id;
+
         $clinic = match ($user->role) {
             'clinic' => $user->clinic,
             'doctor' => $user->doctor->clinic,
@@ -59,7 +61,7 @@ class ClaimPermissionController extends Controller
         $claimPermission->month = $validated['month'];
         $claimPermission->amount = $validated['amount'];
 
-        $path = PermissionHelper::uploadAttachment($userID, $request->file('attachment'), 'permission/claim');
+        $path = PermissionHelper::uploadAttachment($user->id, $request->file('attachment'), 'permission/claim');
         $claimPermission->attachment = $path;
 
         $claimPermission->save();

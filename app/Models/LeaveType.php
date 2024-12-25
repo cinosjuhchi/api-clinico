@@ -17,6 +17,11 @@ class LeaveType extends Model
 
     public function leaves()
     {
-        return $this->hasMany(Leave::class);
+        return $this->hasMany(LeavePermission::class);
+    }
+
+    public function leaveBalances()
+    {
+        return $this->hasMany(LeaveBalance::class);
     }
 }

@@ -60,6 +60,7 @@ use App\Http\Controllers\Api\V1\DoctorProfileController;
 use App\Http\Controllers\Api\V1\Auth\ClinicAuthController;
 use App\Http\Controllers\Api\V1\Auth\DoctorAuthController;
 use App\Http\Controllers\Api\V1\ClaimPermissionController;
+use App\Http\Controllers\Api\V1\LeaveBalanceController;
 use App\Http\Controllers\Api\V1\LeavePermissionController;
 use App\Http\Controllers\Api\V1\OvertimePermissionController;
 use App\Http\Controllers\DemographicInformationController;
@@ -416,6 +417,10 @@ Route::prefix('v1')->group(function () {
                 Route::put("/$type/{id}/decline", [$controller, 'decline']);
                 Route::delete("/$type/{id}", [$controller, 'destroy']);
             }
+
+            Route::prefix('leave-balances')->group(function () {
+                Route::get('/', [LeaveBalanceController::class, 'index']);
+            });
         });
     });
 });

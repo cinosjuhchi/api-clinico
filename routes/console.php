@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote')->hourly();
 
 Schedule::command('appointments:cancel-expired')->daily();
+Schedule::command('leave-balances:update')->yearlyOn(12, 31, '23:59');

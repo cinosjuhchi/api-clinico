@@ -117,4 +117,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(LeavePermission::class);
     }
+
+    public function leaveBalances()
+    {
+        return $this->hasMany(LeaveBalance::class);
+    }
 }

@@ -5,9 +5,13 @@ namespace App\Http\Controllers\Api\V1;
 use App\Helpers\PermissionHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreLeavePermissionRequest;
+use App\Models\LeaveBalance;
 use App\Models\LeavePermission;
+use App\Models\LeaveType;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class LeavePermissionController extends Controller
 {
@@ -55,6 +59,53 @@ class LeavePermissionController extends Controller
         $clinicID = $clinic->id;
 
         $validated = $request->validated();
+
+        // validasi sisa saldo
+        $leaveBalance = LeaveBalance::where('user_id', $user->id)
+            ->where('leave_type_id', $validated['leave_type_id'])
+            ->first();
+
+        if (!$leaveBalance) {
+            DB::beginTransaction();
+            try {
+                $leaveType = LeaveType::all();
+
+                foreach ($leaveType as $type) {
+                    LeaveBalance::create([
+                        'user_id' => $user->id,
+                        'leave_type_id' => $type->id,
+                        'bal' => $type->year_ent,
+                    ]);
+                }
+                DB::commit();
+
+                $leaveBalance = LeaveBalance::where('user_id', $user->id)
+                    ->where('leave_type_id', $validated['leave_type_id'])
+                    ->first();
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json([
+                    'message' => '[LeaveBalance] gagal menyimpan data',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+        }
+
+        // ambil jumlah hari cuti
+        $dateFrom = Carbon::parse($validated['date_from']);
+        $dateTo = Carbon::parse($validated['date_to']);
+        $requestedDays = $dateFrom->diffInDays($dateTo) + 1;
+
+        if ($leaveBalance->bal < $requestedDays) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Insufficient leave balance.',
+                'data' => [
+                    'available_balance' => $leaveBalance->bal,
+                    'requested_days' => $requestedDays,
+                ],
+            ], 400);
+        }
 
         $leavePermission = new LeavePermission();
         $leavePermission->date_from = $validated['date_from'];
@@ -132,6 +183,18 @@ class LeavePermissionController extends Controller
 
         $leavePermission->status = "approved";
         $leavePermission->save();
+
+        $leaveBalance = LeaveBalance::where('user_id', $leavePermission->user_id)
+            ->where('leave_type_id', $leavePermission->leave_type_id)
+            ->first();
+
+        $dateFrom = Carbon::parse($leavePermission->date_from);
+        $dateTo = Carbon::parse($leavePermission->date_to);
+        $requestedDays = $dateFrom->diffInDays($dateTo) + 1;
+
+        $leaveBalance->bal = $leaveBalance->bal - $requestedDays;
+        $leaveBalance->taken = $leaveBalance->taken + $requestedDays;
+        $leaveBalance->save();
 
         return response()->json([
             'status' => 'success',

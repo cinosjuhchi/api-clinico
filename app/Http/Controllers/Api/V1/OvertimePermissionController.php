@@ -32,7 +32,8 @@ class OvertimePermissionController extends Controller
             $overtimePermissionsQuery->where('user_id', $request->user_id);
         }
 
-        $overtimePermissions = $overtimePermissionsQuery->get();
+        $perPage = $request->input('per_page', 10);
+        $overtimePermissions = $overtimePermissionsQuery->paginate($perPage);
 
         return response()->json([
             'status' => 'success',

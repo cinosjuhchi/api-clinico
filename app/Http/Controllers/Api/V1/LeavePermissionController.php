@@ -27,7 +27,8 @@ class LeavePermissionController extends Controller
             $leavePermissionQuery->where('user_id', $request->user_id);
         }
 
-        $leavePermission = $leavePermissionQuery->get();
+        $perPage = $request->input('per_page', 10);
+        $leavePermission = $leavePermissionQuery->paginate($perPage);
 
         return response()->json([
             'status' => 'success',

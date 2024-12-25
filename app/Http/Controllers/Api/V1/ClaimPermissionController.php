@@ -31,7 +31,8 @@ class ClaimPermissionController extends Controller
             $claimPermissionsQuery->where('user_id', $request->user_id);
         }
 
-        $claimPermissions = $claimPermissionsQuery->get();
+        $perPage = $request->input('per_page', 10);
+        $claimPermissions = $claimPermissionsQuery->paginate($perPage);
 
         return response()->json([
             'status' => 'success',

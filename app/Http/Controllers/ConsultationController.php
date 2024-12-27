@@ -10,6 +10,7 @@ use App\Models\Medication;
 use App\Models\Patient;
 use App\Models\User;
 use App\Notifications\CallPatientNotification;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -513,5 +514,24 @@ class ConsultationController extends Controller
             "status" => "success",
             "data" => $appointment
         ]);
+    }
+
+    public function getStatisticByLast7Days()
+    {
+        // get clinic
+        $user = Auth::user();
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            'staff' => $user->staff->clinic,
+            default => abort(401, 'Unauthorized access. Invalid role.'),
+        };
+
+        // get todays
+        $today = Carbon::now();
+
+        // get last 7 days
+        // get by clinic_id
+        // get by doctor_id
     }
 }

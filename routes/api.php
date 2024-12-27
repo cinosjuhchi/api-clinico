@@ -65,6 +65,7 @@ use App\Http\Controllers\Api\V1\LeaveBalanceController;
 use App\Http\Controllers\Api\V1\LeavePermissionController;
 use App\Http\Controllers\Api\V1\LeaveTypeController;
 use App\Http\Controllers\Api\V1\OvertimePermissionController;
+use App\Http\Controllers\Api\V1\StatisticController;
 use App\Http\Controllers\DemographicInformationController;
 
 Route::prefix('v1')->group(function () {
@@ -431,5 +432,12 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('leave-types', LeaveTypeController::class);
             Route::apiResource('claim-items', ClaimItemController::class);
         });
+
+        //================== Statistic ==================//
+        Route::prefix('statistic')->group(function() {
+            //==================  Patient (by Clinic / by Doctor)
+            Route::get('/patient', [StatisticController::class, 'consultationCompleted']);
+        });
     });
+
 });

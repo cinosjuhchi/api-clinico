@@ -30,7 +30,7 @@ class DoctorResource extends JsonResource
             'spouseInformation' => new StaffSpouseInformationResource($this->whenLoaded('spouseInformation')),
             'childsInformation' => StaffChildInformationResource::collection($this->whenLoaded('childsInformation')),
             'parentInformation' => new StaffParentInformationResource($this->whenLoaded('parentInformation')),
-            'financialInformation' => new StaffFinancialInformationResource($this->whenLoaded('parentInformation')),
+            'financialInformation' => new StaffFinancialInformationResource($this->whenLoaded('financialInformation')),
             'category' => new CategoryResource($this->whenLoaded('category')),
             'schedule' => DoctorScheduleResource::collection($this->whenLoaded('schedules')),
             'clinic' => new ClinicResource($this->whenLoaded('clinic')),

@@ -47,7 +47,7 @@ class StaffAuthController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Fetch doctor profile is successfully!',
-            'data' => new DoctorResource($doctor),
+            'data' => new DoctorResource($staff),
         ]);
 
     }

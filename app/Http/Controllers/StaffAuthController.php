@@ -29,7 +29,7 @@ class StaffAuthController extends Controller
         }
         $staff = $user->staff;
         $staff->with([
-            'staff',
+            'user',            
             'clinic',
             'demographic',
             'educational',

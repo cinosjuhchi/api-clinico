@@ -29,7 +29,7 @@ class StaffAuthController extends Controller
         }
         $staff = $user->staff;
         $staff->with([
-            'staff',
+            'user',            
             'clinic',
             'demographic',
             'educational',
@@ -47,7 +47,7 @@ class StaffAuthController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Fetch doctor profile is successfully!',
-            'data' => new DoctorResource($doctor),
+            'data' => new DoctorResource($staff),
         ]);
 
     }

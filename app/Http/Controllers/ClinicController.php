@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\ClinicHelper;
-use App\Http\Resources\ClinicResource;
 use App\Models\Clinic;
 use Illuminate\Http\Request;
+use App\Helpers\ClinicHelper;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\ClinicResource;
+use Illuminate\Support\Facades\Validator;
 
 class ClinicController extends Controller
 {
@@ -16,16 +17,42 @@ class ClinicController extends Controller
      */
     public function index(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'latitude' => 'required_with:longitude|numeric',
+            'longitude' => 'required_with:latitude|numeric',
+            'radius' => 'numeric',
+            'search' => 'string|nullable',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
         $perPage = 3;
         $clinics = Clinic::with([
             'doctors.category',
             'doctors.doctorSchedules',
             'rooms',
             'location',
-            'schedule'
-        ])
-            ->where('status', true);
+            'schedule',
+        ])->where('status', true);
 
+        // If coordinates provided, apply nearby filter
+        if ($request->filled(['latitude', 'longitude'])) {
+            $radius = $request->input('radius', 5000);
+            $clinics = $clinics->join('clinic_locations', 'clinic_locations.clinic_id', '=', 'clinics.id')
+                ->whereRaw(ClinicHelper::nearbyClinic(
+                    $request->latitude,
+                    $request->longitude,
+                    $radius
+                ));
+        }
+
+        // Apply search filter if provided
         if ($request->has('search')) {
             $clinics = $clinics->where('name', 'like', "%{$request->search}%");
         }

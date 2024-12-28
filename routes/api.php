@@ -79,6 +79,7 @@ Route::prefix('v1')->group(function () {
             Route::prefix('bills')->group(function () {
                 Route::get('/revenue', [BackOfficeRevenueController::class, 'index']);
                 Route::get('/total-revenue', [BackOfficeRevenueController::class, 'totalRevenue']);
+                Route::get('/total-revenue/month', [BackOfficeRevenueController::class, 'getRevenueByDate']);
                 Route::get('/total-revenue-clinico', [BackOfficeRevenueController::class, 'totalRevenueTaxOnly']);
                 Route::get('/total-statistic-year', [BackOfficeRevenueController::class, 'totalRevenueGroupedByMonth']);
             });

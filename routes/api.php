@@ -80,6 +80,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/revenue', [BackOfficeRevenueController::class, 'index']);
                 Route::get('/total-revenue', [BackOfficeRevenueController::class, 'totalRevenue']);
                 Route::get('/total-revenue-clinico', [BackOfficeRevenueController::class, 'totalRevenueTaxOnly']);
+                Route::get('/total-statistic-year', [BackOfficeRevenueController::class, 'totalRevenueTaxOnly']);
             });
             Route::get('/logout', [BackOfficeController::class, 'logout']);
             Route::prefix('user')->group(function () {

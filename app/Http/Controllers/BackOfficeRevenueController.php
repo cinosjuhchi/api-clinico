@@ -74,8 +74,8 @@ class BackOfficeRevenueController extends Controller
             'total_tax_revenue' => $totalTaxRevenue,
             'month_year' => [
                 $month,
-                $year
-            ]
+                $year,
+            ],
         ], 200);
     }
     public function totalRevenue(Request $request)
@@ -96,7 +96,7 @@ class BackOfficeRevenueController extends Controller
         }
 
         // Menghitung total pendapatan dari semua tagihan
-        $totalRevenue = $query->sum('total_cost');        
+        $totalRevenue = $query->sum('total_cost');
 
         return response()->json([
             'status' => 'success',
@@ -104,8 +104,30 @@ class BackOfficeRevenueController extends Controller
             'total_tax_revenue' => $totalRevenue,
             'month_year' => [
                 $month,
-                $year
-            ]
+                $year,
+            ],
+        ], 200);
+    }
+
+    public function totalRevenueGroupedByMonth()
+    {
+        // Mendapatkan tahun saat ini
+        $currentYear = now()->year;
+
+        // Query untuk mendapatkan total pendapatan per bulan di tahun ini
+        $revenueByMonth = Billing::where('is_paid', true)
+            ->whereYear('transaction_date', $currentYear)
+            ->selectRaw('MONTH(transaction_date) as month, MONTHNAME(transaction_date) as month_name, SUM(total_cost) as total_revenue')
+            ->groupBy('month', 'month_name')
+            ->orderBy('month') // Urutkan berdasarkan nomor bulan
+            ->get();
+
+        // Mengembalikan hasil dalam format JSON
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Success to fetch the total revenue grouped by month.',
+            'year' => $currentYear,
+            'data' => $revenueByMonth,
         ], 200);
     }
 

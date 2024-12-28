@@ -100,8 +100,8 @@ class BackOfficeRevenueController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Success to fetch the total tax revenue.',
-            'total_tax_revenue' => $totalRevenue,
+            'message' => 'Success to fetch the total revenue.',
+            'total_revenue' => $totalRevenue,
             'month_year' => [
                 $month,
                 $year,
@@ -120,7 +120,12 @@ class BackOfficeRevenueController extends Controller
             ->selectRaw('MONTH(transaction_date) as month, MONTHNAME(transaction_date) as month_name, SUM(total_cost) as total_revenue')
             ->groupBy('month', 'month_name')
             ->orderBy('month') // Urutkan berdasarkan nomor bulan
-            ->get();
+            ->get()
+            ->map(function ($item) {
+                // Tambahkan perhitungan pajak 5% pada setiap item
+                $item->total_tax = round($item->total_revenue * 0.05, 2);
+                return $item;
+            });
 
         // Mengembalikan hasil dalam format JSON
         return response()->json([

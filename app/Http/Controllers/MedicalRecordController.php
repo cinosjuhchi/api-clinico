@@ -27,14 +27,6 @@ class MedicalRecordController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
      * Display the specified resource.
      */
     public function show(MedicalRecord $medicalRecord)
@@ -55,19 +47,44 @@ class MedicalRecordController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, MedicalRecord $medicalRecord)
+    public function history(Request $request)
     {
-        //
-    }
+        $medicalRecordQuery = MedicalRecord::with(
+            'appointment',
+            'patient.physicalExaminations',
+            'clinic',
+            'clinicService',
+            'doctor.category',
+            'diagnosisRecord',
+            'procedureRecords',
+            'injectionRecords',
+            'medicationRecords'
+        );
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(MedicalRecord $medicalRecord)
-    {
-        //
+        $patientId = $request->input('patient_id');
+        $doctorId = $request->input('doctor_id');
+        $clinicId = $request->input('clinic_id');
+
+        if ($patientId) {
+            $medicalRecordQuery->where('patient_id', $patientId);
+        }
+
+        if ($doctorId) {
+            $medicalRecordQuery->where('doctor_id', $doctorId);
+        }
+
+        if ($clinicId) {
+            $medicalRecordQuery->where('clinic_id', $clinicId);
+        }
+
+        $medicalRecord = $medicalRecordQuery
+                            ->orderBy('created_at', 'desc')
+                            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully fetched medical data.',
+            'data' => $medicalRecord,
+        ]);
     }
 }

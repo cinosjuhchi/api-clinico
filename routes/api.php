@@ -435,8 +435,12 @@ Route::prefix('v1')->group(function () {
 
         //================== Statistic ==================//
         Route::prefix('statistic')->group(function() {
-            //==================  Patient (by Clinic / by Doctor)
             Route::get('/patient', [StatisticController::class, 'consultationCompleted']);
+        });
+
+        //================== History ==================//
+        Route::prefix('history')->group(function() {
+            Route::get('/medical', [MedicalRecordController::class, 'history']);
         });
     });
 

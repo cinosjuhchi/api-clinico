@@ -28,7 +28,7 @@ class StoreLeavePermissionRequest extends FormRequest
             'date_to' => 'required|date|after_or_equal:date_from',
             'leave_type_id' => 'required|integer|exists:leave_types,id',
             'reason' => 'required|string|max:255',
-            'attachment' => 'required|file|mimes:jpg,png,pdf|max:2048',
+            'attachment' => 'nullable|file|mimes:jpg,png,pdf|max:2048',
         ];
     }
 

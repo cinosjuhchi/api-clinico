@@ -27,9 +27,8 @@ class StaffAuthController extends Controller
                 'message' => 'Invalid Role Access',
             ], 401);
         }
-        $staff = $user->staff;
-        $staff->with([
-            'user',            
+        $staff = Staff::with([
+            'user',
             'clinic',
             'demographic',
             'educational',
@@ -41,8 +40,8 @@ class StaffAuthController extends Controller
             'reference',
             'basicSkills',
             'financialInformation',
-            'employmentInformation'
-        ]);
+            'employmentInformation',
+        ])->where('user_id', $user->id)->first();
 
         return response()->json([
             'status' => 'success',

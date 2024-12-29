@@ -60,6 +60,16 @@ class LeavePermissionController extends Controller
 
         $validated = $request->validated();
 
+        // Jika bukan annual leave, validasi attachment
+        if ($validated['leave_type_id'] != 1) {
+            if (!$request->hasFile('attachment')) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Attachment is required.',
+                ]);
+            }
+        }
+
         // validasi sisa saldo
         $leaveBalance = LeaveBalance::where('user_id', $user->id)
             ->where('leave_type_id', $validated['leave_type_id'])
@@ -115,8 +125,10 @@ class LeavePermissionController extends Controller
         $leavePermission->user_id = $user->id;
         $leavePermission->clinic_id = $clinicID;
 
-        $path = PermissionHelper::uploadAttachment($user->id, $request->file('attachment'), 'permission/leave');
-        $leavePermission->attachment = $path;
+        if ($request->hasFile('attachment')) {
+            $path = PermissionHelper::uploadAttachment($user->id, $request->file('attachment'), 'permission/leave');
+            $leavePermission->attachment = $path;
+        }
 
         $leavePermission->save();
 

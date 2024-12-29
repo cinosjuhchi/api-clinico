@@ -91,6 +91,9 @@ Route::prefix('v1')->group(function () {
             Route::prefix('doctor')->group(function () {
                 Route::get('/', [BackOfficeDoctorController::class, 'index']);
             });
+            Route::prefix('staff')->group(function () {
+                Route::post('/store', [BackOfficeController::class, 'storeStaff']);
+            });
             Route::prefix('clinic')->group(function () {
                 Route::get('/request-clinic', [RequestClinicController::class, 'index']);
                 Route::delete('/delete/{clinic}', [RequestClinicController::class, 'destroy']);

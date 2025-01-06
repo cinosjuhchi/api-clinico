@@ -83,6 +83,7 @@ class CompleteAppointmentRequest extends FormRequest
                 'risk_factors.*' => 'required|string|max:125',
                 'follow_up_date' => 'nullable|string',
                 'follow_up_remark' => 'nullable|string',
+                'current_history' => 'nullable|string',
 
                 // Timer
                 'timer' => 'nullable|date_format:H:i:s',

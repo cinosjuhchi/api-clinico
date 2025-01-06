@@ -66,9 +66,11 @@ class ConsultationController extends Controller
                     'pulse_rate' => $validated['pulse_rate'],
                     'pain_score' => $validated['pain_score'],
                     'clinic_service_id' => $validated['service_id'],
+                    'current_history' => $validated['current_history'],
                     'follow_up_date' => $validated['follow_up_date'],
                     'follow_up_remark' => $validated['follow_up_remark'],
-                    'timer' => $validated['timer']
+                    'timer' => $validated['timer'],
+
                 ]);
             } else {
                 $medicalRecord = $appointment->medicalRecord()->create([
@@ -85,6 +87,9 @@ class ConsultationController extends Controller
                     'pulse_rate' => $validated['pulse_rate'],
                     'pain_score' => $validated['pain_score'],
                     'clinic_service_id' => $validated['service_id'],
+                    'current_history' => $validated['current_history'],
+                    'follow_up_date' => $validated['follow_up_date'],
+                    'follow_up_remark' => $validated['follow_up_remark'],
                     'timer' => $validated['timer']
                 ]);
             }
@@ -478,7 +483,7 @@ class ConsultationController extends Controller
                 DB::rollBack();
                 return response()->json([
                     'status' => 'failed',
-                    'error' => $e->e->getMessage(),
+                    'error' => $e->getMessage(),
                 ]);
             }
         }

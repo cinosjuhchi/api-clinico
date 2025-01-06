@@ -86,7 +86,10 @@ class ConsultationController extends Controller
                 'risk_factors' => 'array|nullable',
                 'risk_factors.*' => 'required|string|max:125',
                 'follow_up_date' => 'nullable|string',
-                'follow_up_remark' => 'nullable|string'
+                'follow_up_remark' => 'nullable|string',
+
+                // Timer
+                'timer' => 'nullable|date_format:H:i:s',
             ]);
             
 
@@ -125,6 +128,9 @@ class ConsultationController extends Controller
                     'pulse_rate' => $validated['pulse_rate'],
                     'pain_score' => $validated['pain_score'],
                     'clinic_service_id' => $validated['service_id'],
+                    'follow_up_date' => $validated['follow_up_date'],
+                    'follow_up_remark' => $validated['follow_up_remark'],
+                    'timer' => $validated['timer']
                 ]);
             } else {
                 $medicalRecord = $appointment->medicalRecord()->create([
@@ -141,6 +147,7 @@ class ConsultationController extends Controller
                     'pulse_rate' => $validated['pulse_rate'],
                     'pain_score' => $validated['pain_score'],
                     'clinic_service_id' => $validated['service_id'],
+                    'timer' => $validated['timer']
                 ]);
             }
 

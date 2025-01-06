@@ -10,7 +10,6 @@ use App\Models\Medication;
 use App\Models\Patient;
 use App\Models\User;
 use App\Notifications\CallPatientNotification;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -74,8 +73,22 @@ class ConsultationController extends Controller
                 'total_cost' => 'required|numeric',
                 'transaction_date' => 'required|date',
                 'service_id' => 'required|exists:clinic_services,id',
+                // Consultation Image
+                'images' => 'array|nullable',
+                'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'documents' => 'array|nullable',
+                'documents.*' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx|max:2048',
+                'reports' => 'array|nullable',
+                'reports.*' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx|max:2048',
+                'certificate' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx|max:2048',
 
+                // Risk Factor
+                'risk_factors' => 'array|nullable',
+                'risk_factors.*' => 'required|string|max:125',
+                'follow_up_date' => 'nullable|string',
+                'follow_up_remark' => 'nullable|string'
             ]);
+            
 
             $patient = $appointment->patient;
             $user = $patient->user_id;
@@ -198,9 +211,62 @@ class ConsultationController extends Controller
                 }
             }
 
+            if (!empty($validated['risk_factors'])) {
+                foreach ($validated['risk_factors'] as $risk) {                    
+                    $medicalRecord->riskFactors()->create([
+                        'name' => $risk
+                    ]);
+                }
+            }
+
+            if (!empty($validated['images'])) {
+                foreach ($validated['images'] as $index => $image) {
+                    // Store the image
+                    $imagePath = $image->store('consultation_image');
+
+                    $medicalRecord->consultationPhotos()->create([
+                        'image_path' => $imagePath,
+                    ]);
+
+                }
+
+            }
+            if (!empty($validated['documents'])) {
+                foreach ($validated['documents'] as $index => $document) {
+                    // Store the image
+                    $documentPath = $document->store('consultation_document');
+
+                    $medicalRecord->consultationDocuments()->create([
+                        'document_path' => $documentPath,
+                        'type' => 'document',
+                    ]);
+
+                }
+            }
+            if (!empty($validated['reports'])) {
+                foreach ($validated['reports'] as $index => $report) {
+                    // Store the image
+                    $reportPath = $report->store('consultation_report');
+
+                    $medicalRecord->consultationDocuments()->create([
+                        'document_path' => $reportPath,
+                        'type' => 'report',
+                    ]);
+
+                }
+            }
+            if (!empty($validated['certificate'])) {
+                $certificatePath = $validated['certificate']->store('certificate_document');
+                $medicalRecord->consultationDocuments()->create([
+                    'document_path' => $certificatePath,
+                    'type' => 'certificate',
+                ]);
+
+            }
+
             if (!empty($validated['medicine'])) {
                 $appointment->update([
-                    'status' => 'take-medicine',
+                    'status' => 'take-medicine',                    
                 ]);
             } else {
                 $appointment->update([
@@ -467,7 +533,7 @@ class ConsultationController extends Controller
                 DB::rollBack();
                 return response()->json([
                     'status' => 'failed',
-                    'error' => $e->e->getMessage()
+                    'error' => $e->e->getMessage(),
                 ]);
             }
         }
@@ -512,7 +578,7 @@ class ConsultationController extends Controller
 
         return response()->json([
             "status" => "success",
-            "data" => $appointment
+            "data" => $appointment,
         ]);
     }
 }

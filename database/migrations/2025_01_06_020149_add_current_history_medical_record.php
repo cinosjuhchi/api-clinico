@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::table('medical_records', function (Blueprint $table) {
             $table->text('current_history')->nullable();
             $table->text('follow_up_date')->nullable();
-            $table->text('follow_up_remark')->nullable();            
-            $table->text('follow_up_remark')->nullable();            
+            $table->text('follow_up_remark')->nullable();                        
             $table->time('timer')->nullable();
         });
     }

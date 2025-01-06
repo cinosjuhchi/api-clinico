@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CompleteAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\ClinicService;
 use App\Models\Injection;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Log;
 
 class ConsultationController extends Controller
 {
-    public function complete(Appointment $appointment, Request $request)
+    public function complete(Appointment $appointment, CompleteAppointmentRequest $request)
     {
         $user = Auth::user();
         $doctor = $user->doctor;
@@ -27,70 +28,7 @@ class ConsultationController extends Controller
         DB::beginTransaction();
 
         try {
-            $validated = $request->validate([
-                'blood_pressure' => 'required|string',
-                'pulse_rate' => 'required|numeric',
-                'temperature' => 'required|numeric',
-                'weight' => 'required|numeric',
-                'height' => 'required|numeric',
-                'sp02' => 'required|numeric',
-                'pain_score' => 'required|numeric',
-                'respiratory_rate' => 'required|numeric',
-                // History
-                'patient_condition' => 'required|string',
-                'consultation_note' => 'required|string',
-                'examination' => 'nullable|string',
-                // Diagnosis
-                'diagnosis' => 'required|array',
-                'diagnosis.*' => 'required|string',
-                'plan' => 'required|string',
-                // Treatment
-                'investigations' => 'nullable|array',
-                'investigations.*.investigation_type' => 'required|string',
-                'investigations.*.remark' => 'nullable|string',
-                'investigations.*.name' => 'required|string',
-                'investigations.*.cost' => 'required|numeric',
-                // Treatment
-                'procedure' => 'nullable|array',
-                'procedure.*.name' => 'required|string',
-                'procedure.*.remark' => 'nullable|string',
-                'procedure.*.cost' => 'required|numeric',
-
-                'injection' => 'nullable|array',
-                'injection.*.injection_id' => 'nullable|exists:injections,id',
-                'injection.*.name' => 'required|string',
-                'injection.*.price' => 'required|numeric',
-                'injection.*.cost' => 'required|numeric',
-
-                'medicine' => 'nullable|array',
-                'medicine.*.medicine_id' => 'nullable|exists:medications,id',
-                'medicine.*.name' => 'required|string',
-                'medicine.*.unit' => 'required|string',
-                'medicine.*.frequency' => 'nullable|string',
-                'medicine.*.cost' => 'required|numeric',
-                'medicine.*.medicine_qty' => 'nullable|integer',
-                // Bill
-                'total_cost' => 'required|numeric',
-                'transaction_date' => 'required|date',
-                'service_id' => 'required|exists:clinic_services,id',
-                // Consultation Image
-                'images' => 'array|nullable',
-                'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                'documents' => 'array|nullable',
-                'documents.*' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx|max:2048',
-                'reports' => 'array|nullable',
-                'reports.*' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx|max:2048',
-                'certificate' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx|max:2048',
-
-                // Risk Factor
-                'risk_factors' => 'array|nullable',
-                'risk_factors.*' => 'required|string|max:125',
-                'follow_up_date' => 'nullable|string',
-                'follow_up_remark' => 'nullable|string',
-
-                // Timer
-                'timer' => 'nullable|date_format:H:i:s',
-            ]);
+            $validated = $request->validated();
             
 
             $patient = $appointment->patient;

@@ -7,16 +7,24 @@ use App\Models\Clinic;
 use App\Models\LeaveType;
 use App\Models\LeaveTypeDetail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class LeaveTypeDetailController extends Controller
 {
     public function index(Request $request)
     {
-        $leaveDetailsQuery = LeaveTypeDetail::with("leaveType","clinic",);
+        $user = Auth::user();
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            'staff' => $user->staff->clinic,
+            default => abort(401, 'Unauthorized access. Invalid role.'),
+        };
+        $clinicID = $clinic->id;
+        $leaveDetailsQuery = LeaveTypeDetail::with("leaveType","clinic");
 
         // get query param
-        $clinicID = $request->query("clinic_id");
         $leaveTypeID = $request->query("leave_type_id");
 
         // filter by clinic_id

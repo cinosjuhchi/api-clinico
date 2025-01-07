@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Clinic;
+use App\Models\LeaveBalance;
 use App\Models\LeaveType;
 use App\Models\LeaveTypeDetail;
 use Illuminate\Http\Request;
@@ -81,6 +82,15 @@ class LeaveTypeDetailController extends Controller
         $leaveDetail = LeaveTypeDetail::find($id);
 
         if ($leaveDetail) {
+            LeaveBalance::where("leave_type_detail_id", $leaveDetail->id)
+                    ->where(function ($query) use ($request) {
+                        $query->where("bal", 0)
+                            ->orWhere("bal", ">", $request->year_ent);
+                    })
+                    ->update([
+                        "bal" => $request->year_ent,
+                    ]);
+
             $leaveDetail->update(["year_ent" => $request->year_ent]);
             return response()->json([
                 "status" => "success",
@@ -93,6 +103,5 @@ class LeaveTypeDetailController extends Controller
                 "message" => "Leave detail not found",
             ], 404);
         }
-
     }
 }

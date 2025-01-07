@@ -14,8 +14,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('leave_balances', function (Blueprint $table) {
-            $table->dropForeign(['leave_type_id']);
-            $table->dropColumn('leave_type_id');
+            // $table->dropForeign(['leave_type_id']);
+            // $table->dropColumn('leave_type_id');
             $table->foreignIdFor(LeaveTypeDetail::class)->constrained()->cascadeOnDelete();
         });
     }

@@ -65,6 +65,7 @@ use App\Http\Controllers\Api\V1\Auth\ClinicAuthController;
 use App\Http\Controllers\Api\V1\Auth\DoctorAuthController;
 use App\Http\Controllers\Api\V1\ClaimPermissionController;
 use App\Http\Controllers\Api\V1\LeavePermissionController;
+use App\Http\Controllers\Api\V1\LeaveTypeDetailController;
 use App\Http\Controllers\DemographicInformationController;
 use App\Http\Controllers\Api\V1\OvertimePermissionController;
 use App\Http\Controllers\Api\V1\StatisticController;
@@ -439,6 +440,8 @@ Route::prefix('v1')->group(function () {
                 Route::get('/', [LeaveBalanceController::class, 'index']);
             });
 
+            Route::get('leave-types/details', [LeaveTypeDetailController::class, "index"]);
+            Route::put('leave-types/details/{id}', [LeaveTypeDetailController::class, "update"]);
             Route::apiResource('leave-types', LeaveTypeController::class);
             Route::apiResource('claim-items', ClaimItemController::class);
         });

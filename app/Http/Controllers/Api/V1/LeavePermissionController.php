@@ -8,6 +8,7 @@ use App\Http\Requests\StoreLeavePermissionRequest;
 use App\Models\LeaveBalance;
 use App\Models\LeavePermission;
 use App\Models\LeaveType;
+use App\Models\LeaveTypeDetail;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -70,27 +71,39 @@ class LeavePermissionController extends Controller
             }
         }
 
-        // validasi sisa saldo
+        // Cek leave type detail id untuk dapet id
+        $leaveTypeDetail = LeaveTypeDetail::where('clinic_id', $clinicID)
+                            ->where('leave_type_id', $validated['leave_type_id'])
+                            ->first();
+
+        if (!$leaveTypeDetail) {
+            return response()->json([
+               'status' => 'error',
+               'message' => 'Leave type detail not found.',
+            ]);
+        }
+
+        // cek sisa saldo
         $leaveBalance = LeaveBalance::where('user_id', $user->id)
-            ->where('leave_type_id', $validated['leave_type_id'])
+            ->where('leave_type_detail_id', $leaveTypeDetail->id)
             ->first();
 
         if (!$leaveBalance) {
             DB::beginTransaction();
             try {
-                $leaveType = LeaveType::all();
+                $leaveTypeDetailByClinicID = LeaveTypeDetail::where('clinic_id', $clinicID)->get();
 
-                foreach ($leaveType as $type) {
+                foreach ($leaveTypeDetailByClinicID as $typeDetail) {
                     LeaveBalance::create([
                         'user_id' => $user->id,
-                        'leave_type_id' => $type->id,
-                        'bal' => $type->year_ent,
+                        'leave_type_detail_id' => $typeDetail->id,
+                        'bal' => $typeDetail->year_ent,
                     ]);
                 }
                 DB::commit();
 
-                $leaveBalance = LeaveBalance::where('user_id', $user->id)
-                    ->where('leave_type_id', $validated['leave_type_id'])
+                 $leaveBalance = LeaveBalance::where('user_id', $user->id)
+                    ->where('leave_type_detail_id', $leaveTypeDetail->id)
                     ->first();
             } catch (\Exception $e) {
                 DB::rollBack();

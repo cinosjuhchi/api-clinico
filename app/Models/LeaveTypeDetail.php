@@ -20,6 +20,11 @@ class LeaveTypeDetail extends Model
         return $this->belongsTo(LeaveType::class);
     }
 
+    public function leaveBalance()
+    {
+        return $this->hasMany(LeaveBalance::class);
+    }
+
     public function clinic()
     {
         return $this->belongsTo(Clinic::class);

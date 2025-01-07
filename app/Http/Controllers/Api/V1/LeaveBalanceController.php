@@ -48,7 +48,7 @@ class LeaveBalanceController extends Controller
             'user.doctor.employmentInformation',
             'user.doctor.category',
             'user.staff.employmentInformation',
-            'leaveType',
+            'leaveTypeDetail.leaveType',
         );
 
         if ($userID) {

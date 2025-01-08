@@ -16,6 +16,13 @@ class ConsultationDocumentController extends Controller
         //
     }
 
+    public function download($id)
+    {
+        $document = ConsultationDocument::find($id);
+        $path = storage_path($document->document_path);
+        return response()->download($path);
+    }
+
     /**
      * Show the form for creating a new resource.
      */

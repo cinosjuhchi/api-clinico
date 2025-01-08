@@ -46,6 +46,7 @@ use App\Http\Controllers\Api\V1\ClaimItemController;
 use App\Http\Controllers\Api\V1\ContactUsController;
 use App\Http\Controllers\Api\V1\InventoryController;
 use App\Http\Controllers\Api\V1\LeaveTypeController;
+use App\Http\Controllers\Api\V1\StatisticController;
 use App\Http\Controllers\BackOfficeDoctorController;
 use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\MedicationRecordController;
@@ -61,13 +62,13 @@ use App\Http\Controllers\InvestigationClinicController;
 use App\Http\Controllers\PatientNotificationController;
 use App\Http\Controllers\Api\V1\ClinicProfileController;
 use App\Http\Controllers\Api\V1\DoctorProfileController;
+use App\Http\Controllers\ConsultationDocumentController;
 use App\Http\Controllers\Api\V1\Auth\ClinicAuthController;
 use App\Http\Controllers\Api\V1\Auth\DoctorAuthController;
 use App\Http\Controllers\Api\V1\ClaimPermissionController;
 use App\Http\Controllers\Api\V1\LeavePermissionController;
 use App\Http\Controllers\DemographicInformationController;
 use App\Http\Controllers\Api\V1\OvertimePermissionController;
-use App\Http\Controllers\Api\V1\StatisticController;
 Route::prefix('v1')->group(function () {
     Route::prefix('back-office')->group(function () {
         Route::post('login', [BackOfficeController::class, 'login']);
@@ -174,8 +175,11 @@ Route::prefix('v1')->group(function () {
             });
 
             Route::prefix('medical-record')->group(function () {
-                Route::get('/', [MedicalRecordController::class, 'index']);
+                Route::get('/', [MedicalRecordController::class, 'index']);                
                 Route::get('/show/{medicalRecord}', [MedicalRecordController::class, 'show']);
+                Route::prefix('document')->group(function () {
+                    Route::get('/download-file', [ConsultationDocumentController::class, 'download']);
+                });
             });
 
             Route::prefix('physical')->group(function () {

@@ -71,11 +71,11 @@ class CompleteAppointmentRequest extends FormRequest
                 'service_id' => 'required|exists:clinic_services,id',
                 // Consultation Image
                 'images' => 'array|nullable',
-                'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
                 'documents' => 'array|nullable',
-                'documents.*' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx|max:2048',
+                'documents.*' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx|max:2048',
                 'reports' => 'array|nullable',
-                'reports.*' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx|max:2048',
+                'reports.*' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx|max:2048',
                 'certificate' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx|max:2048',
 
                 // Risk Factor

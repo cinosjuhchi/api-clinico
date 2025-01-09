@@ -83,7 +83,8 @@ class ConsultationController extends Controller
             $bill = $appointment->bill()->create([
                 'transaction_date' => $validated['transaction_date'],
                 'total_cost' => $validated['total_cost'],
-                'user_id' => $user,
+                'user_id' => $user ? $user : null,
+                'patient_id' => $patient->id,
                 'clinic_id' => $clinic->id,
                 'doctor_id' => $doctor->id,
             ]);
@@ -198,15 +199,15 @@ class ConsultationController extends Controller
                 }
             }
 
-            if (!empty($validated['medicine'])) {
-                $appointment->update([
-                    'status' => 'take-medicine',
-                ]);
-            } else {
-                $appointment->update([
-                    'status' => 'waiting-payment',
-                ]);
+            $status = 'waiting-payment';
+
+            if ($patient->is_offline) {
+                $status = 'completed';
+            } elseif (!empty($validated['medicine'])) {
+                $status = 'take-medicine';
             }
+
+            $appointment->update(['status' => $status]);
 
             DB::commit();
 
@@ -467,7 +468,7 @@ class ConsultationController extends Controller
                 DB::rollBack();
                 return response()->json([
                     'status' => 'failed',
-                    'error' => $e->e->getMessage()
+                    'error' => $e->getMessage()
                 ]);
             }
         }

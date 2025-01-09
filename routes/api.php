@@ -137,7 +137,6 @@ Route::prefix('v1')->group(function () {
         Route::prefix('patient')->group(function () {
             Route::get('/user/{id}', [UserController::class, 'show']);
             Route::get('/logout-user', [AuthController::class, 'logout']);
-            Route::post('/store', [PatientController::class, 'store']);
             Route::delete('/destroy/{patient}', [PatientController::class, 'destroy']);
             Route::prefix('notifications')->group(function () {
                 Route::get('/', [PatientNotificationController::class, 'getNotifications']); // Ambil notifikasi yang belum dibaca
@@ -389,6 +388,8 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/cancel-appointment/{slug}', [AppointmentController::class, 'destroy']);
             });
 
+            Route::post('/store', [AppointmentController::class, 'store']);
+
             Route::get('/dispensary', [ConsultationController::class, 'dispensary']);
             Route::get('/consultation-entry', [ConsultationController::class, 'consultationEntry']);
             Route::put('/take-medicine/{appointment}', [ConsultationController::class, 'takeMedicine']);
@@ -454,6 +455,12 @@ Route::prefix('v1')->group(function () {
         //================== History ==================//
         Route::prefix('history')->group(function() {
             Route::get('/medical', [MedicalRecordController::class, 'history']);
+        });
+
+        //================== Patient ==================//
+        Route::prefix('patient')->group(function() {
+            Route::get('/search', [PatientController::class, 'search']);
+            Route::post('/store', [PatientController::class, 'store']);
         });
     });
 

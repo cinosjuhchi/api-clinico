@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AddStatusAppointmentRequest;
+use App\Helpers\PatientCreateHelper;
 use App\Models\Patient;
 use App\Models\Appointment;
 use Illuminate\Http\Request;
@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\AddVitalSignRequest;
 use App\Http\Requests\PatientStoreRequest;
+use App\Http\Requests\AddStatusAppointmentRequest;
 
 class PatientController extends Controller
 {
@@ -207,51 +208,62 @@ class PatientController extends Controller
 
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(PatientStoreRequest $request)
-    {
-        try {
-            $validated = $request->validated();
-            if ($validated['payment_type'] === 'CASH') {
-                $validated['user_id'] = null;
-            }
+    public function search(Request $request) {
+        $nric = $request->input('nric');
 
-            $patient = null;
-
-            DB::transaction(function () use ($validated, &$patient) {
-                $patient = Patient::create($validated);
-            });
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Successfully stored patient data.',
-                'data' => $patient,
-            ], 201);
-        } catch (\Exception $e) {
+        if (!$nric) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to store patient data.',
-                'error' => $e->getMessage(),
-            ], 500);
+                'message' => 'NRIC is required for search.',
+            ], 400);
         }
+
+        $patient = Patient::whereHas('demographics', function ($query) use ($nric) {
+            $query->where('nric', $nric);
+        })->with(['demographics'])->first();
+
+        if (!$patient) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Patient not found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'patient' => $patient,
+        ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Patient $patient)
+    public function store(PatientStoreRequest $request)
     {
-        //
-    }
+        $validated = $request->validated();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Patient $patient)
-    {
-        //
+        DB::beginTransaction();
+
+        try {
+            $patient = Patient::create([
+                "name" => $validated["name"],
+                "address" => $validated["address"],
+                "is_offline" => true,
+            ]);
+            PatientCreateHelper::createDemographics($patient, $validated);
+            PatientCreateHelper::createContactInfo($patient, $validated);
+            PatientCreateHelper::createOccupation($patient, $validated);
+            PatientCreateHelper::createEmergencyContact($patient, $validated);
+            PatientCreateHelper::createChronicHealthRecord($patient, $validated);
+            PatientCreateHelper::createParentChronic($patient, $validated);
+            PatientCreateHelper::createMedication($patient, $validated);
+            PatientCreateHelper::createAllergy($patient, $validated);
+            PatientCreateHelper::createPhysicalExamination($patient, $validated);
+            PatientCreateHelper::createImmunization($patient, $validated);
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(['error' => 'Failed to create patient record: ' . $th->getMessage()], 500);
+        }
+
+        return response()->json(['message' => 'Patient record created successfully.'], 201);
     }
 
     /**

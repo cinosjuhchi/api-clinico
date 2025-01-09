@@ -1,0 +1,99 @@
+<?php
+
+namespace App\Helpers;
+
+class PatientCreateHelper {
+    public static function createDemographics($patient, $validated)
+    {
+        $patient->demographics()->create([
+            "mrn" => $validated["mrn"],
+            "date_birth" => $validated["date_birth"],
+            "gender" => $validated["gender"],
+            "nric" => $validated["nric"],
+            "address" => $validated["address"],
+            "country" => $validated["country"],
+            "postal_code" => $validated["postal_code"],
+        ]);
+
+    }
+
+
+    public static function createContactInfo($patient, $validated)
+    {
+        $patient->patientContact()->create([
+            "email" => $validated["email"],
+            "phone" => $validated["phone"],
+        ]);
+    }
+
+
+    public static function createOccupation($patient, $validated)
+    {
+        $patient->occupation()->create([
+            "job_position" => $validated["job_position"],
+            "company" => $validated["company"],
+            "panel" => $validated["panel"],
+        ]);
+
+    }
+
+
+    public static function createEmergencyContact($patient, $validated)
+    {
+        $patient->emergencyContact()->create([
+            "name" => $validated["emergency_name"],
+            "phone" => $validated["emergency_phone"],
+            "relation" => $validated["emergency_relation"],
+        ]);
+
+    }
+
+
+    public static function createChronicHealthRecord($patient, $validated)
+    {
+        $patient->chronics()->create([
+            "chronic_medical" => $validated["chronic_medical"],
+        ]);
+    }
+
+    public static function createParentChronic($patient, $validated)
+    {
+        $patient->parentChronic()->create([
+            "father_chronic_medical" => $validated["father_chronic_medical"],
+            "mother_chronic_medical" => $validated["mother_chronic_medical"],
+        ]);
+    }
+
+
+    public static function createMedication($patient, $validated)
+    {
+        $patient->medications()->create([
+            "medicine" => $validated["medicine"],
+            "frequency" => $validated["frequency"],
+        ]);
+    }
+
+
+    public static function createAllergy($patient, $validated)
+    {
+        $patient->allergy()->create([
+            "name" => $validated["allergies"],
+        ]);
+    }
+
+    public static function createPhysicalExamination($patient, $validated)
+    {
+        $patient->physicalExaminations()->create([
+            "height" => $validated["height"],
+            "weight" => $validated["weight"],
+        ]);
+    }
+
+    public static function createImmunization($patient, $validated)
+    {
+        $patient->immunizations()->create([
+            "vaccine_received" => $validated["vaccine_received"],
+            "date_administered" => $validated["date_administered"],
+        ]);
+    }
+}

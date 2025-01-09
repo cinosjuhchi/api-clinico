@@ -251,12 +251,12 @@ class PatientController extends Controller
             PatientCreateHelper::createContactInfo($patient, $validated);
             PatientCreateHelper::createOccupation($patient, $validated);
             PatientCreateHelper::createEmergencyContact($patient, $validated);
-            PatientCreateHelper::createChronicHealthRecord($patient, $validated);
+            PatientCreateHelper::createChronicHealthRecord($patient, $validated); // multiple
             PatientCreateHelper::createParentChronic($patient, $validated);
-            PatientCreateHelper::createMedication($patient, $validated);
+            PatientCreateHelper::createMedication($patient, $validated); // multiple
             PatientCreateHelper::createAllergy($patient, $validated);
             PatientCreateHelper::createPhysicalExamination($patient, $validated);
-            PatientCreateHelper::createImmunization($patient, $validated);
+            PatientCreateHelper::createImmunization($patient, $validated); // multiple
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();

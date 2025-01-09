@@ -51,15 +51,17 @@ class PatientStoreRequest extends FormRequest
             'emergency_relation' => 'required|string|max:255',
 
             // Chronic Health Records
-            'chronic_medical' => 'required|string|max:255',
+            'chronic_medical' => 'required|array',
+            'chronic_medical.*' => 'required|string|max:255',
 
             // Parent Chronic
             'father_chronic_medical' => 'required|string',
             'mother_chronic_medical' => 'required|string',
 
             // Medication
-            'medicine' => 'required|string|max:255',
-            'frequency' => 'required|string|max:255',
+            'medicines' => 'required|array',
+            'medicines.*.medicine' => 'required|string|max:255',
+            'medicines.*.frequency' => 'required|string|max:255',
 
             // Allergies
             'allergies' => 'required|string|max:255',
@@ -70,8 +72,9 @@ class PatientStoreRequest extends FormRequest
             'blood_type' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-,Unknown',
 
             // Immunization Record
-            'vaccine_received' => 'required|string|max:125',
-            'date_administered' => 'required|date',
+            'vaccines' => 'required|array',
+            'vaccines.*.vaccine_received' => 'required|string|max:125',
+            'vaccines.*.date_administered' => 'required|date|date_format:Y-m-d',
         ];
     }
 
@@ -79,6 +82,7 @@ class PatientStoreRequest extends FormRequest
     {
         throw new HttpResponseException(response()->json([
             'success' => false,
+            'message' => "invalid data",
             'errors' => $validator->errors(),
         ], 422));
     }

@@ -51,9 +51,11 @@ class PatientCreateHelper {
 
     public static function createChronicHealthRecord($patient, $validated)
     {
-        $patient->chronics()->create([
-            "chronic_medical" => $validated["chronic_medical"],
-        ]);
+        foreach ($validated["chronic_medical"] as $chronic) {
+            $patient->chronics()->create([
+                "chronic_medical" => $chronic,
+            ]);
+        }
     }
 
     public static function createParentChronic($patient, $validated)
@@ -67,10 +69,12 @@ class PatientCreateHelper {
 
     public static function createMedication($patient, $validated)
     {
-        $patient->medications()->create([
-            "medicine" => $validated["medicine"],
-            "frequency" => $validated["frequency"],
-        ]);
+        foreach ($validated["medicines"] as $medicine) {
+            $patient->medications()->create([
+                "medicine" => $medicine["medicine"],
+                "frequency" => $medicine["frequency"],
+            ]);
+        }
     }
 
 
@@ -91,9 +95,11 @@ class PatientCreateHelper {
 
     public static function createImmunization($patient, $validated)
     {
-        $patient->immunizations()->create([
-            "vaccine_received" => $validated["vaccine_received"],
-            "date_administered" => $validated["date_administered"],
-        ]);
+        foreach ($validated["vaccines"] as $vaccine) {
+            $patient->immunizations()->create([
+                "vaccine_received" => $vaccine["vaccine_received"],
+                "date_administered" => $vaccine["date_administered"],
+            ]);
+        }
     }
 }

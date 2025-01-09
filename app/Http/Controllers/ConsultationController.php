@@ -199,7 +199,7 @@ class ConsultationController extends Controller
                 }
             }
 
-            $status = 'waiting-payment';
+            $status = $patient->is_offline ? 'completed' : 'waiting-payment';
             if (!empty($validated['medicine'])) {
                 $status = 'take-medicine';
             }

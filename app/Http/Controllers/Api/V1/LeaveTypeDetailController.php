@@ -16,37 +16,43 @@ class LeaveTypeDetailController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $clinic = match ($user->role) {
-            'clinic' => $user->clinic,
-            'doctor' => $user->doctor->clinic,
-            'staff' => $user->staff->clinic,
-            default => abort(401, 'Unauthorized access. Invalid role.'),
-        };
-        $clinicID = $clinic->id;
+        // jika admin
+        if ($user->role == 'admin' || $user->role == 'superadmin') {
+            $clinicID = null;
+        } else {
+            // jika clinic
+            $clinic = match ($user->role) {
+                'clinic' => $user->clinic,
+                'doctor' => $user->doctor->clinic,
+                'staff' => $user->staff->clinic,
+                default => abort(401, 'Unauthorized access. Invalid role.'),
+            };
+            $clinicID = $clinic->id;
+        }
         $leaveDetailsQuery = LeaveTypeDetail::with("leaveType","clinic");
 
         // get query param
         $leaveTypeID = $request->query("leave_type_id");
 
-        // filter by clinic_id
-        if ($clinicID) {
             $leaveDetailsQuery->where("clinic_id", $clinicID);
             $leaveDetails = $leaveDetailsQuery->get();
 
             if ($leaveDetails->isEmpty()) {
-                // cek existance klinik id
-                $clinicById = Clinic::find($clinicID);
-                if (!$clinicById) {
-                    return response()->json([
-                        "status" => "failed",
-                        "message" => "Clinic not found"
-                    ], 400);
+                // jika clinicid null
+                if ($clinicID != null) {
+                    // cek existance klinik id
+                    $clinicById = Clinic::find($clinicID);
+                    if (!$clinicById) {
+                        return response()->json([
+                            "status" => "failed",
+                            "message" => "Clinic not found"
+                        ], 400);
+                    }
                 }
                 $this->createLeaveDetail($clinicID);
                 $leaveDetailsQuery = LeaveTypeDetail::with("leaveType", "clinic")
                                                     ->where("clinic_id", $clinicID);
             }
-        }
 
         // filter by leave_type_id
         if ($leaveTypeID) {
@@ -61,7 +67,7 @@ class LeaveTypeDetailController extends Controller
         ]);
     }
 
-    public function createLeaveDetail(int $clinicID)
+    public function createLeaveDetail($clinicID)
     {
         $leaveType = LeaveType::get();
         foreach ($leaveType as $leaveTypeItem) {

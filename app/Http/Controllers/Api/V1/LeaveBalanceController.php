@@ -36,13 +36,19 @@ class LeaveBalanceController extends Controller
             ]);
         }
 
-        $clinic = match ($user->role) {
-            'clinic' => $user->clinic,
-            'doctor' => $user->doctor->clinic,
-            'staff' => $user->staff->clinic,
-            default => abort(401, 'Unauthorized access. Invalid role.'),
-        };
-        $clinicID = $clinic->id;
+        // jika admin
+        if ($user->role == 'admin') {
+            $clinicID = null;
+        } else {
+            // jika clinic
+            $clinic = match ($user->role) {
+                'clinic' => $user->clinic,
+                'doctor' => $user->doctor->clinic,
+                'staff' => $user->staff->clinic,
+                default => abort(401, 'Unauthorized access. Invalid role.'),
+            };
+            $clinicID = $clinic->id;
+        }
 
         $leaveBalanceQuery = LeaveBalance::with(
             'user.doctor.employmentInformation',

@@ -33,7 +33,6 @@ class PatientStoreRequest extends FormRequest
             'phone' => 'required|max:15',
 
             // Demographic information
-            'mrn' => 'nullable|string|max:255',
             'date_birth' => 'nullable|date',
             'gender' => 'nullable|string',
             'nric' => 'nullable|string|max:255|unique:demographic_information,nric',

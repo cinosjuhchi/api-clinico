@@ -2,11 +2,15 @@
 
 namespace App\Helpers;
 
+use App\Models\DemographicInformation;
+
 class PatientCreateHelper {
     public static function createDemographics($patient, $validated)
     {
+        $lastDemographicInfo = DemographicInformation::orderBy('id', 'desc')->first();
+        $newMRN = 'MRN' . str_pad(($lastDemographicInfo ? ((int) substr($lastDemographicInfo->mrn, 3)) + 1 : 1), 7, '0', STR_PAD_LEFT);
         $patient->demographics()->create([
-            "mrn" => $validated["mrn"],
+            "mrn" => $newMRN,
             "date_birth" => $validated["date_birth"],
             "gender" => $validated["gender"],
             "nric" => $validated["nric"],

@@ -21,4 +21,10 @@ class Employee extends Model
     {
         return $this->hasOne(Staff::class);
     }
+    public function adminClinico(): HasOne
+    {
+        return $this->hasOne(AdminClinico::class);
+    }
+
+
 }

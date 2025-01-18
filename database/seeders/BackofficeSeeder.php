@@ -2,12 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Models\Clinic;
-use App\Models\Staff;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Staff;
+use App\Models\Clinic;
+use App\Models\AdminClinico;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class BackofficeSeeder extends Seeder
 {
@@ -72,22 +73,20 @@ class BackofficeSeeder extends Seeder
         ]);
 
         // backoffice - staff
-        $superAdminStaff = Staff::create([
-            'name' => 'Super Admin',
-            'clinic_id' => $clinicMuhara->id,
+        $superAdminStaff = AdminClinico::create([
+            'name' => 'Super Admin',            
             'user_id' => $superAdmin->id,
             'employee_id' => $superAdminEmployee,
         ]);
 
-        $adminStaff = Staff::create([
-            'name' => 'Admin',
-            'clinic_id' => $clinicMuhara->id,
+        $adminStaff = AdminClinico::create([
+            'name' => 'Admin',            
             'user_id' => $admin->id,
             'employee_id' => $adminEmployee,
         ]);
 
         // backoffice - staff demographics
-        DB::table('staff_demographics')->insert([
+        DB::table('bo_demographics')->insert([
             'name' => $superAdminStaff->name,
             'birth_date' => '1980-01-01',
             'place_of_birth' => 'Kuala Lumpur',
@@ -99,10 +98,10 @@ class BackofficeSeeder extends Seeder
             'postal_code' => 12345,
             'email' => $superAdmin->email,
             'phone_number' => $superAdmin->phone_number,
-            'staff_id' => $superAdminStaff->id
+            'admin_clinico_id' => $superAdminStaff->id
         ]);
 
-        DB::table('staff_demographics')->insert([
+        DB::table('bo_demographics')->insert([
             'name' => $adminStaff->name,
             'birth_date' => '1995-08-24',
             'place_of_birth' => 'Sabah',
@@ -114,11 +113,11 @@ class BackofficeSeeder extends Seeder
             'postal_code' => 12345,
             'email' => $admin->email,
             'phone_number' => $admin->phone_number,
-            'staff_id' => $adminStaff->id
+            'admin_clinico_id' => $adminStaff->id
         ]);
 
         // backoffice - contribution
-        DB::table('staff_contributions')->insert([
+        DB::table('bo_contribution_infos')->insert([
             [
                 'kwsp_number' => 12345678,
                 'kwsp_amount' => 1000.00,
@@ -126,7 +125,7 @@ class BackofficeSeeder extends Seeder
                 'perkeso_amount' => 500.00,
                 'tax_number' => 'TX12345',
                 'tax_amount' => 800.00,
-                'staff_id' => $superAdminStaff->id,
+                'admin_clinico_id' => $superAdminStaff->id,
             ],
             [
                 'kwsp_number' => 23456789,
@@ -135,21 +134,21 @@ class BackofficeSeeder extends Seeder
                 'perkeso_amount' => 400.00,
                 'tax_number' => 'TX54321',
                 'tax_amount' => 600.00,
-                'staff_id' => $adminStaff->id,
+                'admin_clinico_id' => $adminStaff->id,
             ],
         ]);
 
         // backoffice - financial
-        DB::table('staff_financial_information')->insert([
+        DB::table('bo_financials')->insert([
             [
                 'bank_name' => 'Maybank',
                 'account_number' => '123456789',
-                'staff_id' => $superAdminStaff->id,
+                'admin_clinico_id' => $superAdminStaff->id,
             ],
             [
                 'bank_name' => 'CIMB',
                 'account_number' => '987654321',
-                'staff_id' => $adminStaff->id,
+                'admin_clinico_id' => $adminStaff->id,
             ],
         ]);
     }

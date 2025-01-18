@@ -379,6 +379,7 @@ Route::prefix('v1')->group(function () {
         });
         Route::prefix('bills')->group(function () {
             Route::get('/clinic-revenue', [BillController::class, 'clinicRevenue']);
+            Route::get('/clinic-transaction', [BillController::class, 'clinicTransaction']);
             Route::get('/clinic-total-revenue-month', [BillController::class, 'clinicTotalRevenue']);
             Route::get('/clinic-total-revenue-daily', [BillController::class, 'clinicDailyTotalRevenue']);
             Route::get('/clinic-total-revenue-doctor', [BillController::class, 'clinicTotalRevenueByDoctor']);

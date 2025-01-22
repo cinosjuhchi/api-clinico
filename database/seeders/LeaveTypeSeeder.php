@@ -47,6 +47,10 @@ class LeaveTypeSeeder extends Seeder
                 'description' => 'Paternity Leave',
             ],
             [
+                'code' => 'MTL',
+                'description' => 'Maternity Leave',
+            ],
+            [
                 'code' => 'RL',
                 'description' => 'Replacement Leave',
             ],

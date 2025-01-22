@@ -26,6 +26,7 @@ class StoreAdminRequest extends FormRequest
             'email' => 'required|email|unique:users,email',
             'phone_number' => 'required|string|max:20',
             'password' => 'required|string|min:8',
+            'department' => 'required|string|max:125',
             'role' => 'required|in:admin,superadmin',
             'branch' => 'required|string',
             'position' => 'required|string',

@@ -70,6 +70,12 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(Staff::class);
     }
+    public function adminClinico(): HasOne
+    {
+        return $this->hasOne(AdminClinico::class);
+    }
+
+
 
     public function bills()
     {

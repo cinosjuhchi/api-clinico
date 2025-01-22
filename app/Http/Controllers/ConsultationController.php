@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CompleteAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\ClinicService;
 use App\Models\Injection;
@@ -10,7 +11,6 @@ use App\Models\Medication;
 use App\Models\Patient;
 use App\Models\User;
 use App\Notifications\CallPatientNotification;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Log;
 
 class ConsultationController extends Controller
 {
-    public function complete(Appointment $appointment, Request $request)
+    public function complete(Appointment $appointment, CompleteAppointmentRequest $request)
     {
         $user = Auth::user();
         $doctor = $user->doctor;
@@ -28,54 +28,8 @@ class ConsultationController extends Controller
         DB::beginTransaction();
 
         try {
-            $validated = $request->validate([
-                'blood_pressure' => 'required|string',
-                'pulse_rate' => 'required|numeric',
-                'temperature' => 'required|numeric',
-                'weight' => 'required|numeric',
-                'height' => 'required|numeric',
-                'sp02' => 'required|numeric',
-                'pain_score' => 'required|numeric',
-                'respiratory_rate' => 'required|numeric',
-                // History
-                'patient_condition' => 'required|string',
-                'consultation_note' => 'required|string',
-                'examination' => 'nullable|string',
-                // Diagnosis
-                'diagnosis' => 'required|array',
-                'diagnosis.*' => 'required|string',
-                'plan' => 'required|string',
-                // Treatment
-                'investigations' => 'nullable|array',
-                'investigations.*.investigation_type' => 'required|string',
-                'investigations.*.remark' => 'nullable|string',
-                'investigations.*.name' => 'required|string',
-                'investigations.*.cost' => 'required|numeric',
-                // Treatment
-                'procedure' => 'nullable|array',
-                'procedure.*.name' => 'required|string',
-                'procedure.*.remark' => 'nullable|string',
-                'procedure.*.cost' => 'required|numeric',
-
-                'injection' => 'nullable|array',
-                'injection.*.injection_id' => 'nullable|exists:injections,id',
-                'injection.*.name' => 'required|string',
-                'injection.*.price' => 'required|numeric',
-                'injection.*.cost' => 'required|numeric',
-
-                'medicine' => 'nullable|array',
-                'medicine.*.medicine_id' => 'nullable|exists:medications,id',
-                'medicine.*.name' => 'required|string',
-                'medicine.*.unit' => 'required|string',
-                'medicine.*.frequency' => 'nullable|string',
-                'medicine.*.cost' => 'required|numeric',
-                'medicine.*.medicine_qty' => 'nullable|integer',
-                // Bill
-                'total_cost' => 'required|numeric',
-                'transaction_date' => 'required|date',
-                'service_id' => 'required|exists:clinic_services,id',
-
-            ]);
+            $validated = $request->validated();
+            
 
             $patient = $appointment->patient;
             $user = $patient->user_id;
@@ -113,6 +67,11 @@ class ConsultationController extends Controller
                     'pulse_rate' => $validated['pulse_rate'],
                     'pain_score' => $validated['pain_score'],
                     'clinic_service_id' => $validated['service_id'],
+                    'current_history' => $validated['current_history'],
+                    'follow_up_date' => $validated['follow_up_date'],
+                    'follow_up_remark' => $validated['follow_up_remark'],
+                    'timer' => $validated['timer'],
+
                 ]);
             } else {
                 $medicalRecord = $appointment->medicalRecord()->create([
@@ -129,6 +88,10 @@ class ConsultationController extends Controller
                     'pulse_rate' => $validated['pulse_rate'],
                     'pain_score' => $validated['pain_score'],
                     'clinic_service_id' => $validated['service_id'],
+                    'current_history' => $validated['current_history'],
+                    'follow_up_date' => $validated['follow_up_date'],
+                    'follow_up_remark' => $validated['follow_up_remark'],
+                    'timer' => $validated['timer']
                 ]);
             }
 
@@ -199,10 +162,68 @@ class ConsultationController extends Controller
                 }
             }
 
-            $status = $patient->is_offline ? 'completed' : 'waiting-payment';
-            if (!empty($validated['medicine'])) {
-                $status = 'take-medicine';
+
+            if (!empty($validated['risk_factors'])) {
+                foreach ($validated['risk_factors'] as $risk) {                    
+                    $medicalRecord->riskFactors()->create([
+                        'name' => $risk
+                    ]);
+                }
             }
+
+            if (!empty($validated['images'])) {
+                foreach ($validated['images'] as $index => $image) {
+                    // Store the image
+                    $imagePath = $image->store('consultation_image');
+
+                    $medicalRecord->consultationPhotos()->create([
+                        'image_path' => $imagePath,
+                    ]);
+
+                }
+
+            }
+            if (!empty($validated['documents'])) {
+                foreach ($validated['documents'] as $index => $document) {
+                    // Store the image
+                    $documentPath = $document->store('consultation_document');
+
+                    $medicalRecord->consultationDocuments()->create([
+                        'document_path' => $documentPath,
+                        'type' => 'document',
+                    ]);
+
+                }
+            }
+            if (!empty($validated['reports'])) {
+                foreach ($validated['reports'] as $index => $report) {
+                    // Store the image
+                    $reportPath = $report->store('consultation_report');
+
+                    $medicalRecord->consultationDocuments()->create([
+                        'document_path' => $reportPath,
+                        'type' => 'report',
+                    ]);
+
+                }
+            }
+            if (!empty($validated['certificate'])) {
+                $certificatePath = $validated['certificate']->store('certificate_document');
+                $medicalRecord->consultationDocuments()->create([
+                    'document_path' => $certificatePath,
+                    'type' => 'certificate',
+                ]);
+
+            }
+
+            if (!empty($validated['medicine'])) {
+                $appointment->update([
+                    'status' => 'take-medicine',                    
+                ]);
+            } else {
+                $appointment->update([
+                    'status' => 'waiting-payment',
+                ]);
 
             $appointment->update(['status' => $status]);
 
@@ -468,7 +489,8 @@ class ConsultationController extends Controller
                 DB::rollBack();
                 return response()->json([
                     'status' => 'failed',
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
+
                 ]);
             }
         }
@@ -513,7 +535,7 @@ class ConsultationController extends Controller
 
         return response()->json([
             "status" => "success",
-            "data" => $appointment
+            "data" => $appointment,
         ]);
     }
 }

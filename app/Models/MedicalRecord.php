@@ -80,4 +80,13 @@ class MedicalRecord extends Model
     {
         return $this->belongsTo(Appointment::class, 'appointment_id');
     }
+
+    public function consultationPhotos()
+    {
+        return $this->hasMany(ConsultationPhoto::class, 'medical_record_id');
+    }
+    public function consultationDocuments()
+    {
+        return $this->hasMany(ConsultationDocument::class, 'medical_record_id');
+    }
 }

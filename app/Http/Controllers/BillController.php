@@ -73,6 +73,35 @@ class BillController extends Controller
         ], 200);
     }
 
+    public function clinicTransaction(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            'staff' => $user->staff->clinic,
+            default => abort(401, 'Unauthorized access. Invalid role.'),
+        };
+
+        if (!$clinic) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Clinic not found.',
+            ], 404);
+        }
+
+        $revenue = $clinic->bills()
+            ->with(['user', 'appointment'])
+            ->paginate(5);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Success to fetch the data.',
+            'data' => $revenue,
+        ], 200);
+
+    }
+
     public function clinicTotalRevenue(Request $request)
     {
         $user = Auth::user();
@@ -319,8 +348,6 @@ class BillController extends Controller
             'data' => $billing,
         ]);
     }
-
-
 
     /**
      * Update the specified resource in storage.

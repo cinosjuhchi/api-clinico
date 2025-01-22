@@ -15,6 +15,10 @@ use Illuminate\Support\Facades\Auth;
 use App\Helpers\GenerateStaffIdHelper;
 use App\Http\Requests\BackOfficeRequest;
 use App\Http\Requests\StoreAdminRequest;
+use App\Models\AdminClinico;
+use App\Models\BoContributionInfo;
+use App\Models\BoDemographic;
+use App\Models\BoFinancial;
 use App\Models\StaffFinancialInformation;
 
 class BackOfficeController extends Controller
@@ -93,19 +97,17 @@ class BackOfficeController extends Controller
                 'elaun' => $validated['elaun'],
             ]);
 
-            // Get clinic
-            $clinic = Clinic::first();
+            // Get clinic            
 
             // Create staff
-            $staff = Staff::create([
-                'name' => $validated['name'],
-                'clinic_id' => $clinic->id,
+            $staff = AdminClinico::create([
+                'name' => $validated['name'],                
                 'user_id' => $user->id,
                 'employee_id' => $employee->id,
             ]);
 
             // Create staff demographics
-            $demographic = StaffDemographic::create([
+            $demographic = BoDemographic::create([
                 'name' => $staff->name,
                 'birth_date' => $validated['birth_date'],
                 'place_of_birth' => $validated['place_of_birth'],
@@ -117,25 +119,25 @@ class BackOfficeController extends Controller
                 'postal_code' => $validated['postal_code'],
                 'email' => $user->email,
                 'phone_number' => $user->phone_number,
-                'staff_id' => $staff->id
+                'admin_clinico_id' => $staff->id
             ]);
 
             // Create staff contributions
-            $contribution = StaffContribution::create([
+            $contribution = BoContributionInfo::create([
                 'kwsp_number' => $validated['kwsp_number'],
                 'kwsp_amount' => $validated['kwsp_amount'],
                 'perkeso_number' => $validated['perkeso_number'],
                 'perkeso_amount' => $validated['perkeso_amount'],
                 'tax_number' => $validated['tax_number'],
                 'tax_amount' => $validated['tax_amount'],
-                'staff_id' => $staff->id,
+                'admin_clinico_id' => $staff->id,
             ]);
 
             // Create staff financial information
-            $financial = StaffFinancialInformation::create([
+            $financial = BoFinancial::create([
                 'bank_name' => $validated['bank_name'],
                 'account_number' => $validated['account_number'],
-                'staff_id' => $staff->id,
+                'admin_clinico_id' => $staff->id,
             ]);
 
             DB::commit();

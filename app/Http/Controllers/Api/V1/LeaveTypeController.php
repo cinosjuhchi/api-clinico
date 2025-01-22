@@ -40,13 +40,11 @@ class LeaveTypeController extends Controller
         $request->validate([
             'code' => 'required',
             'description' => 'required',
-            'year_ent' => 'required|numeric',
         ]);
 
         $leaveType = LeaveType::create([
             'code' => $request->code,
             'description' => $request->description,
-            'year_ent' => $request->year_ent,
         ]);
 
         return response()->json([
@@ -56,6 +54,7 @@ class LeaveTypeController extends Controller
         ]);
     }
 
+    // ! DEPRECATE
     public function update(Request $request, int $id)
     {
         $request->validate([

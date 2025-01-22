@@ -25,7 +25,11 @@ class OvertimePermissionController extends Controller
         }
 
         if ($request->has('clinic_id')) {
-            $overtimePermissionsQuery->where('clinic_id', $request->clinic_id);
+            $overtimePermissionsQuery->when($request->clinic_id == 0, function ($query) {
+                return $query->whereNull('clinic_id');
+            }, function ($query) use ($request) {
+                return $query->where('clinic_id', $request->clinic_id);
+            });
         }
 
         if ($request->has('user_id')) {
@@ -46,13 +50,19 @@ class OvertimePermissionController extends Controller
     {
         $user = Auth::user();
 
-        $clinic = match ($user->role) {
-            'clinic' => $user->clinic,
-            'doctor' => $user->doctor->clinic,
-            'staff' => $user->staff->clinic,
-            default => abort(401, 'Unauthorized access. Invalid role.'),
-        };
-        $clinicID = $clinic->id;
+        // jika admin
+        if ($user->role == 'admin') {
+            $clinicID = null;
+        } else {
+            // jika clinic
+            $clinic = match ($user->role) {
+                'clinic' => $user->clinic,
+                'doctor' => $user->doctor->clinic,
+                'staff' => $user->staff->clinic,
+                default => abort(401, 'Unauthorized access. Invalid role.'),
+            };
+            $clinicID = $clinic->id;
+        }
 
         $validated = $request->validated();
 

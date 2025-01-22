@@ -25,7 +25,7 @@ class Patient extends Model
 
     protected $guarded = ['id'];
 
-    
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -71,12 +71,12 @@ class Patient extends Model
         return $this->hasOne(EmergencyContact::class);
     }
 
-    public function parentChronic(): HasOne 
+    public function parentChronic(): HasOne
     {
         return $this->hasOne(ParentChronic::class);
     }
 
-    public function allergy(): HasOne 
+    public function allergy(): HasOne
     {
         return $this->hasOne(Allergy::class);
     }
@@ -94,5 +94,15 @@ class Patient extends Model
     public function medicalRecords()
     {
         return $this->hasMany(MedicalRecord::class, 'patient_id');
+    }
+
+    public function patientContact()
+    {
+        return $this->hasOne(PatientContact::class);
+    }
+
+    public function bills()
+    {
+        return $this->hasMany(Billing::class);
     }
 }

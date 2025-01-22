@@ -8,6 +8,7 @@ use App\Http\Requests\StoreLeavePermissionRequest;
 use App\Models\LeaveBalance;
 use App\Models\LeavePermission;
 use App\Models\LeaveType;
+use App\Models\LeaveTypeDetail;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,7 +30,11 @@ class LeavePermissionController extends Controller
         }
 
         if ($request->has('clinic_id')) {
-            $leavePermissionQuery->where('clinic_id', $request->clinic_id);
+            $leavePermissionQuery->when($request->clinic_id == 0, function ($query) {
+                return $query->whereNull('clinic_id');
+            }, function ($query) use ($request) {
+                return $query->where('clinic_id', $request->clinic_id);
+            });
         }
 
         if ($request->has('user_id')) {
@@ -50,13 +55,19 @@ class LeavePermissionController extends Controller
     {
         $user = Auth::user();
 
-        $clinic = match ($user->role) {
-            'clinic' => $user->clinic,
-            'doctor' => $user->doctor->clinic,
-            'staff' => $user->staff->clinic,
-            default => abort(401, 'Unauthorized access. Invalid role.'),
-        };
-        $clinicID = $clinic->id;
+        // jika admin
+        if ($user->role == 'admin') {
+            $clinicID = null;
+        } else {
+            // jika clinic
+            $clinic = match ($user->role) {
+                'clinic' => $user->clinic,
+                'doctor' => $user->doctor->clinic,
+                'staff' => $user->staff->clinic,
+                default => abort(401, 'Unauthorized access. Invalid role.'),
+            };
+            $clinicID = $clinic->id;
+        }
 
         $validated = $request->validated();
 
@@ -70,27 +81,39 @@ class LeavePermissionController extends Controller
             }
         }
 
-        // validasi sisa saldo
+        // Cek leave type detail id untuk dapet id
+        $leaveTypeDetail = LeaveTypeDetail::where('clinic_id', $clinicID)
+                            ->where('leave_type_id', $validated['leave_type_id'])
+                            ->first();
+
+        if (!$leaveTypeDetail) {
+            return response()->json([
+               'status' => 'error',
+               'message' => 'Leave type detail not found.',
+            ]);
+        }
+
+        // cek sisa saldo
         $leaveBalance = LeaveBalance::where('user_id', $user->id)
-            ->where('leave_type_id', $validated['leave_type_id'])
+            ->where('leave_type_detail_id', $leaveTypeDetail->id)
             ->first();
 
         if (!$leaveBalance) {
             DB::beginTransaction();
             try {
-                $leaveType = LeaveType::all();
+                $leaveTypeDetailByClinicID = LeaveTypeDetail::where('clinic_id', $clinicID)->get();
 
-                foreach ($leaveType as $type) {
+                foreach ($leaveTypeDetailByClinicID as $typeDetail) {
                     LeaveBalance::create([
                         'user_id' => $user->id,
-                        'leave_type_id' => $type->id,
-                        'bal' => $type->year_ent,
+                        'leave_type_detail_id' => $typeDetail->id,
+                        'bal' => $typeDetail->year_ent,
                     ]);
                 }
                 DB::commit();
 
-                $leaveBalance = LeaveBalance::where('user_id', $user->id)
-                    ->where('leave_type_id', $validated['leave_type_id'])
+                 $leaveBalance = LeaveBalance::where('user_id', $user->id)
+                    ->where('leave_type_detail_id', $leaveTypeDetail->id)
                     ->first();
             } catch (\Exception $e) {
                 DB::rollBack();
@@ -193,11 +216,20 @@ class LeavePermissionController extends Controller
             ], 400);
         }
 
-        $leavePermission->status = "approved";
-        $leavePermission->save();
+        // get leave type detail by clinid_id and leave type id
+        $leaveTypeDetail = LeaveTypeDetail::where('clinic_id', $leavePermission->clinic_id)
+                                        ->where('leave_type_id', $leavePermission->leave_type_id)
+                                        ->first();
+
+        if (!$leaveTypeDetail) {
+            return response()->json([
+               'status' => 'error',
+               'message' => 'Leave type detail not found.',
+            ]);
+        }
 
         $leaveBalance = LeaveBalance::where('user_id', $leavePermission->user_id)
-            ->where('leave_type_id', $leavePermission->leave_type_id)
+            ->where('leave_type_detail_id', $leaveTypeDetail->id)
             ->first();
 
         $dateFrom = Carbon::parse($leavePermission->date_from);
@@ -207,6 +239,9 @@ class LeavePermissionController extends Controller
         $leaveBalance->bal = $leaveBalance->bal - $requestedDays;
         $leaveBalance->taken = $leaveBalance->taken + $requestedDays;
         $leaveBalance->save();
+
+        $leavePermission->status = "approved";
+        $leavePermission->save();
 
         return response()->json([
             'status' => 'success',

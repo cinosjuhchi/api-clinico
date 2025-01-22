@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Helpers\WaitingNumberHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AppointmentRequest;
 use App\Models\Appointment;
@@ -142,14 +143,22 @@ class AppointmentController extends Controller
         }
 
         try {
+            // generate waiting number
+            $waitingNumber = WaitingNumberHelper::generate(
+                $validated["appointment_date"],
+                $validated["doctor_id"],
+                $validated["room_id"]
+            );
+
             // Use transaction to maintain data consistency
-            DB::transaction(function () use ($validated, $title, $slug, $clinic, $newVN) {
+            DB::transaction(function () use ($validated, $title, $slug, $clinic, $newVN, $patient, $waitingNumber) {
                 Appointment::create([
                     'title' => $title,
                     'slug' => $slug,
                     'clinic_service_id' => $validated['visit_purpose'],
                     'current_condition' => $validated['current_condition'],
-                    'status' => 'pending',
+                    'status' => $patient->is_offline ? 'consultation' : 'pending',
+                    'waiting_number' => $waitingNumber,
                     'room_id' => $validated['room_id'],
                     'patient_id' => $validated['patient_id'],
                     'doctor_id' => $validated['doctor_id'],

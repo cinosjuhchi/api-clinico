@@ -67,6 +67,7 @@ use App\Http\Controllers\Api\V1\Auth\ClinicAuthController;
 use App\Http\Controllers\Api\V1\Auth\DoctorAuthController;
 use App\Http\Controllers\Api\V1\ClaimPermissionController;
 use App\Http\Controllers\Api\V1\LeavePermissionController;
+use App\Http\Controllers\Api\V1\LeaveTypeDetailController;
 use App\Http\Controllers\DemographicInformationController;
 use App\Http\Controllers\Api\V1\OvertimePermissionController;
 Route::prefix('v1')->group(function () {
@@ -137,7 +138,6 @@ Route::prefix('v1')->group(function () {
         Route::prefix('patient')->group(function () {
             Route::get('/user/{id}', [UserController::class, 'show']);
             Route::get('/logout-user', [AuthController::class, 'logout']);
-            Route::post('/store', [PatientController::class, 'store']);
             Route::delete('/destroy/{patient}', [PatientController::class, 'destroy']);
             Route::prefix('notifications')->group(function () {
                 Route::get('/', [PatientNotificationController::class, 'getNotifications']); // Ambil notifikasi yang belum dibaca
@@ -393,6 +393,8 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/cancel-appointment/{slug}', [AppointmentController::class, 'destroy']);
             });
 
+            Route::post('/store', [AppointmentController::class, 'store']);
+
             Route::get('/dispensary', [ConsultationController::class, 'dispensary']);
             Route::get('/consultation-entry', [ConsultationController::class, 'consultationEntry']);
             Route::put('/take-medicine/{appointment}', [ConsultationController::class, 'takeMedicine']);
@@ -444,6 +446,8 @@ Route::prefix('v1')->group(function () {
                 Route::get('/', [LeaveBalanceController::class, 'index']);
             });
 
+            Route::get('leave-types/details', [LeaveTypeDetailController::class, "index"]);
+            Route::put('leave-types/details/{id}', [LeaveTypeDetailController::class, "update"]);
             Route::apiResource('leave-types', LeaveTypeController::class);
             Route::apiResource('claim-items', ClaimItemController::class);
         });
@@ -456,6 +460,12 @@ Route::prefix('v1')->group(function () {
         //================== History ==================//
         Route::prefix('history')->group(function() {
             Route::get('/medical', [MedicalRecordController::class, 'history']);
+        });
+
+        //================== Patient ==================//
+        Route::prefix('patient')->group(function() {
+            Route::get('/search', [PatientController::class, 'search']);
+            Route::post('/store', [PatientController::class, 'store']);
         });
     });
 

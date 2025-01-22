@@ -160,4 +160,9 @@ class Clinic extends Authenticatable
     {
         return $this->hasMany(ClinicImage::class, 'clinic_id');
     }
+
+    public function leaveTypeDetails()
+    {
+        return $this->hasMany(LeaveTypeDetail::class);
+    }
 }

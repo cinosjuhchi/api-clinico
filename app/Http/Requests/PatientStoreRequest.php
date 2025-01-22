@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class PatientStoreRequest extends FormRequest
 {
@@ -25,18 +27,62 @@ class PatientStoreRequest extends FormRequest
             'name' => 'required|string|max:255',
             'address' => 'required|string|max:255',
             'user_id' => 'nullable|exists:users,id', // Diubah menjadi nullable
-            'family_id' => 'required|exists:families,id',
-            'family_relationship_id' => 'required|exists:family_relationships,id',
-            'payment_type' => 'required|in:CASH,ONLINE', // Validasi payment_type sebagai enum
+
+            // Patient Contact
+            'email' => 'required|string|email',
+            'phone' => 'required|max:15',
+
+            // Demographic information
+            'date_birth' => 'nullable|date',
+            'gender' => 'nullable|string',
+            'nric' => 'nullable|string|max:255|unique:demographic_information,nric',
+            'country' => 'nullable|string|max:255',
+            'postal_code' => 'nullable|integer',
+
+            // Occupation record
+            'job_position' => 'required|string|max:255',
+            'company' => 'required|string|max:255',
+            'panel' => 'required|string|max:255',
+
+            // Emergency Contact Info
+            'emergency_name' => 'required|string|max:255',
+            'emergency_phone' => 'required|string|max:255',
+            'emergency_relation' => 'required|string|max:255',
+
+            // Chronic Health Records
+            'chronic_medical' => 'required|array',
+            'chronic_medical.*' => 'required|string|max:255',
+
+            // Parent Chronic
+            'father_chronic_medical' => 'required|string',
+            'mother_chronic_medical' => 'required|string',
+
+            // Medication
+            'medicines' => 'required|array',
+            'medicines.*.medicine' => 'required|string|max:255',
+            'medicines.*.frequency' => 'required|string|max:255',
+
+            // Allergies
+            'allergies' => 'required|string|max:255',
+
+            // Physical Exam
+            'height' => 'nullable|numeric|min:0',
+            'weight' => 'nullable|numeric|min:0',
+            'blood_type' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-,Unknown',
+
+            // Immunization Record
+            'vaccines' => 'required|array',
+            'vaccines.*.vaccine_received' => 'required|string|max:125',
+            'vaccines.*.date_administered' => 'required|date|date_format:Y-m-d',
         ];
     }
 
-    public function withValidator($validator)
+    protected function failedValidation(Validator $validator)
     {
-        $validator->after(function ($validator) {
-            if ($this->payment_type === 'ONLINE' && !$this->user_id) {
-                $validator->errors()->add('user_id', 'The user_id field is required when payment_type is ONLINE.');
-            }
-        });
+        throw new HttpResponseException(response()->json([
+            'success' => false,
+            'message' => "invalid data",
+            'errors' => $validator->errors(),
+        ], 422));
     }
 }

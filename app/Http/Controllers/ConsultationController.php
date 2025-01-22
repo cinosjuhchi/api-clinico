@@ -37,7 +37,8 @@ class ConsultationController extends Controller
             $bill = $appointment->bill()->create([
                 'transaction_date' => $validated['transaction_date'],
                 'total_cost' => $validated['total_cost'],
-                'user_id' => $user,
+                'user_id' => $user ? $user : null,
+                'patient_id' => $patient->id,
                 'clinic_id' => $clinic->id,
                 'doctor_id' => $doctor->id,
             ]);
@@ -161,6 +162,7 @@ class ConsultationController extends Controller
                 }
             }
 
+
             if (!empty($validated['risk_factors'])) {
                 foreach ($validated['risk_factors'] as $risk) {                    
                     $medicalRecord->riskFactors()->create([
@@ -222,7 +224,8 @@ class ConsultationController extends Controller
                 $appointment->update([
                     'status' => 'waiting-payment',
                 ]);
-            }
+
+            $appointment->update(['status' => $status]);
 
             DB::commit();
 
@@ -433,6 +436,9 @@ class ConsultationController extends Controller
                 $bill->is_paid = true;
             } else {
                 $appointment->status = 'waiting-payment';
+                if ($appointment->patient->is_offline) {
+                    $appointment->status = 'completed';
+                }
             }
 
             $bill->save();
@@ -484,6 +490,7 @@ class ConsultationController extends Controller
                 return response()->json([
                     'status' => 'failed',
                     'error' => $e->getMessage(),
+
                 ]);
             }
         }

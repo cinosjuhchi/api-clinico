@@ -11,10 +11,11 @@ class LeaveBalance extends Model
 
     protected $fillable = [
         'user_id',
-        'leave_type_id',
+        'leave_type_detail_id',
         'bal',
         'bal_bf',
         'burned',
+        'taken',
     ];
 
     public function user()
@@ -22,8 +23,8 @@ class LeaveBalance extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function leaveType()
+    public function leaveTypeDetail()
     {
-        return $this->belongsTo(LeaveType::class);
+        return $this->belongsTo(LeaveTypeDetail::class);
     }
 }

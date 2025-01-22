@@ -300,17 +300,6 @@ class BillController extends Controller
      */
     public function store(BillStoreRequest $request)
     {
-        // $validated = $request->validate([
-        //     'name' => 'required|string',
-        //     'description' => 'required|string',
-        //     'due_date' => 'required|date',
-        //     'email' => 'required|email',
-        //     'amount' => 'required|numeric',
-        //     'bill_id' => 'required|exists:billings,id',
-        //     'reference_1_label' => 'nullable|string',
-        //     'reference_1' => 'nullable|string',
-        // ]);
-
         $validated = $request->validated();
 
         $billData = [

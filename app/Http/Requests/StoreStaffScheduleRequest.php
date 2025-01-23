@@ -24,7 +24,7 @@ class StoreStaffScheduleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'staff_id' => 'required|exists:staff,id',
+            'admin_clinico_id' => 'required|exists:admin_clinicos,id',
             'day' => 'required|numeric|in:1,2,3,4,5,6,7',
             'start_work' => 'required',
             'end_work' => 'required',

@@ -51,7 +51,7 @@ class StaffScheduleController extends Controller
     public function store(StoreStaffScheduleRequest $request)
     {
         // jangan ada staff_id dan day yang sama
-        $isScheduleExist = StaffSchedule::where('staff_id', $request["staff_id"])
+        $isScheduleExist = StaffSchedule::where('admin_clinico_id', $request["admin_clinico_id"])
                                         ->where('day', $request["day"])
                                         ->first();
         if ($isScheduleExist) {
@@ -63,7 +63,7 @@ class StaffScheduleController extends Controller
         }
 
         $schedule = new StaffSchedule();
-        $schedule->staff_id = $request["staff_id"];
+        $schedule->admin_clinico_id = $request["admin_clinico_id"];
         $schedule->day = $request["day"];
         $schedule->start_work = $request["start_work"];
         $schedule->end_work = $request["end_work"];
@@ -87,7 +87,7 @@ class StaffScheduleController extends Controller
             ], 404);
         }
 
-        $schedule->staff_id = $request["staff_id"];
+        $schedule->admin_clinico_id = $request["admin_clinico_id"];
         $schedule->day = $request["day"];
         $schedule->start_work = $request["start_work"];
         $schedule->end_work = $request["end_work"];

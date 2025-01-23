@@ -29,7 +29,7 @@ class ConsultationController extends Controller
 
         try {
             $validated = $request->validated();
-            
+
 
             $patient = $appointment->patient;
             $user = $patient->user_id;
@@ -164,7 +164,7 @@ class ConsultationController extends Controller
 
 
             if (!empty($validated['risk_factors'])) {
-                foreach ($validated['risk_factors'] as $risk) {                    
+                foreach ($validated['risk_factors'] as $risk) {
                     $medicalRecord->riskFactors()->create([
                         'name' => $risk
                     ]);
@@ -216,16 +216,16 @@ class ConsultationController extends Controller
 
             }
 
+            $status = $patient->is_offline ? 'completed' : 'waiting-payment';
             if (!empty($validated['medicine'])) {
                 $appointment->update([
-                    'status' => 'take-medicine',                    
+                    'status' => 'take-medicine',
                 ]);
             } else {
                 $appointment->update([
-                    'status' => 'waiting-payment',
+                    'status' => $status,
                 ]);
-
-            $appointment->update(['status' => $status]);
+            }
 
             DB::commit();
 

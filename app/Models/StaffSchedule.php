@@ -18,6 +18,6 @@ class StaffSchedule extends Model
 
     public function staff()
     {
-        return $this->belongsTo(Staff::class);
+        return $this->belongsTo(AdminClinico::class, 'admin_clinico_id');
     }
 }

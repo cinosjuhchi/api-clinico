@@ -28,7 +28,7 @@ class AdminClinico extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-    
+
     public function demographic(): HasOne
     {
         return $this->hasOne(BoDemographic::class, 'admin_clinico_id');
@@ -82,5 +82,10 @@ class AdminClinico extends Model
     public function employmentInformation(): BelongsTo
     {
         return $this->belongsTo(Employee::class, 'employee_id', 'id');
+    }
+
+    public function schedules()
+    {
+        return $this->hasMany(StaffSchedule::class, 'admin_clinico_id');
     }
 }

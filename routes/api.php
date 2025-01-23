@@ -70,6 +70,8 @@ use App\Http\Controllers\Api\V1\LeavePermissionController;
 use App\Http\Controllers\Api\V1\LeaveTypeDetailController;
 use App\Http\Controllers\DemographicInformationController;
 use App\Http\Controllers\Api\V1\OvertimePermissionController;
+use App\Http\Controllers\Api\V1\StaffScheduleController;
+
 Route::prefix('v1')->group(function () {
     Route::prefix('back-office')->group(function () {
         Route::post('login', [BackOfficeController::class, 'login']);
@@ -94,6 +96,11 @@ Route::prefix('v1')->group(function () {
                 Route::get('/', [BackOfficeDoctorController::class, 'index']);
             });
             Route::prefix('staff')->group(function () {
+                Route::get('/schedules', [StaffScheduleController::class, 'index']);
+                Route::get('/schedules/{staff}', [StaffScheduleController::class, 'show']);
+                Route::post('/schedules', [StaffScheduleController::class, 'store']);
+                Route::put('/schedules/{staff}', [StaffScheduleController::class, 'update']);
+                Route::delete('/schedules/{staff}', [StaffScheduleController::class, 'destroy']);
                 Route::post('/store', [BackOfficeController::class, 'storeStaff']);
             });
             Route::prefix('clinic')->group(function () {
@@ -175,7 +182,7 @@ Route::prefix('v1')->group(function () {
             });
 
             Route::prefix('medical-record')->group(function () {
-                Route::get('/', [MedicalRecordController::class, 'index']);                
+                Route::get('/', [MedicalRecordController::class, 'index']);
                 Route::get('/show/{medicalRecord}', [MedicalRecordController::class, 'show']);
                 Route::prefix('document')->group(function () {
                     Route::get('/download-file', [ConsultationDocumentController::class, 'download']);

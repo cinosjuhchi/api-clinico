@@ -2,20 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CompleteAppointmentRequest;
-use App\Models\Appointment;
-use App\Models\ClinicService;
-use App\Models\Injection;
-use App\Models\MedicalRecord;
-use App\Models\Medication;
-use App\Models\Patient;
+use Exception;
 use App\Models\User;
-use App\Notifications\CallPatientNotification;
+use App\Models\Patient;
+use App\Models\Injection;
+use App\Models\Medication;
+use App\Models\Appointment;
 use Illuminate\Http\Request;
+use App\Models\ClinicService;
+use App\Models\MedicalRecord;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use App\Notifications\CallPatientNotification;
+use App\Http\Requests\CompleteAppointmentRequest;
 
 class ConsultationController extends Controller
 {
@@ -225,7 +226,7 @@ class ConsultationController extends Controller
                     'status' => 'waiting-payment',
                 ]);
 
-            $appointment->update(['status' => $status]);
+            }
 
             DB::commit();
 
@@ -233,7 +234,7 @@ class ConsultationController extends Controller
                 'status' => 'success',
                 'message' => 'Appointment completed successfully',
             ], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollback();
 
             return response()->json([
@@ -243,6 +244,7 @@ class ConsultationController extends Controller
             ], 500);
         }
     }
+
 
     public function dispensary(Request $request)
     {

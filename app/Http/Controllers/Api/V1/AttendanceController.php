@@ -17,7 +17,11 @@ class AttendanceController extends Controller
 {
     public function index(Request $request)
     {
-        $attendances = Attendance::with('user.doctor.clinic');
+        $attendances = Attendance::with(
+            'user.doctor.employmentInformation',
+            'user.doctor.clinic',
+            'user.adminClinico.employmentInformation'
+        );
 
         // filter: by user_id
         $userId = $request->input('user_id');
@@ -27,10 +31,18 @@ class AttendanceController extends Controller
 
         // filter: by clinic_id
         $clinicId = $request->input('clinic_id');
-        if ($clinicId) {
-            $attendances = $attendances->whereHas('user.doctor.clinic', function ($query) use ($clinicId) {
-                $query->where('id', $clinicId);
-            });
+        if (!is_null($clinicId)) {
+            if ($clinicId === '0') {
+                // Filter untuk admin
+                $attendances = $attendances->whereHas('user', function ($query) {
+                    $query->where('role', 'admin');
+                });
+            } else {
+                // Filter berdasarkan clinic_id
+                $attendances = $attendances->whereHas('user.doctor.clinic', function ($query) use ($clinicId) {
+                    $query->where('id', $clinicId);
+                });
+            }
         }
 
         // filter: by is_late
@@ -114,6 +126,7 @@ class AttendanceController extends Controller
         $userSchedule = match ($user->role) {
             'doctor' => $user->doctor->schedules->where('day', strtolower(now()->format('l')))->first(),
             'staff' => $user->staff->clinic->schedule,
+            'admin' => $user->adminClinico->schedules->where('day', Carbon::now()->dayOfWeekIso)->first(),
             default => abort(401, 'Unauthorized access. Invalid role.'),
         };
 
@@ -135,20 +148,38 @@ class AttendanceController extends Controller
         }
 
         // validasi: apakah jarak user lebih dari 1km dari klinik
-        $clinicLocation = match ($user->role) {
-            'clinic' => $user->clinic->location,
-            'doctor' => $user->doctor->clinic->location,
-            'staff' => $user->staff->clinic->location,
-            default => abort(401, 'Unauthorized access. Invalid role.'),
-        };
-        $ClinicLat = $clinicLocation->latitude;
-        $ClinicLong = $clinicLocation->longitude;
+        if ($user->role === 'admin') {
+            // penyesuaian key kolom
+            $userSchedule->start_time = $userSchedule->start_work;
+            $userSchedule->end_time = $userSchedule->end_work;
+            $clinicLocation = [
+                'latitude' => 3.3283180,
+                'longitude' => 101.5475700,
+            ];
+            $ClinicLat = $clinicLocation['latitude'];
+            $ClinicLong = $clinicLocation['longitude'];
+        } else {
+            $clinicLocation = match ($user->role) {
+                'clinic' => $user->clinic->location ?? null,
+                'doctor' => $user->doctor->clinic->location ?? null,
+                'staff' => $user->staff->clinic->location ?? null,
+                default => abort(401, 'Unauthorized access. Invalid role.'),
+            };
+
+            if (!$clinicLocation || !isset($clinicLocation->latitude, $clinicLocation->longitude)) {
+                abort(400, 'Clinic location data is missing or incomplete.');
+            }
+
+            $ClinicLat = $clinicLocation->latitude;
+            $ClinicLong = $clinicLocation->longitude;
+        }
+
         $userLat = $request['latitude'];
         $userLong = $request['longitude'];
 
-        $isGreatedThan1km = AttendanceHelper::isDistanceGreaterThan100m($ClinicLat, $ClinicLong, $userLat, $userLong);
+        $isGreaterThan100m = AttendanceHelper::isDistanceGreaterThan100m($ClinicLat, $ClinicLong, $userLat, $userLong);
 
-        if ($isGreatedThan1km) {
+        if ($isGreaterThan100m) {
             return response()->json([
                 "status" => "error",
                 "message" => "You are too far from the clinic",
@@ -247,14 +278,19 @@ class AttendanceController extends Controller
         }
 
         // validasi: apakah jarak user lebih dari 1km dari klinik
-        $userClinicLat = $userWithClinic->doctor->clinic->location->latitude;
-        $userClinicLong = $userWithClinic->doctor->clinic->location->longitude;
+        if ($user->role == 'admin') {
+            $userClinicLat = 3.3283180;
+            $userClinicLong = 101.5475700;
+        } else {
+            $userClinicLat = $userWithClinic->doctor->clinic->location->latitude;
+            $userClinicLong = $userWithClinic->doctor->clinic->location->longitude;
+        }
         $userAttendanceLat = $request['latitude'];
         $userAttendanceLong = $request['longitude'];
 
-        $isGreatedThan1km = AttendanceHelper::isDistanceGreaterThan100m($userClinicLat, $userClinicLong, $userAttendanceLat, $userAttendanceLong);
+        $isGreaterThan100m = AttendanceHelper::isDistanceGreaterThan100m($userClinicLat, $userClinicLong, $userAttendanceLat, $userAttendanceLong);
 
-        if ($isGreatedThan1km) {
+        if ($isGreaterThan100m) {
             return response()->json([
                 "status" => "error",
                 "message" => "You are too far from the clinic",
@@ -265,6 +301,7 @@ class AttendanceController extends Controller
         $userSchedule = match ($user->role) {
             'doctor' => $user->doctor->schedules->where('day', strtolower(now()->format('l')))->first(),
             'staff' => $user->staff->clinic->schedule,
+            'admin' => $user->adminClinico->schedules->where('day', Carbon::now()->dayOfWeekIso)->first(),
             default => abort(401, 'Unauthorized access. Invalid role.'),
         };
         if (!$userSchedule) {
@@ -274,11 +311,20 @@ class AttendanceController extends Controller
             ], 404);
         }
 
+        if ($user->role == 'admin') {
+            $userSchedule->start_time = $userSchedule->start_work;
+            $userSchedule->end_time = $userSchedule->end_work;
+        }
+
         $userEndTime = Carbon::parse($userSchedule->end_time);
         if (!now()->lessThan($userEndTime)) {
             return response()->json([
                 "status" => "error",
                 "message" => "Cannot clock out before the scheduled end time.",
+                "data" => [
+                    "now" => now(),
+                    "end_time" => $userEndTime
+                ]
             ], 400);
         }
 

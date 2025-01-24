@@ -121,6 +121,15 @@ class StaffScheduleController extends Controller
 
     public function destroy($id)
     {
+        // hanya boleh superadmin
+        $user = Auth::user();
+        $role = $user->role;
+        if ($role!= 'superadmin') {
+            return response()->json([
+               'status' => 'failed',
+               'message' => 'Forbidden',
+            ], 403);
+        }
         $schedule = StaffSchedule::find($id);
         if (!$schedule) {
             return response()->json([

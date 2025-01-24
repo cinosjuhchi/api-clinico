@@ -384,6 +384,10 @@ Route::prefix('v1')->group(function () {
                 Route::post('/store', [ClinicLocationController::class, 'store']);
                 Route::put('/update/{clinicLocation}', [ClinicLocationController::class, 'update']);
             });
+
+            Route::prefix('settlements')->group(function () {
+                Route::get('/', [ClinicDataController::class, 'getSettlements']);
+            });
         });
     });
 

@@ -23,6 +23,40 @@ use App\Models\StaffFinancialInformation;
 
 class BackOfficeController extends Controller
 {
+
+    public function index(Request $request)
+    {
+        $query = AdminClinico::with([
+            'user',
+            'demographic',
+            'educational',
+            'contributionInfo',
+            'emergencyContact',
+            'spouseInformation',
+            'childsInformation',
+            'parentInformation',
+            'reference',
+            'basicSkills',
+            'financialInformation',
+            'employmentInformation',
+            'schedules',
+        ]);
+
+        // Tambahkan filter untuk pencarian berdasarkan name
+        if ($request->has('search') && !empty($request->search)) {
+            $searchTerm = $request->search;
+            $query->where('name', 'like', '%' . $searchTerm . '%');
+        }
+
+        // Ambil data dengan paginasi
+        $data = $query->paginate();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $data,
+        ]);
+    }
+
     public function login(BackOfficeRequest $request)
     {
         $request->validated();

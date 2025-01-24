@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreStaffScheduleRequest;
 use App\Models\StaffSchedule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class StaffScheduleController extends Controller
 {
@@ -50,6 +51,15 @@ class StaffScheduleController extends Controller
 
     public function store(StoreStaffScheduleRequest $request)
     {
+        // hanya boleh superadmin
+        $user = Auth::user();
+        $role = $user->role;
+        if ($role!= 'superadmin') {
+            return response()->json([
+               'status' => 'failed',
+               'message' => 'Forbidden',
+            ], 403);
+        }
         // jangan ada staff_id dan day yang sama
         $isScheduleExist = StaffSchedule::where('admin_clinico_id', $request["admin_clinico_id"])
                                         ->where('day', $request["day"])
@@ -78,6 +88,15 @@ class StaffScheduleController extends Controller
 
     public function update(StoreStaffScheduleRequest $request, $id)
     {
+        // hanya boleh superadmin
+        $user = Auth::user();
+        $role = $user->role;
+        if ($role!= 'superadmin') {
+            return response()->json([
+               'status' => 'failed',
+               'message' => 'Forbidden',
+            ], 403);
+        }
         $schedule = StaffSchedule::find($id);
         if (!$schedule) {
             return response()->json([

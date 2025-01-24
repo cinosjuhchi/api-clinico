@@ -64,7 +64,7 @@ class BackOfficeController extends Controller
     {
         try {
             DB::beginTransaction();
-            
+
             // Get validated data
             $validated = $request->validated();
 
@@ -78,7 +78,7 @@ class BackOfficeController extends Controller
 
             // Generate staff_id using helper
             $staffId = GenerateStaffIdHelper::generate();
-            
+
             // Create employee
             $employee = Employee::create([
                 'image_profile' => $validated['image_profile']
@@ -97,11 +97,11 @@ class BackOfficeController extends Controller
                 'elaun' => $validated['elaun'],
             ]);
 
-            // Get clinic            
+            // Get clinic
 
             // Create staff
             $staff = AdminClinico::create([
-                'name' => $validated['name'],                
+                'name' => $validated['name'],
                 'user_id' => $user->id,
                 'employee_id' => $employee->id,
             ]);
@@ -147,13 +147,13 @@ class BackOfficeController extends Controller
                 'message' => 'Staff created successfully',
                 'data' => [
                     'user' => $user,
-                    'staff' => $staff->load(['employee', 'demographic', 'contribution', 'financialInformation'])
+                    'staff' => $staff->load(['employmentInformation', 'demographic', 'contribution', 'financialInformation'])
                 ]
             ], 201);
 
         } catch (\Exception $e) {
             DB::rollback();
-            
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to create staff',

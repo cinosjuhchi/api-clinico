@@ -10,6 +10,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "maatwebsite/excel": "^3.1",
+        "minishlink/web-push": "^9.0",
         "rakutentech/laravel-request-docs": "^2.39"
     },
     "require-dev": {

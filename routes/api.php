@@ -51,6 +51,7 @@ use App\Http\Controllers\BackOfficeDoctorController;
 use App\Http\Controllers\ClinicSettlementController;
 use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\MedicationRecordController;
+use App\Http\Controllers\PushNotificationController;
 use App\Http\Controllers\Api\V1\AttendanceController;
 use App\Http\Controllers\BackOfficeRevenueController;
 use App\Http\Controllers\PregnancyCategoryController;
@@ -153,6 +154,9 @@ Route::prefix('v1')->group(function () {
     });
     Route::middleware(['auth:sanctum', 'abilities:user'])->group(function () {
         Route::prefix('patient')->group(function () {
+            Route::prefix('web-push')->group(function () {
+                Route::post('/save-notification', [PushNotificationController::class, 'saveSubscription']);
+            });
             Route::get('/user/{id}', [UserController::class, 'show']);
             Route::get('/logout-user', [AuthController::class, 'logout']);
             Route::delete('/destroy/{patient}', [PatientController::class, 'destroy']);

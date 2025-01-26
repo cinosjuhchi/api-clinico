@@ -1,11 +1,13 @@
 <?php
 
+use Minishlink\WebPush\VAPID;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ImportDiagnosis;
 use App\Http\Controllers\DiagnosisController;
 
 Route::get('/', function () {
-    return view('welcome');
+    var_dump(VAPID::createVapidKeys()); // store the keys afterwards
+
 });
 
 Route::get('/import-diagnosis', function () {

@@ -72,9 +72,9 @@ class ClinicSettlementController extends Controller
             $billSummary = Billing::where('clinic_id', $clinic->id)
                 ->whereDate('created_at', $selectedDate)
                 ->selectRaw('
-                SUM(CASE WHEN type = "cash" THEN amount ELSE 0 END) AS cash_total,
-                SUM(CASE WHEN type = "panel" THEN amount ELSE 0 END) AS panel_total,
-                SUM(CASE WHEN type = "clinico" THEN amount ELSE 0 END) AS clinico_total
+                SUM(CASE WHEN type = "cash" THEN total_cost ELSE 0 END) AS cash_total,
+                SUM(CASE WHEN type = "panel" THEN total_cost ELSE 0 END) AS panel_total,
+                SUM(CASE WHEN type = "clinico" THEN total_cost ELSE 0 END) AS clinico_total
             ')
                 ->first();
 

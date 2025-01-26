@@ -1,23 +1,23 @@
 <?php
 namespace App\Http\Controllers;
 
-use Exception;
-use App\Models\User;
-use App\Models\Patient;
-use App\Models\Injection;
-use App\Models\Medication;
+use App\Http\Requests\CompleteAppointmentRequest;
 use App\Models\Appointment;
-use Illuminate\Http\Request;
 use App\Models\ClinicService;
+use App\Models\Injection;
 use App\Models\MedicalRecord;
-use Minishlink\WebPush\WebPush;
+use App\Models\Medication;
+use App\Models\Patient;
+use App\Models\User;
+use App\Notifications\CallPatientNotification;
+use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
 use Minishlink\WebPush\Subscription;
-use App\Notifications\CallPatientNotification;
-use App\Http\Requests\CompleteAppointmentRequest;
+use Minishlink\WebPush\WebPush;
 
 class ConsultationController extends Controller
 {
@@ -481,13 +481,24 @@ class ConsultationController extends Controller
             if ($subscription) {
                 $webPush = new WebPush([
                     'VAPID' => [
-                        'subject'    => "http: //localhost:5174/",
+                        'subject'    => env('APP_URL', 'https://clinico.site'),
                         'publicKey'  => env('VAPID_PUBLIC_KEY'),
                         'privateKey' => env('VAPID_PRIVATE_KEY'),
                     ],
                 ]);
 
-                $webPush->sendOneNotification(
+                // Payload data untuk notifikasi
+                $payload = json_encode([
+                    'title' => 'Panggilan Pasien',
+                    'body'  => "Silakan menuju ke ruang $room. Nomor antrian Anda adalah {$appointment->waiting_number}.",
+                    'icon'  => '/icon512_rounded.png',
+                    'data'  => [
+                        'url' => env('WEB_CLINICO_URL'),
+                    ],
+                ]);
+
+                // Kirim notifikasi
+                $webPush->queueNotification(
                     Subscription::create([
                         'endpoint' => $subscription->endpoint,
                         'keys'     => [
@@ -495,16 +506,18 @@ class ConsultationController extends Controller
                             'auth'   => $subscription->auth,
                         ],
                     ]),
-                    json_encode([
-                        'title' => 'Panggilan Pasien',
-                        'body'  => "Silakan menuju ke ruang $room. Nomor antrian Anda adalah {$appointment->waiting_number}.",
-                        'icon'  => 'icon512_rounded.png',
-                        'data'  => [
-                            'url' => env('WEB_CLINICO_URL'),
-                        ],
-                    ]),
-                    ['TTL' => 2000]
+                    $payload
                 );
+
+                // Flush notifikasi dan log hasilnya
+                foreach ($webPush->flush() as $report) {
+                    $endpoint = $report->getRequest()->getUri()->__toString();
+                    if ($report->isSuccess()) {
+                        Log::info("Web Push sent successfully to {$endpoint}");
+                    } else {
+                        Log::error("Web Push failed to {$endpoint}: {$report->getReason()}");
+                    }
+                }
             } else {
                 Log::error('Web Push error: No subscription found for user.');
             }

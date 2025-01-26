@@ -1,12 +1,12 @@
 <?php
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\PushNotification;
-use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StorePushNotificationRequest;
 use App\Http\Requests\UpdatePushNotificationRequest;
+use App\Models\PushNotification;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class PushNotificationController extends Controller
 {
@@ -15,13 +15,24 @@ class PushNotificationController extends Controller
     {
         $validated = $request->validate([
             'endpoint'    => 'required',
-            'keys' => 'required|array',
+            'keys'        => 'required|array',
             'keys.p256dh' => 'required',
             'keys.auth'   => 'required',
         ]);
 
         $user = Auth::user();
 
+        // Periksa apakah subscription dengan endpoint yang sama sudah ada
+        $existingSubscription = $user->pushSubscriptions()
+            ->where('endpoint', $validated['endpoint']) // Periksa berdasarkan endpoint
+            ->first();
+
+        if ($existingSubscription) {
+            // Jika sudah ada, tidak perlu menambahkan lagi
+            return response()->json(['message' => 'Subscription already exists'], 200);
+        }
+
+        // Simpan subscription baru
         $user->pushSubscriptions()->create([
             'endpoint' => $validated['endpoint'],
             'p256dh'   => $validated['keys']['p256dh'],
@@ -29,7 +40,6 @@ class PushNotificationController extends Controller
         ]);
 
         return response()->json(['message' => 'Subscription saved successfully!'], 201);
-
     }
 
     /**

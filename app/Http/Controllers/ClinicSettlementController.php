@@ -16,7 +16,7 @@ class ClinicSettlementController extends Controller
      */
     public function index(Request $request)
     {
-        $query = ClinicSettlement::with(['clinic.financial, clinic.user']);
+        $query = ClinicSettlement::with(['clinic.financial', 'clinic.user']);
 
         // Jika ada parameter pencarian, tambahkan filter
         if ($request->has('search') && ! empty($request->search)) {

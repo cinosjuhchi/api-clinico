@@ -477,8 +477,8 @@ class ConsultationController extends Controller
 
         // Kirim Web Push Notification
         try {
-            $subscription = $user->pushSubscriptions()->latest()->first(); // Ambil subscription terakhir user
-            if ($subscription) {
+            $subscriptions = $user->pushSubscriptions; // Ambil semua subscriptions untuk user
+            if ($subscriptions->isNotEmpty()) {
                 $webPush = new WebPush([
                     'VAPID' => [
                         'subject'    => env('APP_URL', 'https://clinico.site'),
@@ -497,19 +497,21 @@ class ConsultationController extends Controller
                     ],
                 ]);
 
-                // Kirim notifikasi
-                $webPush->queueNotification(
-                    Subscription::create([
-                        'endpoint' => $subscription->endpoint,
-                        'keys'     => [
-                            'p256dh' => $subscription->p256dh,
-                            'auth'   => $subscription->auth,
-                        ],
-                    ]),
-                    $payload
-                );
+                // Kirim notifikasi ke semua subscriptions
+                foreach ($subscriptions as $subscription) {
+                    $webPush->queueNotification(
+                        Subscription::create([
+                            'endpoint' => $subscription->endpoint,
+                            'keys'     => [
+                                'p256dh' => $subscription->p256dh,
+                                'auth'   => $subscription->auth,
+                            ],
+                        ]),
+                        $payload
+                    );
+                }
 
-                // Flush notifikasi dan log hasilnya
+                // Flush semua notifikasi dan log hasilnya
                 foreach ($webPush->flush() as $report) {
                     $endpoint = $report->getRequest()->getUri()->__toString();
                     if ($report->isSuccess()) {
@@ -519,7 +521,7 @@ class ConsultationController extends Controller
                     }
                 }
             } else {
-                Log::error('Web Push error: No subscription found for user.');
+                Log::error('Web Push error: No subscriptions found for user.');
             }
         } catch (Exception $e) {
             Log::error('Web Push error: ' . $e->getMessage());

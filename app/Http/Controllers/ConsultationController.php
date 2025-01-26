@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Exception;
@@ -11,10 +10,12 @@ use App\Models\Appointment;
 use Illuminate\Http\Request;
 use App\Models\ClinicService;
 use App\Models\MedicalRecord;
+use Minishlink\WebPush\WebPush;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Minishlink\WebPush\Subscription;
 use App\Notifications\CallPatientNotification;
 use App\Http\Requests\CompleteAppointmentRequest;
 
@@ -22,7 +23,7 @@ class ConsultationController extends Controller
 {
     public function complete(Appointment $appointment, CompleteAppointmentRequest $request)
     {
-        $user = Auth::user();
+        $user   = Auth::user();
         $doctor = $user->doctor;
         $clinic = $doctor->clinic;
 
@@ -31,148 +32,146 @@ class ConsultationController extends Controller
         try {
             $validated = $request->validated();
 
-
             $patient = $appointment->patient;
-            $user = $patient->user_id;
+            $user    = $patient->user_id;
 
             $bill = $appointment->bill()->create([
                 'transaction_date' => $validated['transaction_date'],
-                'total_cost' => $validated['total_cost'],
-                'user_id' => $user ? $user : null,
-                'patient_id' => $patient->id,
-                'clinic_id' => $clinic->id,
-                'doctor_id' => $doctor->id,
+                'total_cost'       => $validated['total_cost'],
+                'user_id'          => $user ? $user : null,
+                'patient_id'       => $patient->id,
+                'clinic_id'        => $clinic->id,
+                'doctor_id'        => $doctor->id,
             ]);
 
             $patient->physicalExaminations()->update([
                 'blood_pressure' => $validated['blood_pressure'],
-                'pulse_rate' => $validated['pulse_rate'],
-                'temperature' => $validated['temperature'],
-                'sp02' => $validated['sp02'],
-                'weight' => $validated['weight'],
-                'height' => $validated['height'],
+                'pulse_rate'     => $validated['pulse_rate'],
+                'temperature'    => $validated['temperature'],
+                'sp02'           => $validated['sp02'],
+                'weight'         => $validated['weight'],
+                'height'         => $validated['height'],
             ]);
             $medicalRecord = $appointment->medicalRecord;
             if ($medicalRecord) {
                 $medicalRecord->update([
-                    'patient_id' => $appointment->patient_id,
-                    'clinic_id' => $appointment->clinic_id,
-                    'doctor_id' => $appointment->doctor_id,
-                    'patient_condition' => $appointment->current_condition,
-                    'consultation_note' => $validated['consultation_note'],
+                    'patient_id'           => $appointment->patient_id,
+                    'clinic_id'            => $appointment->clinic_id,
+                    'doctor_id'            => $appointment->doctor_id,
+                    'patient_condition'    => $appointment->current_condition,
+                    'consultation_note'    => $validated['consultation_note'],
                     'physical_examination' => $validated['examination'],
-                    'blood_pressure' => $validated['blood_pressure'],
-                    'plan' => $validated['plan'],
-                    'sp02' => $validated['sp02'],
-                    'temperature' => $validated['temperature'],
-                    'pulse_rate' => $validated['pulse_rate'],
-                    'pain_score' => $validated['pain_score'],
-                    'clinic_service_id' => $validated['service_id'],
-                    'current_history' => $validated['current_history'],
-                    'follow_up_date' => $validated['follow_up_date'],
-                    'follow_up_remark' => $validated['follow_up_remark'],
-                    'timer' => $validated['timer'],
+                    'blood_pressure'       => $validated['blood_pressure'],
+                    'plan'                 => $validated['plan'],
+                    'sp02'                 => $validated['sp02'],
+                    'temperature'          => $validated['temperature'],
+                    'pulse_rate'           => $validated['pulse_rate'],
+                    'pain_score'           => $validated['pain_score'],
+                    'clinic_service_id'    => $validated['service_id'],
+                    'current_history'      => $validated['current_history'],
+                    'follow_up_date'       => $validated['follow_up_date'],
+                    'follow_up_remark'     => $validated['follow_up_remark'],
+                    'timer'                => $validated['timer'],
 
                 ]);
             } else {
                 $medicalRecord = $appointment->medicalRecord()->create([
-                    'patient_id' => $appointment->patient_id,
-                    'clinic_id' => $appointment->clinic_id,
-                    'doctor_id' => $appointment->doctor_id,
-                    'patient_condition' => $appointment->current_condition,
-                    'consultation_note' => $validated['consultation_note'],
+                    'patient_id'           => $appointment->patient_id,
+                    'clinic_id'            => $appointment->clinic_id,
+                    'doctor_id'            => $appointment->doctor_id,
+                    'patient_condition'    => $appointment->current_condition,
+                    'consultation_note'    => $validated['consultation_note'],
                     'physical_examination' => $validated['examination'],
-                    'blood_pressure' => $validated['blood_pressure'],
-                    'plan' => $validated['plan'],
-                    'sp02' => $validated['sp02'],
-                    'temperature' => $validated['temperature'],
-                    'pulse_rate' => $validated['pulse_rate'],
-                    'pain_score' => $validated['pain_score'],
-                    'clinic_service_id' => $validated['service_id'],
-                    'current_history' => $validated['current_history'],
-                    'follow_up_date' => $validated['follow_up_date'],
-                    'follow_up_remark' => $validated['follow_up_remark'],
-                    'timer' => $validated['timer']
+                    'blood_pressure'       => $validated['blood_pressure'],
+                    'plan'                 => $validated['plan'],
+                    'sp02'                 => $validated['sp02'],
+                    'temperature'          => $validated['temperature'],
+                    'pulse_rate'           => $validated['pulse_rate'],
+                    'pain_score'           => $validated['pain_score'],
+                    'clinic_service_id'    => $validated['service_id'],
+                    'current_history'      => $validated['current_history'],
+                    'follow_up_date'       => $validated['follow_up_date'],
+                    'follow_up_remark'     => $validated['follow_up_remark'],
+                    'timer'                => $validated['timer'],
                 ]);
             }
 
             $service = ClinicService::find($validated['service_id']);
 
             $serviceRecord = $medicalRecord->serviceRecord()->create([
-                'name' => $service->name,
-                'cost' => $service->price,
+                'name'       => $service->name,
+                'cost'       => $service->price,
                 'patient_id' => $appointment->patient_id,
                 'billing_id' => $bill->id,
             ]);
 
             foreach ($validated['diagnosis'] as $diagnosis) {
                 $medicalRecord->diagnosisRecord()->create([
-                    'diagnosis' => $diagnosis,
+                    'diagnosis'  => $diagnosis,
                     'patient_id' => $appointment->patient_id,
                 ]);
             }
 
-            if (!empty($validated['investigations'])) {
+            if (! empty($validated['investigations'])) {
                 foreach ($validated['investigations'] as $investigation) {
                     $medicalRecord->investigationRecord()->create([
-                        'type' => $investigation['investigation_type'],
-                        'item' => $investigation['name'],
-                        'cost' => $investigation['cost'],
+                        'type'       => $investigation['investigation_type'],
+                        'item'       => $investigation['name'],
+                        'cost'       => $investigation['cost'],
                         'patient_id' => $appointment->patient_id,
                         'billing_id' => $bill->id,
                     ]);
                 }
             }
-            if (!empty($validated['procedure'])) {
+            if (! empty($validated['procedure'])) {
                 foreach ($validated['procedure'] as $procedure) {
                     $medicalRecord->procedureRecords()->create([
-                        'name' => $procedure['name'],
-                        'cost' => $procedure['cost'],
+                        'name'       => $procedure['name'],
+                        'cost'       => $procedure['cost'],
                         'patient_id' => $appointment->patient_id,
                         'billing_id' => $bill->id,
                     ]);
                 }
             }
-            if (!empty($validated['injection'])) {
+            if (! empty($validated['injection'])) {
                 foreach ($validated['injection'] as $injection) {
                     $medicalRecord->injectionRecords()->create([
                         'injection_id' => $injection['injection_id'],
-                        'name' => $injection['name'],
-                        'price' => $injection['price'],
-                        'cost' => $injection['cost'],
-                        'patient_id' => $appointment->patient_id,
-                        'billing_id' => $bill->id,
+                        'name'         => $injection['name'],
+                        'price'        => $injection['price'],
+                        'cost'         => $injection['cost'],
+                        'patient_id'   => $appointment->patient_id,
+                        'billing_id'   => $bill->id,
                     ]);
                 }
             }
 
-            if (!empty($validated['medicine'])) {
+            if (! empty($validated['medicine'])) {
                 foreach ($validated['medicine'] as $medicine) {
                     $medication = Medication::find($medicine['medicine_id']);
-                    $price = $medication->price;
+                    $price      = $medication->price;
                     $medicalRecord->medicationRecords()->create([
                         'medication_id' => $medicine['medicine_id'],
-                        'medicine' => $medicine['name'],
-                        'frequency' => $medicine['frequency'],
-                        'price' => $price,
-                        'total_cost' => $medicine['cost'],
-                        'qty' => $medicine['medicine_qty'],
-                        'patient_id' => $appointment->patient_id,
-                        'billing_id' => $bill->id,
+                        'medicine'      => $medicine['name'],
+                        'frequency'     => $medicine['frequency'],
+                        'price'         => $price,
+                        'total_cost'    => $medicine['cost'],
+                        'qty'           => $medicine['medicine_qty'],
+                        'patient_id'    => $appointment->patient_id,
+                        'billing_id'    => $bill->id,
                     ]);
                 }
             }
 
-
-            if (!empty($validated['risk_factors'])) {
+            if (! empty($validated['risk_factors'])) {
                 foreach ($validated['risk_factors'] as $risk) {
                     $medicalRecord->riskFactors()->create([
-                        'name' => $risk
+                        'name' => $risk,
                     ]);
                 }
             }
 
-            if (!empty($validated['images'])) {
+            if (! empty($validated['images'])) {
                 foreach ($validated['images'] as $index => $image) {
                     // Store the image
                     $imagePath = $image->store('consultation_image');
@@ -184,41 +183,41 @@ class ConsultationController extends Controller
                 }
 
             }
-            if (!empty($validated['documents'])) {
+            if (! empty($validated['documents'])) {
                 foreach ($validated['documents'] as $index => $document) {
                     // Store the image
                     $documentPath = $document->store('consultation_document');
 
                     $medicalRecord->consultationDocuments()->create([
                         'document_path' => $documentPath,
-                        'type' => 'document',
+                        'type'          => 'document',
                     ]);
 
                 }
             }
-            if (!empty($validated['reports'])) {
+            if (! empty($validated['reports'])) {
                 foreach ($validated['reports'] as $index => $report) {
                     // Store the image
                     $reportPath = $report->store('consultation_report');
 
                     $medicalRecord->consultationDocuments()->create([
                         'document_path' => $reportPath,
-                        'type' => 'report',
+                        'type'          => 'report',
                     ]);
 
                 }
             }
-            if (!empty($validated['certificate'])) {
+            if (! empty($validated['certificate'])) {
                 $certificatePath = $validated['certificate']->store('certificate_document');
                 $medicalRecord->consultationDocuments()->create([
                     'document_path' => $certificatePath,
-                    'type' => 'certificate',
+                    'type'          => 'certificate',
                 ]);
 
             }
 
             $status = $patient->is_offline ? 'completed' : 'waiting-payment';
-            if (!empty($validated['medicine'])) {
+            if (! empty($validated['medicine'])) {
                 $appointment->update([
                     'status' => 'take-medicine',
                 ]);
@@ -231,20 +230,19 @@ class ConsultationController extends Controller
             DB::commit();
 
             return response()->json([
-                'status' => 'success',
+                'status'  => 'success',
                 'message' => 'Appointment completed successfully',
             ], 200);
         } catch (Exception $e) {
             DB::rollback();
 
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'An error occurred while completing the appointment.',
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
-
 
     public function dispensary(Request $request)
     {
@@ -254,15 +252,15 @@ class ConsultationController extends Controller
         $clinic = match ($user->role) {
             'clinic' => $user->clinic,
             'doctor' => optional($user->doctor)->clinic, // Use optional to handle potential null
-            'staff' => optional($user->staff)->clinic, // Use optional to handle potential null
+            'staff' => optional($user->staff)->clinic,   // Use optional to handle potential null
             default => abort(401, 'Unauthorized access. Invalid role.'),
         };
 
         $query = $request->input('q');
 
-        if (!$clinic) {
+        if (! $clinic) {
             return response()->json([
-                'status' => 'failed',
+                'status'  => 'failed',
                 'message' => 'Clinic not found for this user',
             ], 404);
         }
@@ -303,7 +301,7 @@ class ConsultationController extends Controller
 
     public function consultationEntry(Request $request)
     {
-        $user = Auth::user();
+        $user   = Auth::user();
         $clinic = match ($user->role) {
             'clinic' => $user->clinic,
             'doctor' => $user->doctor->clinic,
@@ -313,11 +311,11 @@ class ConsultationController extends Controller
 
         $query = $request->input('q');
 
-        if (!$clinic) {
+        if (! $clinic) {
             $doctor = $user->doctor;
-            if (!$doctor) {
+            if (! $doctor) {
                 return response()->json([
-                    'status' => 'failed',
+                    'status'  => 'failed',
                     'message' => 'user not found',
                 ]);
             }
@@ -346,46 +344,46 @@ class ConsultationController extends Controller
     {
         if ($appointment->status == 'consultation' || $appointment->status == 'cancelled' || $appointment->status == 'completed') {
             return response()->json([
-                'status' => 'failed',
+                'status'  => 'failed',
                 'message' => 'Appointment has been check-in!',
             ], 403);
         }
         $validated = $request->validate([
-            'total_cost' => 'required|numeric',
-            'type' => 'required|in:cash,panel,clinico',
-            'medicine' => 'nullable|array',
-            'medicine.*.medicine_id' => 'nullable|exists:medications,id',
-            'medicine.*.name' => 'required|string',
-            'medicine.*.unit' => 'required|string',
-            'medicine.*.frequency' => 'nullable|string',
-            'medicine.*.cost' => 'required|numeric',
-            'medicine.*.medicine_qty' => 'nullable|integer',
+            'total_cost'               => 'required|numeric',
+            'type'                     => 'required|in:cash,panel,clinico',
+            'medicine'                 => 'nullable|array',
+            'medicine.*.medicine_id'   => 'nullable|exists:medications,id',
+            'medicine.*.name'          => 'required|string',
+            'medicine.*.unit'          => 'required|string',
+            'medicine.*.frequency'     => 'nullable|string',
+            'medicine.*.cost'          => 'required|numeric',
+            'medicine.*.medicine_qty'  => 'nullable|integer',
 
-            'injection' => 'nullable|array',
+            'injection'                => 'nullable|array',
             'injection.*.injection_id' => 'nullable|exists:injections,id',
-            'injection.*.name' => 'required|string',
-            'injection.*.cost' => 'required|numeric',
+            'injection.*.name'         => 'required|string',
+            'injection.*.cost'         => 'required|numeric',
 
-            'procedure' => 'nullable|array',
-            'procedure.*.name' => 'required|string',
-            'procedure.*.remark' => 'nullable|string',
-            'procedure.*.cost' => 'required|numeric',
+            'procedure'                => 'nullable|array',
+            'procedure.*.name'         => 'required|string',
+            'procedure.*.remark'       => 'nullable|string',
+            'procedure.*.cost'         => 'required|numeric',
         ]);
         $medicalRecord = $appointment->medicalRecord;
         try {
             DB::beginTransaction();
             $bill = $appointment->bill;
-            if (!empty($validated['medicine'])) {
+            if (! empty($validated['medicine'])) {
                 $medicalRecord->medicationRecords()->delete();
                 foreach ($validated['medicine'] as $medicine) {
                     $medication = Medication::find($medicine['medicine_id']);
-                    $price = $medication->price;
+                    $price      = $medication->price;
                     $medicalRecord->medicationRecords()->create([
-                        'medicine' => $medicine['name'],
-                        'frequency' => $medicine['frequency'],
-                        'price' => $price,
+                        'medicine'   => $medicine['name'],
+                        'frequency'  => $medicine['frequency'],
+                        'price'      => $price,
                         'total_cost' => $medicine['cost'],
-                        'qty' => $medicine['medicine_qty'],
+                        'qty'        => $medicine['medicine_qty'],
                         'patient_id' => $appointment->patient_id,
                         'billing_id' => $bill->id,
                     ]);
@@ -394,22 +392,22 @@ class ConsultationController extends Controller
                     $medication->save();
                 }
             }
-            if (!empty($validated['injection'])) {
+            if (! empty($validated['injection'])) {
                 $medicalRecord->injectionRecords()->delete();
                 foreach ($validated['injection'] as $injection) {
                     $medicalRecord->injectionRecords()->create([
-                        'name' => $injection['name'],
-                        'cost' => $injection['cost'],
-                        'patient_id' => $appointment->patient_id,
-                        'billing_id' => $bill->id,
+                        'name'         => $injection['name'],
+                        'cost'         => $injection['cost'],
+                        'patient_id'   => $appointment->patient_id,
+                        'billing_id'   => $bill->id,
                         'injection_id' => $injection['injection_id'],
                     ]);
 
                     $injection = Injection::find($injection['injection_id']);
 
-                    if (!$injection) {
+                    if (! $injection) {
                         return response()->json([
-                            'status' => 'failed',
+                            'status'  => 'failed',
                             'message' => 'Injection not found',
                         ], 404);
                     }
@@ -418,13 +416,13 @@ class ConsultationController extends Controller
                     $injection->save();
                 }
             }
-            if (!empty($validated['procedure'])) {
+            if (! empty($validated['procedure'])) {
                 $medicalRecord->procedureRecords()->delete();
                 foreach ($validated['procedure'] as $procedure) {
                     $medicalRecord->procedureRecords()->create([
-                        'name' => $procedure['name'],
-                        'cost' => $procedure['cost'],
-                        'remark' => $procedure['remark'],
+                        'name'       => $procedure['name'],
+                        'cost'       => $procedure['cost'],
+                        'remark'     => $procedure['remark'],
                         'patient_id' => $appointment->patient_id,
                         'billing_id' => $bill->id,
                     ]);
@@ -434,8 +432,8 @@ class ConsultationController extends Controller
             $bill->total_cost = $validated['total_cost'];
             if ($validated['type'] == 'cash' || $validated == 'panel') {
                 $appointment->status = 'completed';
-                $bill->type = $validated['type'];
-                $bill->is_paid = true;
+                $bill->type          = $validated['type'];
+                $bill->is_paid       = true;
             } else {
                 $appointment->status = 'waiting-payment';
                 if ($appointment->patient->is_offline) {
@@ -447,15 +445,15 @@ class ConsultationController extends Controller
             $appointment->save();
             DB::commit();
             return response()->json([
-                'status' => 'success',
+                'status'  => 'success',
                 'message' => 'Appointment in-progress successfully',
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             return response([
-                'status' => 'failed',
+                'status'  => 'failed',
                 'message' => 'Error something wrong happened',
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -463,20 +461,58 @@ class ConsultationController extends Controller
     public function callPatient(Appointment $appointment)
     {
         $patient = Patient::find($appointment->patient_id);
-        $user = $patient->user;
-        $room = $appointment->room;
+        $user    = $patient->user;
+        $room    = $appointment->room;
 
+        // Kirim notifikasi Laravel
         try {
             $user->notify(new CallPatientNotification($room, $appointment->waiting_number));
             $notification = $user->notifications()->latest()->first();
             $notification->update([
                 'expired_at' => now()->addDay(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Notification error: ' . $e->getMessage());
         }
 
-        // Cek apakah ini panggilan pertama atau bukan
+        // Kirim Web Push Notification
+        try {
+            $subscription = $user->pushSubscriptions()->latest()->first(); // Ambil subscription terakhir user
+            if ($subscription) {
+                $webPush = new WebPush([
+                    'VAPID' => [
+                        'subject'    => "http: //localhost:5174/",
+                        'publicKey'  => env('VAPID_PUBLIC_KEY'),
+                        'privateKey' => env('VAPID_PRIVATE_KEY'),
+                    ],
+                ]);
+
+                $webPush->sendOneNotification(
+                    Subscription::create([
+                        'endpoint' => $subscription->endpoint,
+                        'keys'     => [
+                            'p256dh' => $subscription->p256dh,
+                            'auth'   => $subscription->auth,
+                        ],
+                    ]),
+                    json_encode([
+                        'title' => 'Panggilan Pasien',
+                        'body'  => "Silakan menuju ke ruang $room. Nomor antrian Anda adalah {$appointment->waiting_number}.",
+                        'icon'  => 'icon512_rounded.png',
+                        'data'  => [
+                            'url' => env('WEB_CLINICO_URL'),
+                        ],
+                    ]),
+                    ['TTL' => 2000]
+                );
+            } else {
+                Log::error('Web Push error: No subscription found for user.');
+            }
+        } catch (Exception $e) {
+            Log::error('Web Push error: ' . $e->getMessage());
+        }
+
+        // Periksa apakah ini panggilan pertama
         if ($appointment->status != 'on-consultation') {
             try {
                 DB::beginTransaction();
@@ -484,21 +520,20 @@ class ConsultationController extends Controller
                 $appointment->save();
                 DB::commit();
                 return response()->json([
-                    'status' => 'success',
+                    'status'  => 'success',
                     'message' => 'Appointment on-consultation successfully!',
                 ], 200);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 DB::rollBack();
                 return response()->json([
                     'status' => 'failed',
-                    'error' => $e->getMessage(),
-
+                    'error'  => $e->getMessage(),
                 ]);
             }
         }
 
         return response()->json([
-            'status' => 'success',
+            'status'  => 'success',
             'message' => 'Notification sent successfully!',
         ], 200);
     }
@@ -507,17 +542,17 @@ class ConsultationController extends Controller
     {
         // param required: id_clinic, patient_id
         $clinicId = $request->input("clinic_id");
-        if (!$clinicId) {
+        if (! $clinicId) {
             return response()->json([
-                "status" => "failed",
+                "status"  => "failed",
                 "message" => "parameter clinic_id is required",
             ], 400);
         }
 
         $patientId = $request->input("patient_id");
-        if (!$patientId) {
+        if (! $patientId) {
             return response()->json([
-                "status" => "failed",
+                "status"  => "failed",
                 "message" => "parameter patient_id is required",
             ], 400);
         }
@@ -531,13 +566,13 @@ class ConsultationController extends Controller
             ->first();
 
         // jika data kosong, maka return error empty
-        if (!$appointment) {
+        if (! $appointment) {
             return response()->json(['error' => 'No completed consultations found.'], 404);
         }
 
         return response()->json([
             "status" => "success",
-            "data" => $appointment,
+            "data"   => $appointment,
         ]);
     }
 }

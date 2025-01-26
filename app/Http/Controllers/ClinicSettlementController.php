@@ -131,13 +131,13 @@ class ClinicSettlementController extends Controller
             return response()->json([
                 'status'  => 'success',
                 'message' => 'completed!',
-            ]);
+            ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'status'  => 'error',
                 'message' => $e->getMessage(),
-            ]);
+            ], 500);
         }
     }
 

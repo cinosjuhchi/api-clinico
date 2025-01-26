@@ -245,7 +245,7 @@ class ClinicDataController extends Controller
         }
 
         // Query settlements untuk clinic yang terkait
-        $query = $clinic->settlements()->with(['clinic.financial']);
+        $query = $clinic->settlements()->with(['clinic.financial', 'clinic.user']);
 
         // Tambahkan fitur pencarian berdasarkan clinico_id
         if ($request->has('search') && ! empty($request->search)) {

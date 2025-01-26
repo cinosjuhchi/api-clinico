@@ -490,7 +490,7 @@ class ConsultationController extends Controller
                 // Payload data untuk notifikasi
                 $payload = json_encode([
                     'title' => 'Panggilan Pasien',
-                    'body'  => "Silakan menuju ke ruang $room. Nomor antrian Anda adalah {$appointment->waiting_number}.",
+                    'body'  => "Silakan menuju ke ruang $room->name. Nomor antrian Anda adalah {$appointment->waiting_number}.",
                     'icon'  => '/icon512_rounded.png',
                     'data'  => [
                         'url' => env('WEB_CLINICO_URL'),

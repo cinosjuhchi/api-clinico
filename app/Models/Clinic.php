@@ -165,4 +165,9 @@ class Clinic extends Authenticatable
     {
         return $this->hasMany(LeaveTypeDetail::class);
     }
+
+    public function settlements()
+    {
+        return $this->hasMany(ClinicSettlement::class);
+    }
 }

@@ -48,8 +48,10 @@ use App\Http\Controllers\Api\V1\InventoryController;
 use App\Http\Controllers\Api\V1\LeaveTypeController;
 use App\Http\Controllers\Api\V1\StatisticController;
 use App\Http\Controllers\BackOfficeDoctorController;
+use App\Http\Controllers\ClinicSettlementController;
 use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\MedicationRecordController;
+use App\Http\Controllers\PushNotificationController;
 use App\Http\Controllers\Api\V1\AttendanceController;
 use App\Http\Controllers\BackOfficeRevenueController;
 use App\Http\Controllers\PregnancyCategoryController;
@@ -62,6 +64,7 @@ use App\Http\Controllers\InvestigationClinicController;
 use App\Http\Controllers\PatientNotificationController;
 use App\Http\Controllers\Api\V1\ClinicProfileController;
 use App\Http\Controllers\Api\V1\DoctorProfileController;
+use App\Http\Controllers\Api\V1\StaffScheduleController;
 use App\Http\Controllers\ConsultationDocumentController;
 use App\Http\Controllers\Api\V1\Auth\ClinicAuthController;
 use App\Http\Controllers\Api\V1\Auth\DoctorAuthController;
@@ -70,7 +73,6 @@ use App\Http\Controllers\Api\V1\LeavePermissionController;
 use App\Http\Controllers\Api\V1\LeaveTypeDetailController;
 use App\Http\Controllers\DemographicInformationController;
 use App\Http\Controllers\Api\V1\OvertimePermissionController;
-use App\Http\Controllers\Api\V1\StaffScheduleController;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('back-office')->group(function () {
@@ -81,6 +83,14 @@ Route::prefix('v1')->group(function () {
                 Route::get('/get-total-visit', [VisitorController::class, 'getTotalViewPage']);
             });
             Route::prefix('bills')->group(function () {
+                Route::prefix('settlements')->group(function () {
+                    Route::get('/', [ClinicSettlementController::class, 'index']);
+                    Route::get('/show/{clinicSettlement}', [ClinicSettlementController::class, 'show']);
+                    Route::put('/completed/{clinicSettlement}', [ClinicSettlementController::class, 'completed']);
+                    Route::delete('/delete/{clinicSettlement}', [ClinicSettlementController::class, 'destroy']);
+                    Route::post('/store', [ClinicSettlementController::class, 'store']);
+
+                });
                 Route::get('/revenue', [BackOfficeRevenueController::class, 'index']);
                 Route::get('/total-revenue', [BackOfficeRevenueController::class, 'totalRevenue']);
                 Route::get('/total-revenue/month', [BackOfficeRevenueController::class, 'getRevenueByDate']);
@@ -96,6 +106,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/', [BackOfficeDoctorController::class, 'index']);
             });
             Route::prefix('staff')->group(function () {
+                Route::get('/', [BackOfficeController::class, 'index']);
                 Route::get('/schedules', [StaffScheduleController::class, 'index']);
                 Route::get('/schedules/{staff}', [StaffScheduleController::class, 'show']);
                 Route::post('/schedules', [StaffScheduleController::class, 'store']);
@@ -143,6 +154,9 @@ Route::prefix('v1')->group(function () {
     });
     Route::middleware(['auth:sanctum', 'abilities:user'])->group(function () {
         Route::prefix('patient')->group(function () {
+            Route::prefix('web-push')->group(function () {
+                Route::post('/save-notification', [PushNotificationController::class, 'saveSubscription']);
+            });
             Route::get('/user/{id}', [UserController::class, 'show']);
             Route::get('/logout-user', [AuthController::class, 'logout']);
             Route::delete('/destroy/{patient}', [PatientController::class, 'destroy']);
@@ -373,6 +387,10 @@ Route::prefix('v1')->group(function () {
             Route::prefix('location')->group(function () {
                 Route::post('/store', [ClinicLocationController::class, 'store']);
                 Route::put('/update/{clinicLocation}', [ClinicLocationController::class, 'update']);
+            });
+
+            Route::prefix('settlements')->group(function () {
+                Route::get('/', [ClinicDataController::class, 'getSettlements']);
             });
         });
     });

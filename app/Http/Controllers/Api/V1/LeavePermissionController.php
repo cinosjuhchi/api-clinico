@@ -101,7 +101,7 @@ class LeavePermissionController extends Controller
                             'created_at' => $item->created_at,
                             'updated_at' => $item->updated_at,
                             'user' => $item->user,
-                            'leave_type' => $item->leave_type,
+                            'leave_type' => $item->leaveType,
                         ];
                     }),
                 ];

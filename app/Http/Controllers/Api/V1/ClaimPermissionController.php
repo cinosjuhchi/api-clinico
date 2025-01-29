@@ -78,6 +78,7 @@ class ClaimPermissionController extends Controller
                 return [
                     'date' => $date,
                     'total_requests' => $items->count(),
+                    'total_amount' => $items->sum('amount'),
                     'items' => $items->map(function ($item) {
                         return [
                             'id' => $item->id,

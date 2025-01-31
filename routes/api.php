@@ -128,6 +128,10 @@ Route::prefix('v1')->group(function () {
                     Route::put('/process-update/{reportClinic}', [ReportClinicController::class, 'approved']);
                 });
             });
+
+            Route::prefix('growth')->group(function() {
+                Route::get('/', [BackofficeController::class, 'growthOfRegistration']);
+            });
         });
     });
     Route::prefix('doctor-category')->group(function () {

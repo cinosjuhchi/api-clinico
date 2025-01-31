@@ -201,4 +201,61 @@ class BackOfficeController extends Controller
             ], 500);
         }
     }
+
+    public function growthOfRegistration(Request $request)
+    {
+        $type = $request->query('type');
+        $year = $request->query('year', now()->year);
+
+        $patientData = collect(range(1, 12))->mapWithKeys(function ($month) {
+            return [$month => 0];
+        });
+        $clinicData = collect(range(1, 12))->mapWithKeys(function ($month) {
+            return [$month => 0];
+        });
+
+        if (!$type || $type === 'patient') {
+            $patients = User::selectRaw('MONTH(created_at) as month, COUNT(*) as total')
+                ->where('role', 'user')
+                ->whereYear('created_at', $year)
+                ->groupByRaw('MONTH(created_at)')
+                ->orderByRaw('MONTH(created_at)')
+                ->get();
+
+            $patients->each(function ($item) use (&$patientData) {
+                $patientData[$item->month] = $item->total;
+            });
+        }
+
+        if (!$type || $type === 'clinic') {
+            $clinics = User::selectRaw('MONTH(created_at) as month, COUNT(*) as total')
+                ->where('role', 'clinic')
+                ->whereYear('created_at', $year)
+                ->groupByRaw('MONTH(created_at)')
+                ->orderByRaw('MONTH(created_at)')
+                ->get();
+
+            $clinics->each(function ($item) use (&$clinicData) {
+                $clinicData[$item->month] = $item->total;
+            });
+        }
+
+        $result = [];
+        if (!$type) {
+            $result = [
+                'patient' => $patientData,
+                'clinic' => $clinicData,
+            ];
+        } elseif ($type === 'patient') {
+            $result = $patientData;
+        } elseif ($type === 'clinic') {
+            $result = $clinicData;
+        }
+
+        return response()->json([
+            "status" => "success",
+            "message" => "Get growth of registration (" . $year . ")" . ($type ? " for $type" : ""),
+            "data" => $result
+        ]);
+    }
 }

@@ -57,6 +57,7 @@ class StoreAdminRequest extends FormRequest
             // Financial
             'bank_name' => 'required|string',
             'account_number' => 'required|string',
+            'is_doctor' => 'required|in:true,false'
         ];
     }
 }

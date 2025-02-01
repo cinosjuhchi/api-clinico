@@ -187,7 +187,6 @@ class BackOfficeController extends Controller
                 'message' => 'Staff created successfully',
                 'data'    => [
                     'user'  => $user,
-                    'staff' => $staff->load(['employmentInformation', 'demographic', 'contribution', 'financialInformation']),
                 ],
             ], 201);
 

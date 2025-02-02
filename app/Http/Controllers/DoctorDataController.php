@@ -111,6 +111,7 @@ class DoctorDataController extends Controller
         $appointment = Appointment::with(
             [
                 'doctor.category',
+                'doctor.employmentInformation',
                 'clinic',
                 'patient.allergy',
                 'patient.user',

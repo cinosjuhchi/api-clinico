@@ -1,14 +1,13 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\ClinicService;
-use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreClinicServiceRequest;
 use App\Http\Requests\UpdateClinicServiceRequest;
+use App\Models\ClinicService;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ClinicServiceController extends Controller
 {
@@ -16,53 +15,44 @@ class ClinicServiceController extends Controller
      * Display a listing of the resource.
      */
 
-     public function doctorResource(Request $request)
+    public function doctorResource(Request $request)
     {
-        $user = Auth::user();
+        $user   = Auth::user();
         $doctor = $user->doctor;
 
-        if(!$doctor)
-        {
-                        
+        if (! $doctor) {
+
             return response()->json([
-                'status' => 'failed',
-                'message' => 'user not found'
-            ]);                        
-            
-        }        
+                'status'  => 'failed',
+                'message' => 'user not found',
+            ]);
+
+        }
 
         $clinic = $doctor->clinic;
-                        
+
         // Mengambil data obat berdasarkan clinic dan melakukan pencarian jika parameter 'q' ada
         $services = $clinic->services()->with(['category'])->get();
 
         return response()->json([
-            'status' => 'success',
+            'status'  => 'success',
             'message' => 'Successfully fetched data',
-            'data' => $services
+            'data'    => $services,
         ]);
     }
 
     public function index(Request $request)
     {
-        $user = Auth::user();
-        $clinic = $user->clinic;
-        
-        if(!$clinic)
-        {
-            $clinic = $user->doctor->clinic;
-            if(!$clinic)
-            {
-                return response()->json([
-                    'status' => 'failed',
-                    'message' => 'user not found'
-                ]);                
-            }
-            
-        }        
+        $user   = Auth::user();
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            'staff' => $user->staff->clinic,
+            default => abort(401, 'Unauthorized access. Invalid role.'),
+        };
 
         $query = $request->input('q');
-        
+
         $clinicServices = $clinic->services()
             ->with('category') // Eager load category relation
             ->when($query, function ($q) use ($query) {
@@ -77,9 +67,9 @@ class ClinicServiceController extends Controller
             ->paginate(10);
 
         return response()->json([
-            'status' => 'success',
+            'status'  => 'success',
             'message' => 'Successfully fetch data',
-            'data' => $clinicServices
+            'data'    => $clinicServices,
         ]);
     }
 
@@ -97,10 +87,10 @@ class ClinicServiceController extends Controller
     public function store(StoreClinicServiceRequest $request)
     {
         $validated = $request->validated();
-        $user = Auth::user();
-        $clinic = $user->clinic;
+        $user      = Auth::user();
+        $clinic    = $user->clinic;
 
-        if (!$clinic) {
+        if (! $clinic) {
             return response()->json([
                 'success' => false,
                 'message' => 'Clinic not found.',
@@ -120,11 +110,10 @@ class ClinicServiceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create clinic service. Please try again later.',
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
-
 
     /**
      * Display the specified resource.
@@ -139,7 +128,7 @@ class ClinicServiceController extends Controller
      */
     public function edit(ClinicService $clinicService)
     {
-        
+
     }
 
     /**
@@ -149,27 +138,26 @@ class ClinicServiceController extends Controller
     {
         $validated = $request->validated();
         $clinicService->fill($validated);
-        if($clinicService->isDirty())
-        {
+        if ($clinicService->isDirty()) {
             DB::beginTransaction();
             try {
                 $clinicService->save();
                 DB::commit();
                 return response()->json([
-                    'status' => 'success',
+                    'status'  => 'success',
                     'message' => 'Clinic service updated successfully.',
                 ], 200);
             } catch (\Exception $e) {
                 DB::rollBack();
                 return response()->json([
-                    'status' => 'error',
+                    'status'  => 'error',
                     'message' => 'Failed to update clinic service. Please try again later.',
                 ], 500);
             }
         }
 
         return response()->json([
-            'status' => 'success',
+            'status'  => 'success',
             'message' => 'No changes made.',
         ], 200);
     }
@@ -182,12 +170,12 @@ class ClinicServiceController extends Controller
         try {
             $clinicService->delete();
             return response()->json([
-                'status' => 'success',
+                'status'  => 'success',
                 'message' => 'Clinic service deleted successfully.',
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Failed to delete clinic service. Please try again later.',
             ], 500);
         }

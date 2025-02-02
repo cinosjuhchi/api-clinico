@@ -89,7 +89,7 @@ class ClinicController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully fetch clinic data',
-            'data' => $clinic,
+            'data' => $clinic->load(['user']),
         ]);
 
     }

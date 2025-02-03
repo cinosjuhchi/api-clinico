@@ -73,6 +73,8 @@ use App\Http\Controllers\Api\V1\LeavePermissionController;
 use App\Http\Controllers\Api\V1\LeaveTypeDetailController;
 use App\Http\Controllers\DemographicInformationController;
 use App\Http\Controllers\Api\V1\OvertimePermissionController;
+use App\Http\Controllers\Api\V1\ReportBugController;
+use App\Http\Controllers\Api\V1\ReportBugTypeController;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('back-office')->group(function () {
@@ -495,6 +497,20 @@ Route::prefix('v1')->group(function () {
         Route::prefix('patient')->group(function() {
             Route::get('/search', [PatientController::class, 'search']);
             Route::post('/store', [PatientController::class, 'store']);
+        });
+
+        //================== Report Bugs ==================/
+        Route::prefix('report-bugs')->group(function() {
+            Route::prefix('/types')->group(function() {
+                Route::get('/', [ReportBugTypeController::class, 'index']);
+            });
+            Route::get('/', [ReportBugController::class, 'index']);
+            Route::post('/', [ReportBugController::class, 'store']);
+            Route::get('/{id}', [ReportBugController::class, 'show']);
+            Route::put('/{id}', [ReportBugController::class, 'update']);
+            Route::delete('/{id}', [ReportBugController::class, 'destroy']);
+            Route::post('/{id}/send-email', [ReportBugController::class, 'sendEmail']);
+            Route::put('/{id}/resolve', [ReportBugController::class, 'resolve']);
         });
     });
 

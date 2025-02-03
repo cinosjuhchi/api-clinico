@@ -498,7 +498,9 @@ Route::prefix('v1')->group(function () {
             Route::get('/search', [PatientController::class, 'search']);
             Route::post('/store', [PatientController::class, 'store']);
         });
+    });
 
+    Route::middleware('auth:sanctum')->group(function() {
         //================== Report Bugs ==================/
         Route::prefix('report-bugs')->group(function() {
             Route::prefix('/types')->group(function() {
@@ -513,5 +515,4 @@ Route::prefix('v1')->group(function () {
             Route::put('/{id}/resolve', [ReportBugController::class, 'resolve']);
         });
     });
-
 });

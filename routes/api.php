@@ -73,12 +73,16 @@ use App\Http\Controllers\Api\V1\LeavePermissionController;
 use App\Http\Controllers\Api\V1\LeaveTypeDetailController;
 use App\Http\Controllers\DemographicInformationController;
 use App\Http\Controllers\Api\V1\OvertimePermissionController;
+use App\Http\Controllers\Api\V1\ReportBugController;
+use App\Http\Controllers\Api\V1\ReportBugTypeController;
+use App\Http\Controllers\Api\V1\TopEmployeeController;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('back-office')->group(function () {
         Route::post('login', [BackOfficeController::class, 'login']);
         Route::middleware(['auth:sanctum', 'abilities:backOffice'])->group(function () {
             Route::get('/me', [BackOfficeController::class, 'me']);
+            Route::get('/top-employee', [TopEmployeeController::class, 'index']);
             Route::prefix('visit')->group(function () {
                 Route::get('/get-total-visit', [VisitorController::class, 'getTotalViewPage']);
             });
@@ -127,6 +131,10 @@ Route::prefix('v1')->group(function () {
                     Route::get('/complete', [ReportClinicController::class, 'getCompleteReport']);
                     Route::put('/process-update/{reportClinic}', [ReportClinicController::class, 'approved']);
                 });
+            });
+
+            Route::prefix('growth')->group(function() {
+                Route::get('/', [BackofficeController::class, 'growthOfRegistration']);
             });
         });
     });
@@ -494,4 +502,19 @@ Route::prefix('v1')->group(function () {
         });
     });
 
+    Route::middleware('auth:sanctum')->group(function() {
+        //================== Report Bugs ==================/
+        Route::prefix('report-bugs')->group(function() {
+            Route::prefix('/types')->group(function() {
+                Route::get('/', [ReportBugTypeController::class, 'index']);
+            });
+            Route::get('/', [ReportBugController::class, 'index']);
+            Route::post('/', [ReportBugController::class, 'store']);
+            Route::get('/{id}', [ReportBugController::class, 'show']);
+            Route::put('/{id}', [ReportBugController::class, 'update']);
+            Route::delete('/{id}', [ReportBugController::class, 'destroy']);
+            Route::post('/{id}/send-email', [ReportBugController::class, 'sendEmail']);
+            Route::put('/{id}/resolve', [ReportBugController::class, 'resolve']);
+        });
+    });
 });

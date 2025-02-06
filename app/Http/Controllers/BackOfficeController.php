@@ -80,7 +80,7 @@ class BackOfficeController extends Controller
 
     public function me()
     {
-        $user = Auth::user()->load('adminClinico.demographic', 'adminClinico.contributionInfo', 'adminClinico.employmentInformation', 'adminClinico.financialInformation');
+        $user = Auth::user()->load('referredBy', 'referralCodes', 'adminClinico.demographic', 'adminClinico.contributionInfo', 'adminClinico.employmentInformation', 'adminClinico.financialInformation');
         return response()->json([[
             'status'  => 'success',
             'message' => 'get current user',
@@ -187,7 +187,6 @@ class BackOfficeController extends Controller
                 'message' => 'Staff created successfully',
                 'data'    => [
                     'user'  => $user,
-                    'staff' => $staff->load(['employmentInformation', 'demographic', 'contribution', 'financialInformation']),
                 ],
             ], 201);
 
@@ -200,5 +199,62 @@ class BackOfficeController extends Controller
                 'error'   => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function growthOfRegistration(Request $request)
+    {
+        $type = $request->query('type');
+        $year = $request->query('year', now()->year);
+
+        $patientData = collect(range(1, 12))->mapWithKeys(function ($month) {
+            return [$month => 0];
+        });
+        $clinicData = collect(range(1, 12))->mapWithKeys(function ($month) {
+            return [$month => 0];
+        });
+
+        if (!$type || $type === 'patient') {
+            $patients = User::selectRaw('MONTH(created_at) as month, COUNT(*) as total')
+                ->where('role', 'user')
+                ->whereYear('created_at', $year)
+                ->groupByRaw('MONTH(created_at)')
+                ->orderByRaw('MONTH(created_at)')
+                ->get();
+
+            $patients->each(function ($item) use (&$patientData) {
+                $patientData[$item->month] = $item->total;
+            });
+        }
+
+        if (!$type || $type === 'clinic') {
+            $clinics = User::selectRaw('MONTH(created_at) as month, COUNT(*) as total')
+                ->where('role', 'clinic')
+                ->whereYear('created_at', $year)
+                ->groupByRaw('MONTH(created_at)')
+                ->orderByRaw('MONTH(created_at)')
+                ->get();
+
+            $clinics->each(function ($item) use (&$clinicData) {
+                $clinicData[$item->month] = $item->total;
+            });
+        }
+
+        $result = [];
+        if (!$type) {
+            $result = [
+                'patient' => $patientData,
+                'clinic' => $clinicData,
+            ];
+        } elseif ($type === 'patient') {
+            $result = $patientData;
+        } elseif ($type === 'clinic') {
+            $result = $clinicData;
+        }
+
+        return response()->json([
+            "status" => "success",
+            "message" => "Get growth of registration (" . $year . ")" . ($type ? " for $type" : ""),
+            "data" => $result
+        ]);
     }
 }

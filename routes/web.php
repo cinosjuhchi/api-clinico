@@ -6,7 +6,7 @@ use App\Http\Controllers\ImportDiagnosis;
 use App\Http\Controllers\DiagnosisController;
 
 Route::get('/', function () {
-    var_dump(VAPID::createVapidKeys()); // store the keys afterwards
+    // var_dump(VAPID::createVapidKeys()); // store the keys afterwards
 
 });
 

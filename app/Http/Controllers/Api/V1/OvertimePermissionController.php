@@ -14,14 +14,29 @@ class OvertimePermissionController extends Controller
 {
     public function index(Request $request)
     {
-        $overtimePermissionsQuery = OvertimePermission::with(
-            'user.doctor.category',
-            'user.doctor.employmentInformation',
-            'user.staff.employmentInformation',
-        );
+        $overtimePermissionsQuery = OvertimePermission::with([
+            'user',
+        ]);
+
+        $user = Auth::user();
+        $role = $user->role;
+
+        $relations = match ($role) {
+            'doctor', 'clinic', 'staff' => ['user.doctor.category', 'user.doctor.employmentInformation', 'user.staff.employmentInformation'],
+            'admin', 'superadmin' => ['user.adminClinico.employmentInformation'],
+            default => abort(401, 'Unauthorized access. Invalid role.')
+        };
+
+        $overtimePermissionsQuery->with($relations);
 
         if ($request->has('status')) {
-            $overtimePermissionsQuery->where('status', $request->status);
+            $statuses = $request->status;
+
+            if (is_array($statuses)) {
+                $overtimePermissionsQuery->whereIn('status', $statuses);
+            } else {
+                $overtimePermissionsQuery->where('status', $statuses);
+            }
         }
 
         if ($request->has('clinic_id')) {
@@ -36,13 +51,64 @@ class OvertimePermissionController extends Controller
             $overtimePermissionsQuery->where('user_id', $request->user_id);
         }
 
+        if ($request->has('start_date') && $request->has('end_date')) {
+            $startDate = $request->start_date;
+            $endDate = $request->end_date;
+
+            $overtimePermissionsQuery->whereBetween('date', [$startDate, $endDate]);
+        }
+
+        $paginate = true;
+        if ($request->has('paginate')) {
+            $paginate = $request->input('paginate');
+        }
+
         $perPage = $request->input('per_page', 10);
-        $overtimePermissions = $overtimePermissionsQuery->paginate($perPage);
+
+        if ($paginate) {
+            $overtimePermission = $overtimePermissionsQuery->paginate($perPage);
+        } else {
+            $overtimePermission = $overtimePermissionsQuery->get();
+        }
+
+        if ($request->has('group_by') && $request->input('group_by') == 'date') {
+            $groupedData = $overtimePermission->groupBy('date');
+
+            $formattedData = $groupedData->map(function ($items, $date) {
+                return [
+                    'date' => $date,
+                    'total_requests' => $items->count(),
+                    'items' => $items->map(function ($item) {
+                        return [
+                            'id' => $item->id,
+                            'user_id' => $item->user_id,
+                            'clinic_id' => $item->clinic_id,
+                            'leave_type_id' => $item->leave_type_id,
+                            'date' => $item->date,
+                            'start_time' => $item->start_time,
+                            'end_time' => $item->end_time,
+                            'reason' => $item->reason,
+                            'attachment' => $item->attachment,
+                            'status' => $item->status,
+                            'created_at' => $item->created_at,
+                            'updated_at' => $item->updated_at,
+                            'user' => $item->user,
+                        ];
+                    }),
+                ];
+            });
+
+            if ($paginate) {
+                $overtimePermission->setCollection($formattedData->values());
+            } else {
+                $overtimePermission = $formattedData->values();
+            }
+        }
 
         return response()->json([
             'status' => 'success',
             'message' => 'Overtime permission retrieved.',
-            'data' => $overtimePermissions,
+            'data' => $overtimePermission,
         ]);
     }
 

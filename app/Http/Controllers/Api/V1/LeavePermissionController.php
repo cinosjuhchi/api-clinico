@@ -18,15 +18,30 @@ class LeavePermissionController extends Controller
 {
     public function index(Request $request)
     {
-        $leavePermissionQuery = LeavePermission::with(
-            'user.doctor.category',
-            'user.doctor.employmentInformation',
-            'user.staff.employmentInformation',
+        $leavePermissionQuery = LeavePermission::with([
+            'user',
             'leaveType',
-        );
+        ]);
+
+        $user = Auth::user();
+        $role = $user->role;
+
+        $relations = match ($role) {
+            'doctor', 'clinic', 'staff' => ['user.doctor.category', 'user.doctor.employmentInformation', 'user.staff.employmentInformation'],
+            'admin', 'superadmin' => ['user.adminClinico.employmentInformation'],
+            default => abort(401, 'Unauthorized access. Invalid role.')
+        };
+
+        $leavePermissionQuery->with($relations);
 
         if ($request->has('status')) {
-            $leavePermissionQuery->where('status', $request->status);
+            $statuses = $request->status;
+
+            if (is_array($statuses)) {
+                $leavePermissionQuery->whereIn('status', $statuses);
+            } else {
+                $leavePermissionQuery->where('status', $statuses);
+            }
         }
 
         if ($request->has('clinic_id')) {
@@ -41,13 +56,68 @@ class LeavePermissionController extends Controller
             $leavePermissionQuery->where('user_id', $request->user_id);
         }
 
+        if ($request->has('date_from') && $request->has('date_to')) {
+            $leavePermissionQuery->where(function ($query) use ($request) {
+                $query->whereBetween('date_from', [$request->date_from, $request->date_to])
+                    ->orWhereBetween('date_to', [$request->date_from, $request->date_to]);
+            });
+        } elseif ($request->has('date_from')) {
+            $leavePermissionQuery->where('date_from', '>=', $request->date_from);
+        } elseif ($request->has('date_to')) {
+            $leavePermissionQuery->where('date_to', '<=', $request->date_to);
+        }
+
+        $paginate = true;
+        if ($request->has('paginate')) {
+            $paginate = $request->input('paginate');
+        }
+
         $perPage = $request->input('per_page', 10);
-        $leavePermission = $leavePermissionQuery->paginate($perPage);
+
+        if ($paginate) {
+            $leavePermissions = $leavePermissionQuery->paginate($perPage);
+        } else {
+            $leavePermissions = $leavePermissionQuery->get();
+        }
+
+        if ($request->has('group_by') && $request->input('group_by') == 'date_from') {
+            $groupedData = $leavePermissions->groupBy('date_from');
+
+            $formattedData = $groupedData->map(function ($items, $date) {
+                return [
+                    'date' => $date,
+                    'total_requests' => $items->count(),
+                    'items' => $items->map(function ($item) {
+                        return [
+                            'id' => $item->id,
+                            'user_id' => $item->user_id,
+                            'clinic_id' => $item->clinic_id,
+                            'leave_type_id' => $item->leave_type_id,
+                            'date_from' => $item->date_from,
+                            'date_to' => $item->date_to,
+                            'reason' => $item->reason,
+                            'attachment' => $item->attachment,
+                            'status' => $item->status,
+                            'created_at' => $item->created_at,
+                            'updated_at' => $item->updated_at,
+                            'user' => $item->user,
+                            'leave_type' => $item->leaveType,
+                        ];
+                    }),
+                ];
+            });
+
+            if ($paginate) {
+                $leavePermissions->setCollection($formattedData->values());
+            } else {
+                $leavePermissions = $formattedData->values();
+            }
+        }
 
         return response()->json([
             'status' => 'success',
             'message' => 'Leave permission retrieved.',
-            'data' => $leavePermission,
+            'data' => $leavePermissions,
         ]);
     }
 

@@ -171,6 +171,7 @@ class DatabaseSeeder extends Seeder
             BackofficeSeeder::class,
             ClaimItemSeeder::class,
             LeavetypeSeeder::class,
+            ReportBugTypeSeeder::class,
         ]);
     }
 }

@@ -133,4 +133,19 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(LeaveBalance::class);
     }
+
+    public function referralCodes()
+    {
+        return $this->hasOne(ReferralCode::class);
+    }
+
+    public function referrals()
+    {
+        return $this->hasMany(Referral::class, 'user_id');
+    }
+
+    public function referredBy()
+    {
+        return $this->hasMany(Referral::class, 'admin_id');
+    }
 }

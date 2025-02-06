@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +13,7 @@ class OnlineEmployeeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
         $user = Auth::user();
         $clinic = match ($user->role) {
@@ -67,35 +68,46 @@ class OnlineEmployeeController extends Controller
         ], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function onlineAdmin()
     {
-        //
-    }
+        // if (Auth::user()->role != 'superadmin') {
+        //     return response()->json([
+        //        'status' => 'error',
+        //        'message' => 'forbidden',
+        //     ], 403);
+        // }
+        $admins = User::where('role', 'admin')
+            ->with([
+                'adminClinico',
+                'adminClinico.employmentInformation',
+            ])
+            ->get();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        $activeAdmins = $admins->filter(function ($admin) {
+            $lastSeen = $admin->last_seen
+                ? Carbon::parse($admin->last_seen)
+                : null;
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+            return $lastSeen && $lastSeen->gt(Carbon::now()->subMinutes(5));
+        });
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $activeAdmins = $activeAdmins->map(function ($admin) {
+            return [
+                'user_id' => $admin->id,
+                'admin_id' => $admin->adminClinico->id,
+                'admin_name' => $admin->adminClinico->name,
+                'image' => $admin->adminClinico->employmentInformation->image_profile,
+                'email' => $admin->email,
+                'phone_number' => $admin->phone_number,
+                'last_seen' => $admin->last_seen,
+                'active' => 'active',
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Success to fetch all active admin',
+            'data' => $activeAdmins,
+        ], 200);
     }
 }

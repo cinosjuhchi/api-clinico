@@ -110,6 +110,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/', [BackOfficeDoctorController::class, 'index']);
             });
             Route::prefix('staff')->group(function () {
+                Route::get('/online-list', [OnlineEmployeeController::class, 'onlineAdmin']);
                 Route::get('/', [BackOfficeController::class, 'index']);
                 Route::get('/schedules', [StaffScheduleController::class, 'index']);
                 Route::get('/schedules/{staff}', [StaffScheduleController::class, 'show']);

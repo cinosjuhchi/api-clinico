@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ClinicAuthLogin;
 use App\Mail\VerifyEmail;
 use App\Models\Clinic;
+use App\Models\Referral;
+use App\Models\ReferralCode;
 use App\Models\User;
 use App\Notifications\SetUpProfileNotification;
 use Illuminate\Http\Request;
@@ -57,7 +59,7 @@ class ClinicAuthController extends Controller
             'company' => 'required|string|max:255|min:3',
             'ssm_number' => 'required|integer',
             'registration_number' => 'required|integer',
-            'referral_number' => 'required|integer',
+            'referral_number' => 'nullable|string',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
             'phone_number' => 'required|string|min:10|unique:users',
@@ -76,15 +78,45 @@ class ClinicAuthController extends Controller
 
             $slug = Str::slug($validated['name']);
 
-            $clinic = Clinic::create([
-                'name' => $validated['name'],
-                'company' => $validated['company'],
-                'ssm_number' => $validated['registration_number'],
-                'referral_number' => $validated['referral_number'],
-                'registration_number' => $validated['registration_number'],
-                'user_id' => $user->id,
-                'slug' => $slug,
-            ]);
+            $clinic = new Clinic();
+            $clinic->name = $validated['name'];
+            $clinic->company = $validated['company'];
+            $clinic->ssm_number = $validated['ssm_number'];
+            $clinic->registration_number = $validated['registration_number'];
+            $clinic->user_id = $user->id;
+            $clinic->slug = $slug;
+
+            // $clinic = Clinic::create([
+            //     'name' => $validated['name'],
+            //     'company' => $validated['company'],
+            //     'ssm_number' => $validated['registration_number'],
+            //     'referral_number' => $validated['referral_number'],
+            //     'registration_number' => $validated['registration_number'],
+            //     'user_id' => $user->id,
+            //     'slug' => $slug,
+            // ]);
+
+            if (!empty($validated["referral_number"])) {
+                $referralCodeOwner = ReferralCode::where('code', $validated['referral_number'])->first();
+
+                if (!$referralCodeOwner) {
+                    return response()->json([
+                        "status" => "error",
+                        "message" => "Referral number not found",
+                        "data" => ["code" => $validated['referral_number']]
+                    ], 422);
+                }
+
+                $referralCodeOwner->increment("score", 1);
+                $clinic->referral_number = $validated['referral_number'];
+
+                Referral::create([
+                    'user_id' => $user->id,
+                    'admin_id' => $referralCodeOwner->user_id,
+                ]);
+            }
+
+            $clinic->save();
 
             Mail::to($user->email)->send(new VerifyEmail([
                 'name' => $clinic->name,

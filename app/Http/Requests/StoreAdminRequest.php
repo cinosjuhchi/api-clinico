@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreAdminRequest extends FormRequest
 {
@@ -36,8 +38,8 @@ class StoreAdminRequest extends FormRequest
             'tenure' => 'required|string',
             'basic_salary' => 'required|numeric',
             'elaun' => 'required|numeric',
-            'image_profile' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'image_signature' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'image_profile' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image_signature' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             // Demographics
             'birth_date' => 'required|date',
             'place_of_birth' => 'required|string',
@@ -59,5 +61,14 @@ class StoreAdminRequest extends FormRequest
             'account_number' => 'required|string',
             'is_doctor' => 'required|in:true,false'
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->json([
+            'success' => false,
+            'message' => "invalid data",
+            'errors' => $validator->errors(),
+        ], 422));
     }
 }

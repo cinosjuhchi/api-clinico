@@ -10,9 +10,14 @@ class TopEmployeeController extends Controller
 {
     public function index(Request $request)
     {
-        $usersQuery = User::with('referredBy.user.clinic')
-                    ->withCount('referredBy as total_referral')
-                    ->where('role', 'admin');
+        $usersQuery = User::with(
+                'referredBy.user.clinic',
+                'adminClinico.demographic',
+                'adminClinico.contributionInfo',
+                'adminClinico.employmentInformation',
+                'adminClinico.financialInformation')
+            ->withCount('referredBy as total_referral')
+            ->where('role', 'admin');
 
         $userID = $request->query("user_id");
         if ($userID) {

@@ -53,7 +53,7 @@ class MessageClinicoController extends Controller
                 ->where('receiver_id', Auth::id());
         })->orderBy('created_at', 'asc')->get();
 
-        return response()->json($messages, 201);
+        return response()->json($messages, 200);
     }
 
     public function getChatHistory(User $user)
@@ -70,14 +70,14 @@ class MessageClinicoController extends Controller
                 'sender.doctor:id,user_id,name as doctor_name',
                 'receiver.clinic:id,user_id,name as clinic_name',
                 'receiver.doctor:id,user_id,name as doctor_name',
-                'sender.roles:id,name',
-                'receiver.roles:id,name',
+                'sender',
+                'receiver',
             ])
             ->orderBy('created_at', 'asc')
             ->get()
             ->map(function ($message) {
-                $senderRole = $message->sender->roles->first()->name ?? null;
-                $receiverRole = $message->receiver->roles->first()->name ?? null;
+                $senderRole = $message->sender->role ?? null;
+                $receiverRole = $message->receiver->role ?? null;
 
                 return [
                     'id' => $message->id,

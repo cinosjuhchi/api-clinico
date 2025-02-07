@@ -1,8 +1,10 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\ChatDoctor;
+use App\Models\OnlineConsultation;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreChatDoctorRequest;
 use App\Http\Requests\UpdateChatDoctorRequest;
 
@@ -27,9 +29,25 @@ class ChatDoctorController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreChatDoctorRequest $request)
+    public function store(OnlineConsultation $onlineConsultation, StoreChatDoctorRequest $request)
     {
-        //
+        $user = Auth::user();
+        if ($onlineConsultation->patientRelation->id !== $user->id || $onlineConsultation->is_confirmed == true) {
+            return response()->json([
+                'status'  => 'Unauthorize',
+                'message' => 'Forbidden access.',
+            ], 403);
+        }
+        $validated = $request->validated();
+        $onlineConsultation->chats()->create([
+            'message' => $validated['message'],
+            'patient' => $onlineConsultation->patientRelation->id,
+            'doctor'  => $onlineConsultation->doctorRelation->id,
+        ]);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Success to send message'
+        ], 201);
     }
 
     /**

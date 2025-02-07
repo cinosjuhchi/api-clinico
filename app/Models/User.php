@@ -1,28 +1,28 @@
 <?php
 namespace App\Models;
 
-use App\Models\Staff;
+use App\Models\AdminClinico;
+use App\Models\Attendance;
+use App\Models\Billing;
+use App\Models\ClaimPermission;
 use App\Models\Clinic;
+use App\Models\ClinicUpdateRequest;
 use App\Models\Doctor;
 use App\Models\Family;
-use App\Models\Billing;
-use App\Models\Patient;
-use App\Models\Attendance;
-use App\Models\AdminClinico;
 use App\Models\LeaveBalance;
-use App\Models\MedicalRecord;
-use App\Models\ClaimPermission;
 use App\Models\LeavePermission;
-use App\Models\PushNotification;
-use Laravel\Sanctum\HasApiTokens;
+use App\Models\MedicalRecord;
 use App\Models\OvertimePermission;
-use App\Models\ClinicUpdateRequest;
-use Illuminate\Notifications\Notifiable;
+use App\Models\Patient;
+use App\Models\PushNotification;
+use App\Models\Staff;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -147,5 +147,15 @@ class User extends Authenticatable implements MustVerifyEmail
     public function referredBy()
     {
         return $this->hasMany(Referral::class, 'admin_id');
+    }
+
+    public function patientOnlineConsultation()
+    {
+        return $this->hasMany(OnlineConsultation::class, 'patient', 'id');
+    }
+
+    public function doctorOnlineConsultation()
+    {
+        return $this->hasMany(OnlineConsultation::class, 'doctor', 'id');
     }
 }

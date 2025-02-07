@@ -13,7 +13,10 @@ class ChatDoctorBill extends Model
 
     public function onlineConsultation()
     {
-        return $this->belongsTo(OnlineConsultation::class);
+        return $this->hasOne(OnlineConsultation::class);
     }
+
+
+    
 
 }

@@ -11,14 +11,16 @@ class CallPatientNotification extends Notification
     use Queueable;
     protected $room;
     protected $waitingNumber;
+    protected $title;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($room, $waitingNumber)
+    public function __construct($room, $waitingNumber, $title)
     {
         $this->room = $room;
         $this->waitingNumber = $waitingNumber;
+        $this->title = $title;
     }
 
     /**

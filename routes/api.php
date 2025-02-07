@@ -312,6 +312,8 @@ Route::prefix('v1')->group(function () {
             Route::prefix('consultation')->group(function () {
                 Route::put('/complete/{appointment}', [ConsultationController::class, 'complete']);
                 Route::put('/call-patient/{appointment}', [ConsultationController::class, 'callPatient']);
+                Route::put('/call-patient-vital-sign/{appointment}', [ConsultationController::class, 'callPatientVitalSign']);
+                Route::put('/call-patient-dispensary/{appointment}', [ConsultationController::class, 'callPatientDispensary']);
             });
         });
     });

@@ -89,4 +89,10 @@ class AdminClinico extends Model
     {
         return $this->hasMany(StaffSchedule::class, 'admin_clinico_id');
     }
+
+    public function referrals()
+    {
+        return $this->hasMany(Referral::class, 'admin_id', 'user_id');
+    }
+
 }

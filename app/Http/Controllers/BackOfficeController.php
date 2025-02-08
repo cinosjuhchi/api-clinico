@@ -21,7 +21,8 @@ class BackOfficeController extends Controller
     public function index(Request $request)
     {
         $query = AdminClinico::with([
-            'user',
+            'user.referralCode',
+            'user.referredBy',
             'demographic',
             'educational',
             'contributionInfo',
@@ -36,14 +37,12 @@ class BackOfficeController extends Controller
             'schedules',
         ]);
 
-        // Tambahkan filter untuk pencarian berdasarkan name
         if ($request->has('search') && ! empty($request->search)) {
             $searchTerm = $request->search;
             $query->where('name', 'like', '%' . $searchTerm . '%');
         }
 
-        // Ambil data dengan paginasi
-        $data = $query->paginate();
+        $data = $query->withCount('referrals as total_referral')->paginate();
 
         return response()->json([
             'status' => 'success',
@@ -80,7 +79,7 @@ class BackOfficeController extends Controller
 
     public function me()
     {
-        $user = Auth::user()->load('referredBy', 'referralCodes', 'adminClinico.demographic', 'adminClinico.contributionInfo', 'adminClinico.employmentInformation', 'adminClinico.financialInformation');
+        $user = Auth::user()->load('referredBy', 'referralCode', 'adminClinico.demographic', 'adminClinico.contributionInfo', 'adminClinico.employmentInformation', 'adminClinico.financialInformation');
         return response()->json([[
             'status'  => 'success',
             'message' => 'get current user',
@@ -170,6 +169,7 @@ class BackOfficeController extends Controller
                 'perkeso_amount'   => $validated['perkeso_amount'],
                 'tax_number'       => $validated['tax_number'],
                 'tax_amount'       => $validated['tax_amount'],
+                'eis'              => $validated['eis'],
                 'admin_clinico_id' => $staff->id,
             ]);
 

@@ -11,7 +11,7 @@ class StoreOnlineConsultationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,8 @@ class StoreOnlineConsultationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'patient_id' => 'required|exists:patients,id',
+            'doctor_id' => 'required|exists:users,id'
         ];
     }
 }

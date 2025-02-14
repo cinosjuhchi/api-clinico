@@ -26,6 +26,11 @@ class OnlineConsultation extends Model
         return $this->belongsTo(User::class, 'patient', 'id');
     }
 
+    public function patient()
+    {
+        return $this->belongsTo(Patient::class);
+    }
+
     public function doctorRelation()
     {
         return $this->belongsTo(User::class, 'doctor', 'id');

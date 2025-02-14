@@ -147,7 +147,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/', [TeleconsultController::class, 'index']);
                 Route::get('/get-message/{onlineConsultation}', [TeleconsultController::class, 'index']);
                 Route::post('/send-message/{onlineConsultation}', [TeleconsultController::class, 'store']);
-                Route::get('/complete-consultation', [TeleconsultController::class, 'complete']);
+                // Route::get('/complete-consultation', [TeleconsultController::class, 'complete']);
             });
         });
     });
@@ -275,9 +275,10 @@ Route::prefix('v1')->group(function () {
             // Doctor Chat
             Route::prefix('doctor-chats')->group(function () {
                 Route::get('/', [OnlineConsultationController::class, 'index']);
+                Route::post('/create-doctor-chat', [OnlineConsultationController::class, 'store']);
                 Route::get('/show/{onlineConsultation}', [OnlineConsultationController::class, 'show']);
-                Route::post('/create-bill-doctor-chat', [ChatDoctorBillController::class, 'store']);
-                Route::post('/callback', [ChatDoctorBillController::class, 'callback']);
+                // Route::post('/create-bill-doctor-chat', [ChatDoctorBillController::class, 'store']);
+                // Route::post('/callback', [ChatDoctorBillController::class, 'callback']);
                 Route::post('/send-message/{onlineConsultation}', [ChatDoctorController::class, 'store']);
             });
             Route::prefix('bills')->group(function () {

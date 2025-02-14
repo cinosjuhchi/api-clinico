@@ -17,9 +17,7 @@ class OnlineConsultationController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $onlineConsultation = $user->patientOnlineConsultation()->whereHas('bill', function($query) {
-            $query->where('is_paid', true);
-        })
+        $onlineConsultation = $user->patientOnlineConsultation()
         ->with(['doctorRelation.doctor'])
         ->paginate(10);
 
@@ -43,7 +41,15 @@ class OnlineConsultationController extends Controller
      */
     public function store(StoreOnlineConsultationRequest $request)
     {
-        //
+        $user = Auth::user();
+        $validated = $request->validated();
+        $user->patientOnlineConsultation()->create([
+            'doctor' => $validated['doctor_id'],
+            'patient_id' => $validated['patient_id'],
+        ]);
+        return response()->json([
+            'status' => 'success',
+        ], 201);
     }
 
     /**

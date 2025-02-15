@@ -58,7 +58,8 @@ class MedicalRecordController extends Controller
             'diagnosisRecord',
             'procedureRecords',
             'injectionRecords',
-            'medicationRecords'
+            'medicationRecords',
+            'riskFactors'
         );
 
         $patientId = $request->input('patient_id');

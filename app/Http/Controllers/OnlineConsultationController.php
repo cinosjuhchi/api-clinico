@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminClinico;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\OnlineConsultation;
 use Illuminate\Routing\Controller;
@@ -17,6 +19,11 @@ class OnlineConsultationController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+        $search = $request->input('search');
+        $doctorClinico = AdminClinico::where('is_doctor', true)->when($search, function ($query) use ($search) {
+            $query->where('name', 'like', "%$search%")
+            ->orWhere('department', 'like', "%$search%"); // Sesuaikan field dengan database
+        })->with(['user'])->paginate(10);
         $onlineConsultation = $user->patientOnlineConsultation()
         ->with(['doctorRelation.doctor'])
         ->paginate(10);
@@ -24,7 +31,8 @@ class OnlineConsultationController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully get online consultation',
-            'data' => $onlineConsultation
+            'history_chat' => $onlineConsultation,
+            'doctor_clinico' => $doctorClinico
         ], 200);
     }
 

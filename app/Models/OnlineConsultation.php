@@ -11,11 +11,6 @@ class OnlineConsultation extends Model
 
     protected $guarded = ['id'];
 
-    public function bill()
-    {
-        return $this->belongsTo(ChatDoctorBill::class);
-    }
-
     public function chats()
     {
         return $this->hasMany(ChatDoctor::class);

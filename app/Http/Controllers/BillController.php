@@ -231,6 +231,31 @@ class BillController extends Controller
             'data' => $doctorsRevenue,
         ], 200);
     }
+    public function getMyRevenue(Request $request)
+    {
+        $doctor = Auth::user()->doctor;
+
+        // Total pendapatan bulan ini
+        $currentMonthRevenue = $doctor->bills()
+            ->where('is_paid', true)
+            ->whereMonth('transaction_date', now()->month)
+            ->whereYear('transaction_date', now()->year)
+            ->sum('total_cost');
+
+        // Total pendapatan bulan lalu
+        $lastMonthRevenue = $doctor->bills()
+            ->where('is_paid', true)
+            ->whereMonth('transaction_date', now()->subMonth()->month)
+            ->whereYear('transaction_date', now()->subMonth()->year)
+            ->sum('total_cost');
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully retrieved revenue',
+            'current_month_revenue' => $currentMonthRevenue,
+            'last_month_revenue' => $lastMonthRevenue
+        ], 200);
+    }
 
     public function callback(Request $request)
     {

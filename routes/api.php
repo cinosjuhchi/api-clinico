@@ -301,6 +301,9 @@ Route::prefix('v1')->group(function () {
                 Route::put('/complete/{appointment}', [ConsultationController::class, 'complete']);
                 Route::put('/call-patient/{appointment}', [ConsultationController::class, 'callPatient']);
             });
+            Route::prefix('revenue')->group(function () {
+                Route::get('/', [BillController::class, 'myRevenue']);
+            });
         });
     });
     Route::prefix('staff')->group(function () {

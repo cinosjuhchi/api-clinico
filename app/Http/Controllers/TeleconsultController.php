@@ -56,24 +56,28 @@ class TeleconsultController extends Controller
     {
         $user = Auth::user();
 
+        // Pastikan user adalah dokter yang terkait dengan konsultasi ini
         if ($onlineConsultation->doctorRelation->id !== $user->id) {
             return response()->json([
-                'status'  => 'Unauthorize',
+                'status'  => 'Unauthorized',
                 'message' => 'Forbidden access.',
             ], 403);
         }
 
-        $messages = $onlineConsultation->chats()
-            ->orderBy('created_at', 'asc')
-            ->with([
-                'patientRelation' => function ($query) {
-                    $query->with(['patient.demographic'])->first(); // Ambil hanya satu pasien pertama dengan relasi demographic
-                },
-            ])
-            ->get();
+        // Load relasi yang dibutuhkan untuk konsultasi
+        $onlineConsultation->load(['patient.demographics', 'patient.chronics', 'patient.medications', 'physicalExaminations', 'patient.immunizations', 'patient.occupation', 'patient.emergencyContact', 'patient.parentChronic', 'patient.medicalRecords']);
 
-        return response()->json($messages, 200);
+        // Ambil pesan terkait konsultasi ini
+        $messages = $onlineConsultation->chats()->orderBy('created_at', 'asc')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Consultation retrieved successfully.',
+            'consultation' => $onlineConsultation,
+            'messages' => $messages
+        ], 200);
     }
+
 
     public function complete(OnlineConsultation $onlineConsultation)
     {

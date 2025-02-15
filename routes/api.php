@@ -145,7 +145,7 @@ Route::prefix('v1')->group(function () {
 
             Route::prefix('teleconsult')->group(function () {
                 Route::get('/', [TeleconsultController::class, 'index']);
-                Route::get('/get-message/{onlineConsultation}', [TeleconsultController::class, 'index']);
+                Route::get('/get-message/{onlineConsultation}', [TeleconsultController::class, 'show']);
                 Route::post('/send-message/{onlineConsultation}', [TeleconsultController::class, 'store']);
                 // Route::get('/complete-consultation', [TeleconsultController::class, 'complete']);
             });

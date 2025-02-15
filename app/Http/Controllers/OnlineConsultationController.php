@@ -23,7 +23,7 @@ class OnlineConsultationController extends Controller
         $doctorClinico = AdminClinico::where('is_doctor', true)->when($search, function ($query) use ($search) {
             $query->where('name', 'like', "%$search%")
             ->orWhere('department', 'like', "%$search%"); // Sesuaikan field dengan database
-        })->with(['user'])->paginate(10);
+        })->with(['user', 'employmentInformation', 'demographic'])->paginate(10);
         $onlineConsultation = $user->patientOnlineConsultation()
         ->with(['doctorRelation.doctor'])
         ->paginate(10);
@@ -66,16 +66,29 @@ class OnlineConsultationController extends Controller
     public function show(OnlineConsultation $onlineConsultation)
     {
         $user = Auth::user();
-        if($onlineConsultation->patientRelation->id !== $user->id)
-        {
+
+        // Cek apakah user adalah pasien yang berhak melihat konsultasi ini
+        if ($onlineConsultation->patientRelation->id !== $user->id) {
             return response()->json([
-                'status' => 'Unauthorize',
+                'status' => 'Unauthorized',
                 'message' => 'Forbidden access.'
             ], 403);
         }
-        $messages = $onlineConsultation->chats()->orderBy('created_at', 'asc')->get();    
-        return response()->json($messages, 200);
+
+        // Gunakan load() untuk mengambil relasi pada instance model
+        $onlineConsultation->load(['patient', 'doctorRelation.adminClinico.employmentInformation']);
+
+        // Ambil pesan dalam konsultasi ini, diurutkan berdasarkan waktu
+        $messages = $onlineConsultation->chats()->orderBy('created_at', 'asc')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Consultation retrieved successfully.',
+            'consultation' => $onlineConsultation,
+            'messages' => $messages
+        ], 200);
     }
+
 
     /**
      * Show the form for editing the specified resource.

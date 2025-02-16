@@ -65,7 +65,7 @@ class TeleconsultController extends Controller
         }
 
         // Load relasi yang dibutuhkan untuk konsultasi
-        $onlineConsultation->load(['patient.demographics', 'patient.chronics', 'patient.medications', 'physicalExaminations', 'patient.immunizations', 'patient.occupation', 'patient.emergencyContact', 'patient.parentChronic', 'patient.medicalRecords']);
+        $onlineConsultation->load(['patient.demographics', 'patient.chronics', 'patient.medications', 'patient.physicalExaminations', 'patient.immunizations', 'patient.occupation', 'patient.emergencyContact', 'patient.parentChronic', 'patient.medicalRecords']);
 
         // Ambil pesan terkait konsultasi ini
         $messages = $onlineConsultation->chats()->orderBy('created_at', 'asc')->get();

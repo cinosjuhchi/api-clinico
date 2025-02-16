@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreChatDoctorBillRequest extends FormRequest
@@ -11,7 +12,7 @@ class StoreChatDoctorBillRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::check();
     }
 
     /**
@@ -22,7 +23,15 @@ class StoreChatDoctorBillRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'doctor' => 'required|exists:users,id',   
+            'name' => 'required|string',
+            'description' => 'required|string',
+            'due_date' => 'required|date',
+            'transaction_date' => 'required|date',
+            'email' => 'required|email',
+            'amount' => 'required|numeric',            
+            'reference_1_label' => 'nullable|string',
+            'reference_1' => 'nullable|string',
         ];
     }
 }

@@ -466,7 +466,7 @@ class ConsultationController extends Controller
 
         // Kirim notifikasi Laravel
         try {
-            $user->notify(new CallPatientNotification($room, $appointment->waiting_number));
+            $user->notify(new CallPatientNotification($room, $appointment->waiting_number, 'Enter the Room'));
             $notification = $user->notifications()->latest()->first();
             $notification->update([
                 'expired_at' => now()->addDay(),
@@ -489,8 +489,8 @@ class ConsultationController extends Controller
 
                 // Payload data untuk notifikasi
                 $payload = json_encode([
-                    'title' => 'Panggilan Pasien',
-                    'body'  => "Silakan menuju ke ruang $room->name. Nomor antrian Anda adalah {$appointment->waiting_number}.",
+                    'title' => 'The doctor calling you',
+                    'body'  => "Please proceed to room $room->name.  Your queue number is {$appointment->waiting_number}.",
                     'icon'  => '/icon512_rounded.png',
                     'data'  => [
                         'url' => env('WEB_CLINICO_URL'),
@@ -546,6 +546,154 @@ class ConsultationController extends Controller
                 ]);
             }
         }
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Notification sent successfully!',
+        ], 200);
+    }
+    public function callPatientVitalSign(Appointment $appointment)
+    {
+        $patient = Patient::find($appointment->patient_id);
+        $user    = $patient->user;
+        $room    = $appointment->room;
+
+        // Kirim notifikasi Laravel
+        try {
+            $user->notify(new CallPatientNotification($room, $appointment->waiting_number, 'Vital Checks'));
+            $notification = $user->notifications()->latest()->first();
+            $notification->update([
+                'expired_at' => now()->addDay(),
+            ]);
+        } catch (Exception $e) {
+            Log::error('Notification error: ' . $e->getMessage());
+        }
+
+        // Kirim Web Push Notification
+        try {
+            $subscriptions = $user->pushSubscriptions; // Ambil semua subscriptions untuk user
+            if ($subscriptions->isNotEmpty()) {
+                $webPush = new WebPush([
+                    'VAPID' => [
+                        'subject'    => env('APP_URL', 'https://clinico.site'),
+                        'publicKey'  => env('VAPID_PUBLIC_KEY'),
+                        'privateKey' => env('VAPID_PRIVATE_KEY'),
+                    ],
+                ]);
+
+                // Payload data untuk notifikasi
+                $payload = json_encode([
+                    'title' => 'Vital checks calling you',
+                    'body'  => "Please proceed to room $room->name.  Your queue number is {$appointment->waiting_number}.",
+                    'icon'  => '/icon512_rounded.png',
+                    'data'  => [
+                        'url' => env('WEB_CLINICO_URL'),
+                    ],
+                ]);
+
+                // Kirim notifikasi ke semua subscriptions
+                foreach ($subscriptions as $subscription) {
+                    $webPush->queueNotification(
+                        Subscription::create([
+                            'endpoint' => $subscription->endpoint,
+                            'keys'     => [
+                                'p256dh' => $subscription->p256dh,
+                                'auth'   => $subscription->auth,
+                            ],
+                        ]),
+                        $payload
+                    );
+                }
+
+                // Flush semua notifikasi dan log hasilnya
+                foreach ($webPush->flush() as $report) {
+                    $endpoint = $report->getRequest()->getUri()->__toString();
+                    if ($report->isSuccess()) {
+                        Log::info("Web Push sent successfully to {$endpoint}");
+                    } else {
+                        Log::error("Web Push failed to {$endpoint}: {$report->getReason()}");
+                    }
+                }
+            } else {
+                Log::error('Web Push error: No subscriptions found for user.');
+            }
+        } catch (Exception $e) {
+            Log::error('Web Push error: ' . $e->getMessage());
+        }        
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Notification sent successfully!',
+        ], 200);
+    }
+    public function callPatientDispensary(Appointment $appointment)
+    {
+        $patient = Patient::find($appointment->patient_id);
+        $user    = $patient->user;
+        $room    = $appointment->room;
+
+        // Kirim notifikasi Laravel
+        try {
+            $user->notify(new CallPatientNotification($room, $appointment->waiting_number, 'Dispensary'));
+            $notification = $user->notifications()->latest()->first();
+            $notification->update([
+                'expired_at' => now()->addDay(),
+            ]);
+        } catch (Exception $e) {
+            Log::error('Notification error: ' . $e->getMessage());
+        }
+
+        // Kirim Web Push Notification
+        try {
+            $subscriptions = $user->pushSubscriptions; // Ambil semua subscriptions untuk user
+            if ($subscriptions->isNotEmpty()) {
+                $webPush = new WebPush([
+                    'VAPID' => [
+                        'subject'    => env('APP_URL', 'https://clinico.site'),
+                        'publicKey'  => env('VAPID_PUBLIC_KEY'),
+                        'privateKey' => env('VAPID_PRIVATE_KEY'),
+                    ],
+                ]);
+
+                // Payload data untuk notifikasi
+                $payload = json_encode([
+                    'title' => 'Dispensary calling you',
+                    'body'  => "Please proceed to room $room->name.  Your queue number is {$appointment->waiting_number}.",
+                    'icon'  => '/icon512_rounded.png',
+                    'data'  => [
+                        'url' => env('WEB_CLINICO_URL'),
+                    ],
+                ]);
+
+                // Kirim notifikasi ke semua subscriptions
+                foreach ($subscriptions as $subscription) {
+                    $webPush->queueNotification(
+                        Subscription::create([
+                            'endpoint' => $subscription->endpoint,
+                            'keys'     => [
+                                'p256dh' => $subscription->p256dh,
+                                'auth'   => $subscription->auth,
+                            ],
+                        ]),
+                        $payload
+                    );
+                }
+
+                // Flush semua notifikasi dan log hasilnya
+                foreach ($webPush->flush() as $report) {
+                    $endpoint = $report->getRequest()->getUri()->__toString();
+                    if ($report->isSuccess()) {
+                        Log::info("Web Push sent successfully to {$endpoint}");
+                    } else {
+                        Log::error("Web Push failed to {$endpoint}: {$report->getReason()}");
+                    }
+                }
+            } else {
+                Log::error('Web Push error: No subscriptions found for user.');
+            }
+        } catch (Exception $e) {
+            Log::error('Web Push error: ' . $e->getMessage());
+        }        
 
         return response()->json([
             'status'  => 'success',

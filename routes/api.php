@@ -2,6 +2,7 @@
 
 use App\Models\ReportClinic;
 use App\Models\MessageClinico;
+use App\Models\OnlineConsultation;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\RoomController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\InjectionController;
 use App\Http\Controllers\ProcedureController;
 use App\Http\Controllers\StaffAuthController;
 use App\Http\Controllers\BackOfficeController;
+use App\Http\Controllers\ChatDoctorController;
 use App\Http\Controllers\ClinicDataController;
 use App\Http\Controllers\DoctorDataController;
 use App\Http\Controllers\MedicationController;
@@ -27,6 +29,7 @@ use App\Http\Controllers\OccupationController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\ClinicImageController;
+use App\Http\Controllers\TeleconsultController;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\ImmunizationController;
 use App\Http\Controllers\ReportClinicController;
@@ -37,6 +40,7 @@ use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\RequestClinicController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\BackOfficeUserController;
+use App\Http\Controllers\ChatDoctorBillController;
 use App\Http\Controllers\ClinicLocationController;
 use App\Http\Controllers\ClinicScheduleController;
 use App\Http\Controllers\DoctorScheduleController;
@@ -46,6 +50,7 @@ use App\Http\Controllers\Api\V1\ClaimItemController;
 use App\Http\Controllers\Api\V1\ContactUsController;
 use App\Http\Controllers\Api\V1\InventoryController;
 use App\Http\Controllers\Api\V1\LeaveTypeController;
+use App\Http\Controllers\Api\V1\ReportBugController;
 use App\Http\Controllers\Api\V1\StatisticController;
 use App\Http\Controllers\BackOfficeDoctorController;
 use App\Http\Controllers\ClinicSettlementController;
@@ -56,7 +61,9 @@ use App\Http\Controllers\Api\V1\AttendanceController;
 use App\Http\Controllers\BackOfficeRevenueController;
 use App\Http\Controllers\PregnancyCategoryController;
 use App\Http\Controllers\Api\V1\AppointmentController;
+use App\Http\Controllers\Api\V1\TopEmployeeController;
 use App\Http\Controllers\FamilyRelationshipController;
+use App\Http\Controllers\OnlineConsultationController;
 use App\Http\Controllers\Api\V1\LeaveBalanceController;
 use App\Http\Controllers\Api\V1\User\ProfileController;
 use App\Http\Controllers\ClinicUpdateRequestController;
@@ -64,6 +71,7 @@ use App\Http\Controllers\InvestigationClinicController;
 use App\Http\Controllers\PatientNotificationController;
 use App\Http\Controllers\Api\V1\ClinicProfileController;
 use App\Http\Controllers\Api\V1\DoctorProfileController;
+use App\Http\Controllers\Api\V1\ReportBugTypeController;
 use App\Http\Controllers\Api\V1\StaffScheduleController;
 use App\Http\Controllers\ConsultationDocumentController;
 use App\Http\Controllers\Api\V1\Auth\ClinicAuthController;
@@ -73,9 +81,6 @@ use App\Http\Controllers\Api\V1\LeavePermissionController;
 use App\Http\Controllers\Api\V1\LeaveTypeDetailController;
 use App\Http\Controllers\DemographicInformationController;
 use App\Http\Controllers\Api\V1\OvertimePermissionController;
-use App\Http\Controllers\Api\V1\ReportBugController;
-use App\Http\Controllers\Api\V1\ReportBugTypeController;
-use App\Http\Controllers\Api\V1\TopEmployeeController;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('back-office')->group(function () {
@@ -136,6 +141,13 @@ Route::prefix('v1')->group(function () {
 
             Route::prefix('growth')->group(function() {
                 Route::get('/', [BackofficeController::class, 'growthOfRegistration']);
+            });
+
+            Route::prefix('teleconsult')->group(function () {
+                Route::get('/', [TeleconsultController::class, 'index']);
+                Route::get('/get-message/{onlineConsultation}', [TeleconsultController::class, 'show']);
+                Route::post('/send-message/{onlineConsultation}', [TeleconsultController::class, 'store']);
+                // Route::get('/complete-consultation', [TeleconsultController::class, 'complete']);
             });
         });
     });
@@ -260,9 +272,18 @@ Route::prefix('v1')->group(function () {
                 Route::put('/check-in/{appointment}', [AppointmentController::class, 'checkin']);
                 Route::put('/take-medicine/{appointment}', [AppointmentController::class, 'takeMedicine']);
             });
+            // Doctor Chat
+            Route::prefix('doctor-chats')->group(function () {
+                Route::get('/', [OnlineConsultationController::class, 'index']);
+                Route::post('/create-doctor-chat', [OnlineConsultationController::class, 'store']);
+                Route::get('/show/{onlineConsultation}', [OnlineConsultationController::class, 'show']);
+                // Route::post('/create-bill-doctor-chat', [ChatDoctorBillController::class, 'store']);
+                // Route::post('/callback', [ChatDoctorBillController::class, 'callback']);
+                Route::post('/send-message/{onlineConsultation}', [ChatDoctorController::class, 'store']);
+            });
             Route::prefix('bills')->group(function () {
                 Route::get('/', [BillController::class, 'index']);
-                Route::get('/show/{billing}', [BillController::class, 'show']);
+                Route::get('/show/{billing}', [BillController::class, 'show']); 
             });
         });
     });
@@ -280,6 +301,9 @@ Route::prefix('v1')->group(function () {
                 Route::put('/complete/{appointment}', [ConsultationController::class, 'complete']);
                 Route::put('/call-patient/{appointment}', [ConsultationController::class, 'callPatient']);
             });
+            Route::prefix('revenue')->group(function () {
+                Route::get('/', [BillController::class, 'getMyRevenue']);
+            });
         });
     });
     Route::prefix('staff')->group(function () {
@@ -292,6 +316,8 @@ Route::prefix('v1')->group(function () {
             Route::prefix('consultation')->group(function () {
                 Route::put('/complete/{appointment}', [ConsultationController::class, 'complete']);
                 Route::put('/call-patient/{appointment}', [ConsultationController::class, 'callPatient']);
+                Route::put('/call-patient-vital-sign/{appointment}', [ConsultationController::class, 'callPatientVitalSign']);
+                Route::put('/call-patient-dispensary/{appointment}', [ConsultationController::class, 'callPatientDispensary']);
             });
         });
     });

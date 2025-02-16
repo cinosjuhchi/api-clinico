@@ -8,4 +8,27 @@ use Illuminate\Database\Eloquent\Model;
 class OnlineConsultation extends Model
 {
     use HasFactory;
+
+    protected $guarded = ['id'];
+
+    public function chats()
+    {
+        return $this->hasMany(ChatDoctor::class);
+    }
+
+    public function patientRelation()
+    {
+        return $this->belongsTo(User::class, 'patient', 'id');
+    }
+
+    public function patient()
+    {
+        return $this->belongsTo(Patient::class);
+    }
+
+    public function doctorRelation()
+    {
+        return $this->belongsTo(User::class, 'doctor', 'id');
+    }
+
 }

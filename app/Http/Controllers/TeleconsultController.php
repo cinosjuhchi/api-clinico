@@ -33,7 +33,7 @@ class TeleconsultController extends Controller
     public function store(OnlineConsultation $onlineConsultation, Request $request)
     {
         $user = Auth::user();
-        if ($onlineConsultation->doctorRelation->id != $user->id || $onlineConsultation->is_confirmed == true) {
+        if ($onlineConsultation->doctorRelation->id != $user->id) {
             return response()->json([
                 'status'  => 'unauthorize',
                 'message' => 'Forbidden Access.',
@@ -43,8 +43,8 @@ class TeleconsultController extends Controller
             'message' => 'required|string',
         ]);
         $onlineConsultation->chats()->create([
-            'doctor'  => $onlineConsultation->doctorRelation->id,
-            'patient' => $onlineConsultation->patientRelation->id,
+            'sender_ud'  => $onlineConsultation->doctorRelation->id,
+            'receiver_id' => $onlineConsultation->patientRelation->id,
             'message' => $validated['message'],
         ]);
     }
@@ -65,7 +65,7 @@ class TeleconsultController extends Controller
         }
 
         // Load relasi yang dibutuhkan untuk konsultasi
-        $onlineConsultation->load(['patient.demographics', 'patient.chronics', 'patient.medications', 'patient.physicalExaminations', 'patient.immunizations', 'patient.occupation', 'patient.emergencyContact', 'patient.parentChronic', 'patient.medicalRecords']);
+        $onlineConsultation->load(['patient.demographics', 'patient.chronics', 'patient.medications', 'patient.physicalExaminations', 'patient.immunizations', 'patient.occupation', 'patient.emergencyContact', 'patient.parentChronic', 'patient.medicalRecords', 'patient.allergy']);
 
         // Ambil pesan terkait konsultasi ini
         $messages = $onlineConsultation->chats()->orderBy('created_at', 'asc')->get();

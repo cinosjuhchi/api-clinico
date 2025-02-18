@@ -32,7 +32,7 @@ class ChatDoctorController extends Controller
     public function store(OnlineConsultation $onlineConsultation, StoreChatDoctorRequest $request)
     {
         $user = Auth::user();
-        if ($onlineConsultation->patientRelation->id !== $user->id || $onlineConsultation->is_confirmed == true) {
+        if ($onlineConsultation->patientRelation->id !== $user->id) {
             return response()->json([
                 'status'  => 'Unauthorize',
                 'message' => 'Forbidden access.',
@@ -41,8 +41,8 @@ class ChatDoctorController extends Controller
         $validated = $request->validated();
         $onlineConsultation->chats()->create([
             'message' => $validated['message'],
-            'patient' => $onlineConsultation->patientRelation->id,
-            'doctor'  => $onlineConsultation->doctorRelation->id,
+            'sender_id' => $onlineConsultation->patientRelation->id,
+            'receiver_id'  => $onlineConsultation->doctorRelation->id,
         ]);
         return response()->json([
             'status' => 'success',

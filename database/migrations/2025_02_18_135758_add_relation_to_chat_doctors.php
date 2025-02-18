@@ -22,8 +22,14 @@ return new class extends Migration
                 $table->dropColumn('doctor');
             }
             
-            $table->foreignId('sender_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('receiver_id')->constrained('users')->onDelete('cascade');
+            if (!Schema::hasColumn('chat_doctors', 'sender_id')) {
+                $table->foreignId('sender_id')->constrained('users')->onDelete('cascade');
+            }
+
+            if (!Schema::hasColumn('chat_doctors', 'receiver_id')) {
+                $table->foreignId('receiver_id')->constrained('users')->onDelete('cascade');
+            }
+
         });
     }
 

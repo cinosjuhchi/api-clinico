@@ -16,13 +16,13 @@ class ChatDoctor extends Model
         return $this->belongsTo(OnlineConsultation::class);
     }
 
-    public function patient()
+    public function sender()
     {
-        return $this->belongsTo(User::class, 'patient', 'id');
+        return $this->belongsTo(User::class, 'sender_id', 'id');
     }
 
-    public function doctor()
+    public function receiver()
     {
-        return $this->belongsTo(User::class, 'doctor', 'id');
+        return $this->belongsTo(User::class, 'receiver_id', 'id');
     }
 }

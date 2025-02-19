@@ -25,7 +25,7 @@ class OnlineConsultationController extends Controller
             ->orWhere('department', 'like', "%$search%"); // Sesuaikan field dengan database
         })->with(['user', 'employmentInformation', 'demographic'])->paginate(10);
         $onlineConsultation = $user->patientOnlineConsultation()
-        ->with(['doctorRelation.doctor.employmentInformation',])
+        ->with(['doctorRelation.adminClinico.employmentInformation',])
         ->paginate(10);
 
         return response()->json([

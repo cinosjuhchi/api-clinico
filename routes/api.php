@@ -283,7 +283,7 @@ Route::prefix('v1')->group(function () {
             });
             Route::prefix('bills')->group(function () {
                 Route::get('/', [BillController::class, 'index']);
-                Route::get('/show/{billing}', [BillController::class, 'show']); 
+                Route::get('/show/{billing}', [BillController::class, 'show']);
             });
         });
     });

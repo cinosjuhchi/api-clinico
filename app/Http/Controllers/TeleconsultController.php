@@ -43,7 +43,7 @@ class TeleconsultController extends Controller
             'message' => 'required|string',
         ]);
         $onlineConsultation->chats()->create([
-            'sender_ud'  => $onlineConsultation->doctorRelation->id,
+            'sender_id'  => $onlineConsultation->doctorRelation->id,
             'receiver_id' => $onlineConsultation->patientRelation->id,
             'message' => $validated['message'],
         ]);

@@ -14,9 +14,9 @@ class TeleconsultController extends Controller
      */
     public function index(Request $request)
     {
-        $user               = Auth::user();
+        $user = Auth::user();
         $onlineConsultation = $user->doctorOnlineConsultation()
-            ->with(['patient'])
+            ->with(['patient.demographics', 'patient.user'])
             ->paginate(10);
 
         return response()->json([

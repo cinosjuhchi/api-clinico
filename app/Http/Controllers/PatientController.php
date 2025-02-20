@@ -49,6 +49,49 @@ class PatientController extends Controller
         return response()->json($appointments);
     }
 
+    public function queue(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            'staff' => $user->staff->clinic,
+            default => abort(401, 'Unauthorized access. Invalid role.'),
+        };
+
+        try {
+            // Ambil tanggal dari request, default ke hari ini jika tidak disediakan
+            $date = $request->input('date', now()->toDateString());
+
+            // Query rooms dengan relasi appointments dan hanya mengambil satu appointment terakhir (waiting_number terkecil dengan status consultation)
+            $rooms = $clinic->rooms()
+                ->with([
+                    'appointments' => function ($query) use ($date) {
+                        $query->where('status', 'consultation')
+                            ->whereDate('appointment_date', $date)
+                            ->orderBy('waiting_number', 'asc')
+                            ->limit(1);
+                    }
+                ])
+                ->get();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Successfully retrieved rooms with queue',
+                'data' => [
+                    'rooms' => $rooms,
+                    'requested_date' => $date,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve rooms and queue: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
 
     public function addStatus(AddStatusAppointmentRequest $request, Appointment $appointment)
     {

@@ -412,6 +412,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/booking-patient', [PatientController::class, 'bookingPatient']);
                 Route::get('/waiting-patient', [PatientController::class, 'waitingPatient']);
                 Route::get('/completed-patient', [PatientController::class, 'completedPatient']);
+                Route::put('/patient/queue', [PatientController::class, 'queue']);
             });
 
             Route::prefix('schedule')->group(function () {

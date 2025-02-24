@@ -25,13 +25,13 @@ class StoreDoctorClinicRequest extends FormRequest
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:3',
             'name' => 'required|string',
-            'phone_number' => 'required|string|min:10|unique:users',            
-            'category_id' => 'required|exists:categories,id',      
+            'phone_number' => 'required|string|min:10|unique:users',
+            'category_id' => 'required|exists:categories,id',
             // Demographic Information
             'nric' => 'required|string|min:5',
             'birth_date' => 'required|date:before:today',
             'place_of_birth' => 'required|string',
-            'marital_status' => 'required|string',            
+            'marital_status' => 'required|string',
             'address' => 'required|string',
             'country' => 'required|string',
             'postal_code' => 'required|numeric|digits_between:4,10',
@@ -55,7 +55,7 @@ class StoreDoctorClinicRequest extends FormRequest
             'image_profile' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'image_signature' => 'required|image|mimes:jpeg,png,jpg|max:2048',
             'branch' => 'required|string',
-            'position' => 'required|string',                
+            'position' => 'required|string',
             'mmc' => 'required|integer',
             'apc' => 'required|string',
             'staff_id' => 'required|string',
@@ -63,7 +63,7 @@ class StoreDoctorClinicRequest extends FormRequest
             'basic_salary' => 'required|numeric|max:99999999',
             'elaun' => 'required|numeric|max:99999999',
             // Financial Information
-            'bank_name' => 'required|string',            
+            'bank_name' => 'required|string',
             'account_number' => 'required|string|max:20',
             // Contribution Info
             'kwsp_number' => 'required|integer',
@@ -72,6 +72,7 @@ class StoreDoctorClinicRequest extends FormRequest
             'perkeso_amount' => 'required|numeric',
             'tax_number' => 'required|string',
             'tax_amount' => 'required|numeric',
+            'eis' => 'required|numeric',
             // Emergency Contact
             'emergency_contact' => 'required|string',
             'emergency_contact_number' => 'required|string|min:10',

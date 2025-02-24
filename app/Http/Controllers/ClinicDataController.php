@@ -163,6 +163,7 @@ class ClinicDataController extends Controller
                 'perkeso_amount' => $validated['perkeso_amount'],
                 'tax_number'     => $validated['tax_number'],
                 'tax_amount'     => $validated['tax_amount'],
+                'eis'            => $validated['eis'],
             ]);
 
             $newDoctor->emergencyContact()->create([
@@ -337,6 +338,7 @@ class ClinicDataController extends Controller
                 'perkeso_amount' => $validated['perkeso_amount'],
                 'tax_number'     => $validated['tax_number'],
                 'tax_amount'     => $validated['tax_amount'],
+                'eis'            => $validated['eis'],
             ]);
 
             $newStaff->emergencyContact()->create([
@@ -470,6 +472,7 @@ class ClinicDataController extends Controller
             'perkeso_amount'             => 'required|numeric',
             'tax_number'                 => 'required|string',
             'tax_amount'                 => 'required|numeric',
+            'eis'                        => 'required|numeric',
             // Emergency Contact
             'emergency_contact'          => 'required|string',
             'emergency_contact_number'   => 'required|string|min:10',
@@ -562,6 +565,7 @@ class ClinicDataController extends Controller
                 'perkeso_amount' => $validated['perkeso_amount'],
                 'tax_number'     => $validated['tax_number'],
                 'tax_amount'     => $validated['tax_amount'],
+                'eis'            => $validated['eis'],
             ]);
 
             $doctor->emergencyContact()->updateOrCreate([], [

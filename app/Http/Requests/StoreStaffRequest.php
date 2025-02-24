@@ -25,7 +25,7 @@ class StoreStaffRequest extends FormRequest
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:3',
             'name' => 'required|string',
-            'phone_number' => 'required|string|min:10|unique:users',            
+            'phone_number' => 'required|string|min:10|unique:users',
             // Demographic Information
             'nric' => 'required|string|min:5',
             'birth_date' => 'required|date:before:today',
@@ -71,6 +71,7 @@ class StoreStaffRequest extends FormRequest
             'perkeso_amount' => 'required|numeric',
             'tax_number' => 'required|string',
             'tax_amount' => 'required|numeric',
+            'eis'        => 'required|numeric',
             // Emergency Contact
             'emergency_contact' => 'required|string',
             'emergency_contact_number' => 'required|string|min:10',

@@ -79,6 +79,7 @@ use App\Http\Controllers\Api\V1\Auth\DoctorAuthController;
 use App\Http\Controllers\Api\V1\ClaimPermissionController;
 use App\Http\Controllers\Api\V1\LeavePermissionController;
 use App\Http\Controllers\Api\V1\LeaveTypeDetailController;
+use App\Http\Controllers\Api\V1\MonthlyPayslipController;
 use App\Http\Controllers\DemographicInformationController;
 use App\Http\Controllers\Api\V1\OvertimePermissionController;
 
@@ -88,6 +89,11 @@ Route::prefix('v1')->group(function () {
         Route::middleware(['auth:sanctum', 'abilities:backOffice'])->group(function () {
             Route::get('/me', [BackOfficeController::class, 'me']);
             Route::get('/top-employee', [TopEmployeeController::class, 'index']);
+            // Route::prefix('payslip')->group(function () {
+            //     Route::get('/', [MonthlyPayslipController::class, 'index']);
+            //     Route::get('/{id}', [MonthlyPayslipController::class, 'show']);
+            //     Route::post('/', [MonthlyPayslipController::class, 'store']);
+            // });
             Route::prefix('visit')->group(function () {
                 Route::get('/get-total-visit', [VisitorController::class, 'getTotalViewPage']);
             });
@@ -326,6 +332,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/nearby', [ClinicController::class, 'nearby']);
         Route::get('/show/{slug}', [ClinicController::class, 'show']);
         Route::middleware(['auth:sanctum', 'abilities:clinic'])->group(function () {
+            // Route::prefix('payslip')->group(function () {
+            //     Route::get('/', [MonthlyPayslipController::class, 'index']);
+            //     Route::get('/{id}', [MonthlyPayslipController::class, 'show']);
+            //     Route::post('/', [MonthlyPayslipController::class, 'store']);
+            // });
             Route::prefix('me')->group(function () {
                 Route::get('/logout-clinic', [ClinicAuthController::class, 'logout']);
                 Route::get('/user', [ClinicDataController::class, 'me']);
@@ -528,6 +539,15 @@ Route::prefix('v1')->group(function () {
             Route::get('/search', [PatientController::class, 'search']);
             Route::post('/store', [PatientController::class, 'store']);
         });
+
+        //================== Payslip ==================//
+        Route::prefix('payslip')->group(function () {
+            Route::get('/', [MonthlyPayslipController::class, 'index']);
+            Route::get('/{id}', [MonthlyPayslipController::class, 'show']);
+            Route::post('/', [MonthlyPayslipController::class, 'store']);
+            Route::delete('/{id}', [MonthlyPayslipController::class, 'destroy']);
+            Route::put('/{id}', [MonthlyPayslipController::class, 'update']);
+        });
     });
 
     Route::middleware('auth:sanctum')->group(function() {
@@ -544,5 +564,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/{id}/send-email', [ReportBugController::class, 'sendEmail']);
             Route::put('/{id}/resolve', [ReportBugController::class, 'resolve']);
         });
+
+        Route::get('employees', [EmployeeController::class, 'index']);
     });
 });

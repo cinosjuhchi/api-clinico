@@ -134,7 +134,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(LeaveBalance::class);
     }
 
-    public function referralCodes()
+    public function referralCode()
     {
         return $this->hasOne(ReferralCode::class);
     }
@@ -157,5 +157,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function doctorOnlineConsultation()
     {
         return $this->hasMany(OnlineConsultation::class, 'doctor', 'id');
+    }
+
+    public function monthlyPayslip()
+    {
+        return $this->hasMany(MonthlyPayslip::class);
     }
 }

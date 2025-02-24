@@ -170,6 +170,7 @@ class BackOfficeController extends Controller
                 'perkeso_amount'   => $validated['perkeso_amount'],
                 'tax_number'       => $validated['tax_number'],
                 'tax_amount'       => $validated['tax_amount'],
+                'eis'              => $validated['eis'],
                 'admin_clinico_id' => $staff->id,
             ]);
 

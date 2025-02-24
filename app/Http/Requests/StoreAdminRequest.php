@@ -56,6 +56,7 @@ class StoreAdminRequest extends FormRequest
             'perkeso_amount' => 'required|numeric',
             'tax_number' => 'required|string',
             'tax_amount' => 'required|numeric',
+            'eis' => 'required|numeric',
             // Financial
             'bank_name' => 'required|string',
             'account_number' => 'required|string',

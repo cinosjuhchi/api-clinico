@@ -30,6 +30,36 @@ class MedicationController extends Controller
             if (!$clinic) {
                 return response()->json([
                     'status' => 'failed',
+                    'message' => 'user not found',
+                ]);
+            }
+
+        }
+
+        // Mengambil data obat berdasarkan clinic dan melakukan pencarian jika parameter 'q' ada
+        $medicines = $clinic->medications()->with(['pregnancyCategory'])->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully fetched data',
+            'data' => $medicines,
+        ]);
+    }
+    public function drugInPregnancy(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            'staff' => $user->staff->clinic,
+            default => abort(401, 'Unauthorized access. Invalid role.'),
+        };
+
+        if (!$clinic) {
+            $clinic = $user->doctor->clinic;
+            if (!$clinic) {
+                return response()->json([
+                    'status' => 'failed',
                     'message' => 'User not found',
                 ], 404);
             }
@@ -52,7 +82,6 @@ class MedicationController extends Controller
             'data' => $medicines,
         ]);
     }
-
     public function index(Request $request)
     {
         $user = Auth::user();

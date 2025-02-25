@@ -137,6 +137,7 @@ class DoctorDataController extends Controller
                 'medicalRecord.serviceRecord',
                 'medicalRecord.investigationRecord',
                 'medicalRecord.diagnosisRecord',
+                'medicalRecord.gestationalAge',
                 
             ]
         )->where('slug', $slug)->first();

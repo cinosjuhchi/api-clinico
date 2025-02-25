@@ -233,6 +233,13 @@ class ConsultationController extends Controller
                 ]);
                 
             }
+
+            if(!empty($validated['alert']))
+            {
+                $appointment->update([
+                    'alert' => $validated['alert']
+                ]);
+            }
             
             $status = $patient->is_offline ? 'completed' : 'waiting-payment';
             if (!empty($validated['medicine'])) {

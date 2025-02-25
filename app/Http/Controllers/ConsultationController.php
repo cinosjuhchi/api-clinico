@@ -52,8 +52,8 @@ class ConsultationController extends Controller
                 'weight'         => $validated['weight'],
                 'height'         => $validated['height'],
             ]);
-            if (!empty($validated['allergy'])) {
-                $patient->allergy()->updateOrCreate([
+            if ($validated['allergy']) {
+                $patient->allergy()->create([
                     'name' => $validated['allergy']
                 ]);
             } else {
@@ -234,7 +234,7 @@ class ConsultationController extends Controller
                 
             }
 
-            if(!empty($validated['alert']))
+            if($validated['alert'])
             {
                 $appointment->update([
                     'alert' => $validated['alert']

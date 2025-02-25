@@ -53,6 +53,7 @@ class ConsultationController extends Controller
                 'height'         => $validated['height'],
             ]);
             if ($validated['allergy']) {
+                $patient->allergy()->delete();
                 $patient->allergy()->create([
                     'name' => $validated['allergy']
                 ]);

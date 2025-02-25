@@ -36,6 +36,7 @@ class CompleteAppointmentRequest extends FormRequest
                 'patient_condition' => 'required|string',
                 'consultation_note' => 'required|string',
                 'examination' => 'nullable|string',
+                'allergy' => 'nullable|string',
                 // Diagnosis
                 'diagnosis' => 'required|array',
                 'diagnosis.*' => 'required|string',
@@ -84,9 +85,14 @@ class CompleteAppointmentRequest extends FormRequest
                 'follow_up_date' => 'nullable|string',
                 'follow_up_remark' => 'nullable|string',
                 'current_history' => 'nullable|string',
-
                 // Timer
                 'timer' => 'nullable|date_format:H:i:s',
+                // Gestational Age
+                'gestational_age' => 'required|array',
+                'gestational_age.plus' => 'required|integer|min:0',
+                'gestational_age.para' => 'required|integer|min:0',
+                'gestational_age.gravida' => 'required|integer|min:0',
+                'gestational_age.menstruation_date' => 'required|date',
         ];
     }
 }

@@ -30,14 +30,21 @@ class MedicationController extends Controller
             if (!$clinic) {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'user not found',
-                ]);
+                    'message' => 'User not found',
+                ], 404);
             }
-
         }
 
-        // Mengambil data obat berdasarkan clinic dan melakukan pencarian jika parameter 'q' ada
-        $medicines = $clinic->medications()->with(['pregnancyCategory'])->get();
+        // Menerima parameter pencarian 'q'
+        $query = $clinic->medications()->with(['pregnancyCategory']);
+
+        if ($request->has('search')) {
+            $searchTerm = $request->input('search');
+            $query->where('name', 'LIKE', "%{$searchTerm}%");
+        }
+
+        // Pagination, default 10 item per halaman
+        $medicines = $query->paginate(10);
 
         return response()->json([
             'status' => 'success',
@@ -45,6 +52,7 @@ class MedicationController extends Controller
             'data' => $medicines,
         ]);
     }
+
     public function index(Request $request)
     {
         $user = Auth::user();

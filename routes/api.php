@@ -34,6 +34,7 @@ use App\Http\Controllers\TeleconsultController;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\ImmunizationController;
 use App\Http\Controllers\ReportClinicController;
+use App\Http\Controllers\BoInvoiceItemController;
 use App\Http\Controllers\ClinicServiceController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\ParentChronicController;
@@ -160,6 +161,9 @@ Route::prefix('v1')->group(function () {
                 Route::get('/', [BoInvoiceController::class, 'index']);
                 Route::post('/store', [BoInvoiceController::class, 'store']);
                 Route::delete('/delete/{boInvoice}', [BoInvoiceController::class,'destroy']);
+                Route::prefix('items')->group(function () {
+                    Route::delete('/delete/{boInvoiceItem}', [BoInvoiceItemController::class, 'destroy']);
+                });
             });
         });
     });

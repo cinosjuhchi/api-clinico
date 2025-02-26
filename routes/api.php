@@ -16,6 +16,7 @@ use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PhysicalController;
+use App\Http\Controllers\BoInvoiceController;
 use App\Http\Controllers\DiagnosisController;
 use App\Http\Controllers\InjectionController;
 use App\Http\Controllers\ProcedureController;
@@ -74,12 +75,12 @@ use App\Http\Controllers\Api\V1\DoctorProfileController;
 use App\Http\Controllers\Api\V1\ReportBugTypeController;
 use App\Http\Controllers\Api\V1\StaffScheduleController;
 use App\Http\Controllers\ConsultationDocumentController;
+use App\Http\Controllers\Api\V1\MonthlyPayslipController;
 use App\Http\Controllers\Api\V1\Auth\ClinicAuthController;
 use App\Http\Controllers\Api\V1\Auth\DoctorAuthController;
 use App\Http\Controllers\Api\V1\ClaimPermissionController;
 use App\Http\Controllers\Api\V1\LeavePermissionController;
 use App\Http\Controllers\Api\V1\LeaveTypeDetailController;
-use App\Http\Controllers\Api\V1\MonthlyPayslipController;
 use App\Http\Controllers\DemographicInformationController;
 use App\Http\Controllers\Api\V1\OvertimePermissionController;
 
@@ -152,8 +153,13 @@ Route::prefix('v1')->group(function () {
             Route::prefix('teleconsult')->group(function () {
                 Route::get('/', [TeleconsultController::class, 'index']);
                 Route::get('/get-message/{onlineConsultation}', [TeleconsultController::class, 'show']);
-                Route::post('/send-message/{onlineConsultation}', [TeleconsultController::class, 'store']);
-                // Route::get('/complete-consultation', [TeleconsultController::class, 'complete']);
+                Route::post('/send-message/{onlineConsultation}', [TeleconsultController::class, 'store']);                
+            });
+
+            Route::prefix('invoice')->group(function () {
+                Route::get('/', [BoInvoiceController::class, 'index']);
+                Route::post('/store', [BoInvoiceController::class, 'store']);
+                Route::delete('/delete/{boInvoice}', [BoInvoiceController::class,'destroy']);
             });
         });
     });

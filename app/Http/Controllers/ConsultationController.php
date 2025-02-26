@@ -52,6 +52,14 @@ class ConsultationController extends Controller
                 'weight'         => $validated['weight'],
                 'height'         => $validated['height'],
             ]);
+            if ($validated['allergy']) {
+                $patient->allergy()->delete();
+                $patient->allergy()->create([
+                    'name' => $validated['allergy']
+                ]);
+            } else {
+                $patient->allergy()->delete();
+            }            
             $medicalRecord = $appointment->medicalRecord;
             if ($medicalRecord) {
                 $medicalRecord->update([
@@ -112,7 +120,7 @@ class ConsultationController extends Controller
                 ]);
             }
 
-            if (! empty($validated['investigations'])) {
+            if (!empty($validated['investigations'])) {
                 foreach ($validated['investigations'] as $investigation) {
                     $medicalRecord->investigationRecord()->create([
                         'type'       => $investigation['investigation_type'],
@@ -123,7 +131,7 @@ class ConsultationController extends Controller
                     ]);
                 }
             }
-            if (! empty($validated['procedure'])) {
+            if (!empty($validated['procedure'])) {
                 foreach ($validated['procedure'] as $procedure) {
                     $medicalRecord->procedureRecords()->create([
                         'name'       => $procedure['name'],
@@ -133,7 +141,7 @@ class ConsultationController extends Controller
                     ]);
                 }
             }
-            if (! empty($validated['injection'])) {
+            if (!empty($validated['injection'])) {
                 foreach ($validated['injection'] as $injection) {
                     $medicalRecord->injectionRecords()->create([
                         'injection_id' => $injection['injection_id'],
@@ -146,7 +154,7 @@ class ConsultationController extends Controller
                 }
             }
 
-            if (! empty($validated['medicine'])) {
+            if (!empty($validated['medicine'])) {
                 foreach ($validated['medicine'] as $medicine) {
                     $medication = Medication::find($medicine['medicine_id']);
                     $price      = $medication->price;
@@ -163,7 +171,7 @@ class ConsultationController extends Controller
                 }
             }
 
-            if (! empty($validated['risk_factors'])) {
+            if (!empty($validated['risk_factors'])) {
                 foreach ($validated['risk_factors'] as $risk) {
                     $medicalRecord->riskFactors()->create([
                         'name' => $risk,
@@ -171,7 +179,18 @@ class ConsultationController extends Controller
                 }
             }
 
-            if (! empty($validated['images'])) {
+            if(!empty($validated['gestational_age'])){
+                $medicalRecord->gestationalAge()->updateOrCreate(                    
+                    [
+                        'plus' => $validated['gestational_age']['plus'],
+                        'para' => $validated['gestational_age']['para'],
+                        'gravida' => $validated['gestational_age']['gravida'],
+                        'menstruation_date' => $validated['gestational_age']['menstruation_date']                    
+                    ]
+                );
+            }
+
+            if (!empty($validated['images'])) {
                 foreach ($validated['images'] as $index => $image) {
                     // Store the image
                     $imagePath = $image->store('consultation_image');
@@ -183,7 +202,7 @@ class ConsultationController extends Controller
                 }
 
             }
-            if (! empty($validated['documents'])) {
+            if (!empty($validated['documents'])) {
                 foreach ($validated['documents'] as $index => $document) {
                     // Store the image
                     $documentPath = $document->store('consultation_document');
@@ -195,7 +214,7 @@ class ConsultationController extends Controller
 
                 }
             }
-            if (! empty($validated['reports'])) {
+            if (!empty($validated['reports'])) {
                 foreach ($validated['reports'] as $index => $report) {
                     // Store the image
                     $reportPath = $report->store('consultation_report');
@@ -207,17 +226,24 @@ class ConsultationController extends Controller
 
                 }
             }
-            if (! empty($validated['certificate'])) {
+            if (!empty($validated['certificate'])) {
                 $certificatePath = $validated['certificate']->store('certificate_document');
                 $medicalRecord->consultationDocuments()->create([
                     'document_path' => $certificatePath,
                     'type'          => 'certificate',
                 ]);
-
+                
             }
 
+            if($validated['alert'])
+            {
+                $appointment->update([
+                    'alert' => $validated['alert']
+                ]);
+            }
+            
             $status = $patient->is_offline ? 'completed' : 'waiting-payment';
-            if (! empty($validated['medicine'])) {
+            if (!empty($validated['medicine'])) {
                 $appointment->update([
                     'status' => 'take-medicine',
                 ]);
@@ -226,7 +252,7 @@ class ConsultationController extends Controller
                     'status' => $status,
                 ]);
             }
-
+            
             DB::commit();
 
             return response()->json([

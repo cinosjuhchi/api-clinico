@@ -65,6 +65,11 @@ class MedicalRecord extends Model
     {
         return $this->hasOne(ServiceRecord::class, 'medical_record_id');
     }
+
+    public function gestationalAge()
+    {
+        return $this->hasOne(GestationalAge::class, 'medical_record_id');
+    }
     
     public function investigationRecord()
     {

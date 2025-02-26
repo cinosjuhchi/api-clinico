@@ -45,6 +45,43 @@ class MedicationController extends Controller
             'data' => $medicines,
         ]);
     }
+    public function drugInPregnancy(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            'staff' => $user->staff->clinic,
+            default => abort(401, 'Unauthorized access. Invalid role.'),
+        };
+
+        if (!$clinic) {
+            $clinic = $user->doctor->clinic;
+            if (!$clinic) {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'User not found',
+                ], 404);
+            }
+        }
+
+        // Menerima parameter pencarian 'q'
+        $query = $clinic->medications()->with(['pregnancyCategory']);
+
+        if ($request->has('search')) {
+            $searchTerm = $request->input('search');
+            $query->where('name', 'LIKE', "%{$searchTerm}%");
+        }
+
+        // Pagination, default 10 item per halaman
+        $medicines = $query->paginate(10);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully fetched data',
+            'data' => $medicines,
+        ]);
+    }
     public function index(Request $request)
     {
         $user = Auth::user();

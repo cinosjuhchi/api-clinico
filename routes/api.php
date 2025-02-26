@@ -184,6 +184,7 @@ Route::prefix('v1')->group(function () {
             Route::prefix('web-push')->group(function () {
                 Route::post('/save-notification', [PushNotificationController::class, 'saveSubscription']);
             });
+            Route::post('/store', [FamilyController::class, 'store']);
             Route::get('/user/{id}', [UserController::class, 'show']);
             Route::get('/logout-user', [AuthController::class, 'logout']);
             Route::delete('/destroy/{patient}', [PatientController::class, 'destroy']);
@@ -349,9 +350,15 @@ Route::prefix('v1')->group(function () {
         Route::middleware(['auth:sanctum', 'abilities:hasAccessResource'])->group(function () {
             Route::get('/clinic-information', [ClinicController::class, 'clinicInformation']);
             Route::get('inventory', [InventoryController::class, 'index']);
+            Route::prefix('patient')->group(function () {
+                Route::get('/search', [PatientController::class, 'search']);
+                Route::post('/store', [PatientController::class, 'store']);
+            });
+
             Route::prefix('medicines')->group(function () {
                 Route::get('/', [MedicationController::class, 'index']);
                 Route::get('/doctor-resource', [MedicationController::class, 'doctorResource']);
+                Route::get('/drug-in-pregnancy', [MedicationController::class, 'drugInPregnancy']);
                 Route::get('/information', [MedicationController::class, 'information']);
                 Route::post('/store', [MedicationController::class, 'store']);
                 Route::put('/add-batch/{medication}', [MedicationController::class, 'addBatch']);
@@ -532,12 +539,6 @@ Route::prefix('v1')->group(function () {
         //================== History ==================//
         Route::prefix('history')->group(function() {
             Route::get('/medical', [MedicalRecordController::class, 'history']);
-        });
-
-        //================== Patient ==================//
-        Route::prefix('patient')->group(function() {
-            Route::get('/search', [PatientController::class, 'search']);
-            Route::post('/store', [PatientController::class, 'store']);
         });
 
         //================== Payslip ==================//

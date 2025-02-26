@@ -110,16 +110,18 @@ class BoInvoiceController extends Controller
      */
     public function destroy(BoInvoice $boInvoice)
     {
+        DB::beginTransaction();
         try {
             // Hapus pasien dari database
             $boInvoice->delete();
-
+            DB::commit();
             // Mengembalikan respons sukses
             return response()->json([
                 'success' => true,
                 'message' => 'Invoice deleted successfully.',
             ], 200);
         } catch (\Exception $e) {
+            DB::rollBack();
             // Menangani kesalahan yang mungkin terjadi saat penghapusan
             return response()->json([
                 'success' => false,

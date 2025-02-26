@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\BoInvoiceItem;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreBoInvoiceItemRequest;
 use App\Http\Requests\UpdateBoInvoiceItemRequest;
 
@@ -61,6 +63,23 @@ class BoInvoiceItemController extends Controller
      */
     public function destroy(BoInvoiceItem $boInvoiceItem)
     {
-        //
+        DB::beginTransaction();
+        try {
+            // Hapus pasien dari database
+            $boInvoiceItem->delete();
+            DB::commit();
+            // Mengembalikan respons sukses
+            return response()->json([
+                'success' => true,
+                'message' => 'Item deleted successfully.',
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Menangani kesalahan yang mungkin terjadi saat penghapusan
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while deleting the procedure: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

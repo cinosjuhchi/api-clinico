@@ -51,7 +51,7 @@ class FamilyController extends Controller
             'name' => 'required|string|min:3|max:125',
             'address' => 'required|string',
             'family_id' => 'required|exists:families,id',
-            'family_relationship_id' => 'required|exists:family_relationships,id'
+            'family_relationships_id' => 'required|exists:family_relationships,id'
         ]);
 
         DB::beginTransaction();
@@ -62,7 +62,7 @@ class FamilyController extends Controller
             $patient = $family->patients()->create([
                 "name" => $validated["name"],
                 "address" => $validated["address"],
-                "family_relationship_id" => $validated['family_relationship_id'],
+                "family_relationship_id" => $validated['family_relationships_id'],
                 "user_id"=> $user->id,
                 "is_offline" => false,
             ]);            

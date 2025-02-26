@@ -643,6 +643,226 @@ class ClinicDataController extends Controller
             ], 500);
         }
     }
+    public function updateStaff(Request $request, Staff $staff)
+    {
+        $validated = $request->validate([
+            'name'                       => 'required|string',
+            'phone_number'               => 'required|string|min:10',            
+            // Demographic Information
+            'nric'                       => 'required|string|min:5',
+            'birth_date'                 => 'required|date|before:today',
+            'place_of_birth'             => 'required|string',
+            'marital_status'             => 'required|string',
+            'address'                    => 'required|string',
+            'country'                    => 'required|string',
+            'postal_code'                => 'required|numeric|digits_between:4,10',
+            'gender'                     => 'required|string',
+            // Educational Information
+            'graduated_from'             => 'required|string',
+            'bachelor'                   => 'required|string',
+            'graduation_year'            => 'required|integer',
+            // Reference Information
+            'reference_name'             => 'required|string',
+            'reference_company'          => 'required|string',
+            'reference_position'         => 'required|string',
+            'reference_phone'            => 'required|string',
+            'reference_email'            => 'required|email',
+            // Basic Skill Information
+            'languange_spoken_skill'     => 'required|string',
+            'languange_written_skill'    => 'required|string',
+            'microsoft_office_skill'     => 'required|string',
+            'others_skill'               => 'required|string',
+            // Employment Information
+            'image_profile'              => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image_signature'            => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'branch'                     => 'required|string',
+            'position'                   => 'required|string',
+            'mmc'                        => 'required|integer',
+            'apc'                        => 'required|string',
+            'staff_id'                   => 'required|string',
+            'tenure'                     => 'required|string',
+            'basic_salary'               => 'required|numeric|max:99999999',
+            'elaun'                      => 'required|numeric|max:99999999',
+            // Financial Information
+            'bank_name'                  => 'required|string',
+            'account_number'             => 'required|string|max:20',
+            // Contribution Info
+            'kwsp_number'                => 'required|integer',
+            'kwsp_amount'                => 'required|numeric',
+            'perkeso_number'             => 'required|integer',
+            'perkeso_amount'             => 'required|numeric',
+            'tax_number'                 => 'required|string',
+            'tax_amount'                 => 'required|numeric',
+            'eis'                        => 'required|numeric',
+            // Emergency Contact
+            'emergency_contact'          => 'required|string',
+            'emergency_contact_number'   => 'required|string|min:10',
+            'emergency_contact_relation' => 'required|string',
+            // Spouse Information
+            'spouse_name'                => 'nullable|string',
+            'spouse_occupation'          => 'nullable|string',
+            'spouse_phone'               => 'nullable|string',
+            // Child Information
+            'childs'                     => 'array|nullable',
+            'childs.*.name'              => 'required|string',
+            'childs.*.age'               => 'required|integer',
+            // Parent Information
+            'father_name'                => 'required|string',
+            'mother_name'                => 'required|string',
+            'father_occupation'          => 'required|string',
+            'mother_occupation'          => 'required|string',
+            'father_contact'             => 'required|string|min:10',
+            'mother_contact'             => 'required|string|min:10',
+        ]);
+
+        $user   = Auth::user();
+        $clinic = $user->clinic;
+
+        if (! $clinic) {
+            return response()->json([
+                'status'  => 'failed',
+                'message' => 'Clinic not found for the user',
+            ]);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Update main doctor information
+            $fieldsToUpdate = [
+                'name'        => $validated['name'],                
+            ];
+            $staff->update($fieldsToUpdate);
+
+            // Employee information updates with conditional checks
+            $employeeFieldsToUpdate = [
+                'branch'       => $validated['branch'],
+                'position'     => $validated['position'],
+                'apc'          => $validated['apc'],
+                'mmc'          => $validated['mmc'],
+                'staff_id'     => $validated['staff_id'],
+                'tenure'       => $validated['tenure'],
+                'basic_salary' => $validated['basic_salary'],
+                'elaun'        => $validated['elaun'],
+            ];
+
+            if ($request->hasFile('image_profile')) {
+                $employeeFieldsToUpdate['image_profile'] = $request->file('image_profile')->store('image_profile');
+            }
+
+            if ($request->hasFile('image_signature')) {
+                $employeeFieldsToUpdate['image_signature'] = $request->file('image_signature')->store('image_signature');
+            }
+
+            $staff->employmentInformation()->update($employeeFieldsToUpdate);
+            $user = $staff->user;
+
+            // Update related information (demographic, educational, etc.)
+            $staff->demographic()->updateOrCreate([], [
+                'nric'           => $validated['nric'],
+                'name'           => $validated['name'],
+                'email'          => $user->email,
+                'birth_date'     => $validated['birth_date'],
+                'place_of_birth' => $validated['place_of_birth'],
+                'marital_status' => $validated['marital_status'],
+                'phone_number'   => $validated['phone_number'],
+                'address'        => $validated['address'],
+                'country'        => $validated['country'],
+                'postal_code'    => $validated['postal_code'],
+                'gender'         => $validated['gender'],
+            ]);
+
+            $staff->educational()->updateOrCreate([], [
+                'graduated_from'  => $validated['graduated_from'],
+                'bachelor'        => $validated['bachelor'],
+                'graduation_year' => $validated['graduation_year'],
+            ]);
+
+            $staff->contributionInfo()->updateOrCreate([], [
+                'kwsp_number'    => $validated['kwsp_number'],
+                'kwsp_amount'    => $validated['kwsp_amount'],
+                'perkeso_number' => $validated['perkeso_number'],
+                'perkeso_amount' => $validated['perkeso_amount'],
+                'tax_number'     => $validated['tax_number'],
+                'tax_amount'     => $validated['tax_amount'],
+                'eis'            => $validated['eis'],
+            ]);
+
+            $staff->emergencyContact()->updateOrCreate([], [
+                'name'         => $validated['emergency_contact'],
+                'relationship' => $validated['emergency_contact_relation'],
+                'phone_number' => $validated['emergency_contact_number'],
+            ]);
+
+            // Optional spouse information
+            if (! empty($validated['spouse_name'])) {
+                $staff->spouseInformation()->updateOrCreate([], [
+                    'name'       => $validated['spouse_name'],
+                    'occupation' => $validated['spouse_occupation'],
+                    'contact'    => $validated['spouse_phone'],
+                ]);
+            }
+
+            // Child information
+            $staff->childsInformation()->delete();
+            if (! empty($validated['childs'])) {
+                foreach ($validated['childs'] as $child) {
+                    $staff->childsInformation()->create([
+                        'name' => $child['name'],
+                        'age'  => $child['age'],
+                    ]);
+                }
+            }
+
+            // Parent information
+            $staff->parentInformation()->updateOrCreate([], [
+                'father_name'       => $validated['father_name'],
+                'mother_name'       => $validated['mother_name'],
+                'father_occupation' => $validated['father_occupation'],
+                'mother_occupation' => $validated['mother_occupation'],
+                'father_contact'    => $validated['father_contact'],
+                'mother_contact'    => $validated['mother_contact'],
+            ]);
+
+            // Reference information
+            $staff->reference()->updateOrCreate([], [
+                'name'         => $validated['reference_name'],
+                'company'      => $validated['reference_company'],
+                'number_phone' => $validated['reference_phone'],
+                'position'     => $validated['reference_position'],
+                'email'        => $validated['reference_email'],
+            ]);
+
+            // Basic skills information
+            $staff->basicSkills()->updateOrCreate([], [
+                'languange_spoken'  => $validated['languange_spoken_skill'],
+                'languange_written' => $validated['languange_written_skill'],
+                'microsoft_office'  => $validated['microsoft_office_skill'],
+                'others'            => $validated['others_skill'],
+            ]);
+
+            // Financial information
+            $staff->financialInformation()->updateOrCreate([], [
+                'bank_name'      => $validated['bank_name'],
+                'account_number' => $validated['account_number'],
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Staff updated successfully',
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Failed to update doctor',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
 
     public function doctors(Request $request)
     {

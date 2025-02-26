@@ -397,6 +397,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/', [ClinicDataController::class, 'staffs']);
                 Route::get('/show/{staff}', [ClinicDataController::class, 'showStaff']);
                 Route::post('/store', [ClinicDataController::class, 'storeStaff']);
+                Route::put('/update/{staff}', [ClinicDataController::class, 'updateStaff']);
             });
             Route::prefix('rooms')->group(function () {
                 Route::get('/resource', [RoomController::class, 'roomResource']);

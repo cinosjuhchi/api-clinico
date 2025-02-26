@@ -349,6 +349,11 @@ Route::prefix('v1')->group(function () {
         Route::middleware(['auth:sanctum', 'abilities:hasAccessResource'])->group(function () {
             Route::get('/clinic-information', [ClinicController::class, 'clinicInformation']);
             Route::get('inventory', [InventoryController::class, 'index']);
+            Route::prefix('patient')->group(function () {
+                Route::get('/search', [PatientController::class, 'search']);
+                Route::post('/store', [PatientController::class, 'store']);
+            });
+
             Route::prefix('medicines')->group(function () {
                 Route::get('/', [MedicationController::class, 'index']);
                 Route::get('/doctor-resource', [MedicationController::class, 'doctorResource']);
@@ -533,12 +538,6 @@ Route::prefix('v1')->group(function () {
         //================== History ==================//
         Route::prefix('history')->group(function() {
             Route::get('/medical', [MedicalRecordController::class, 'history']);
-        });
-
-        //================== Patient ==================//
-        Route::prefix('patient')->group(function() {
-            Route::get('/search', [PatientController::class, 'search']);
-            Route::post('/store', [PatientController::class, 'store']);
         });
 
         //================== Payslip ==================//

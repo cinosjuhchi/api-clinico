@@ -184,6 +184,7 @@ Route::prefix('v1')->group(function () {
             Route::prefix('web-push')->group(function () {
                 Route::post('/save-notification', [PushNotificationController::class, 'saveSubscription']);
             });
+            Route::post('/store', [FamilyController::class, 'store']);
             Route::get('/user/{id}', [UserController::class, 'show']);
             Route::get('/logout-user', [AuthController::class, 'logout']);
             Route::delete('/destroy/{patient}', [PatientController::class, 'destroy']);

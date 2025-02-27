@@ -86,7 +86,33 @@ class BoInvoiceController extends Controller
      */
     public function show(BoInvoice $boInvoice)
     {
-        //
+        $boInvoice->load('items');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully retrived',
+            'data' => $boInvoice
+        ]);
+    }
+
+    public function completed(BoInvoice $boInvoice)
+    {
+        DB::beginTransaction();
+        try {
+            $boInvoice->update([
+                'status' => 'completed'
+            ]);
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Successfully confirm'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'An error occurred while confirm: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -117,14 +143,14 @@ class BoInvoiceController extends Controller
             DB::commit();
             // Mengembalikan respons sukses
             return response()->json([
-                'success' => true,
+                'status' => 'success',
                 'message' => 'Invoice deleted successfully.',
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             // Menangani kesalahan yang mungkin terjadi saat penghapusan
             return response()->json([
-                'success' => false,
+                'status' => 'failed',
                 'message' => 'An error occurred while deleting the procedure: ' . $e->getMessage(),
             ], 500);
         }

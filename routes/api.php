@@ -160,6 +160,8 @@ Route::prefix('v1')->group(function () {
             Route::prefix('invoice')->group(function () {
                 Route::get('/', [BoInvoiceController::class, 'index']);
                 Route::post('/store', [BoInvoiceController::class, 'store']);
+                Route::get('/confirm', [BoInvoiceController::class, 'completed']);
+                Route::get('/show/{boInvoice}', [BoInvoiceController::class, 'show']);
                 Route::delete('/delete/{boInvoice}', [BoInvoiceController::class,'destroy']);
                 Route::prefix('items')->group(function () {
                     Route::delete('/delete/{boInvoiceItem}', [BoInvoiceItemController::class, 'destroy']);

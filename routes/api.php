@@ -165,6 +165,7 @@ Route::prefix('v1')->group(function () {
                     Route::delete('/delete/{boInvoiceItem}', [BoInvoiceItemController::class, 'destroy']);
                 });
             });
+        
         });
     });
     Route::prefix('doctor-category')->group(function () {

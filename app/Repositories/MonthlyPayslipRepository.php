@@ -23,16 +23,10 @@ class MonthlyPayslipRepository
         $user = auth()->user();
         if ($user->role === "clinic") {
             $data->where('clinic_id', $user->clinic->id);
-        } else if ($user->role === "doctor") {
-            $data->where('clinic_id', $user->doctor->clinic->id);
-        } else if ($user->role === "staff") {
-            $data->where('clinic_id', $user->staff->clinic->id);
         } else if ($user->role === "superadmin") {
             $data->whereNull('clinic_id');
-        } else if ($user->role === "admin") {
-            $data->whereNull('clinic_id');
         } else {
-            return $data->where('user_id', $user->id);
+            $data->where('user_id', $user->id);
         }
 
         return $data

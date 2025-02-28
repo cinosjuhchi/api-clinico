@@ -14,15 +14,11 @@ class BoReportController extends Controller
             'to_date' => 'required|date|after:from_date'
         ]);
 
-        $totalSales = Billing::where('is_paid', true)
-            ->with(['clinic', 'patient.demographics'])
-            ->selectRaw('transaction_date, SUM(total_cost) as total_sales, COUNT(DISTINCT patient_id) as total_patient')
-            ->groupBy('transaction_date')
-            ->get();
+        
         
         return response()->json([
             'status' => 'success',
-            'data'   => $totalSales
+            'data'   => 'hello'
         ], 200);
     }
 

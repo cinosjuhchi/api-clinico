@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ReportInformationRequest;
 use App\Models\Billing;
+use App\Models\BoExpense;
 use App\Models\BoInvoice;
 use App\Models\ClinicSettlement;
 use Illuminate\Http\Request;
@@ -41,6 +42,38 @@ class BoReportController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $formattedInvoices,
+        ], 200);
+    }
+    public function totalCash(ReportInformationRequest $request)
+    {
+        $validated = $request->validated();
+
+        // Ambil semua invoice dalam rentang tanggal dengan relasi items
+        $cashs = BoExpense::whereBetween('expense_date', [$validated['from_date'], $validated['to_date']])
+            ->with(['items'])
+            ->get()
+            ->groupBy('expense_date');
+
+        // Format hasilnya sesuai yang diinginkan
+        $formattedCash = $cashs->map(function ($group, $date) {
+            return [
+                'expense_date' => $date,
+                'total_cost' => $group->sum(fn ($cash) => $cash->items->sum('price')), // Total semua price dari relasi items
+                'cashs' => $group->map(function ($cash) {
+                    return [
+                        'clinic_name' => $cash->addition['name'] ?? null,
+                        'cost' => $cash->items->sum('price'), // Total price per cash
+                        'status' => $cash->status,
+                        'unique_id' => $cash->unique_id
+                    ];
+                })->values(), // Reset index array agar tidak berbentuk koleksi asosiatif
+            ];
+        })->values(); // Reset index array agar format JSON rapi
+
+        // Return response dalam bentuk JSON
+        return response()->json([
+            'status' => 'success',
+            'data' => $formattedCash,
         ], 200);
     }
 

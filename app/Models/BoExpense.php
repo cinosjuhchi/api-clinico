@@ -11,6 +11,10 @@ class BoExpense extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'addition' => 'array',
+    ];
+    
     public function items()
     {
         return $this->hasMany(BoExpenseItem::class);

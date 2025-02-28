@@ -143,6 +143,64 @@ class BoReportController extends Controller
             'data' => $formattedVouchers,
         ], 200);
     }
+    
+
+    public function totalLocums(ReportInformationRequest $request)
+    {
+        $validated = $request->validated();
+
+        // Ambil semua expense dalam rentang tanggal dengan tipe "locum"
+        $locums = BoExpense::whereBetween('expense_date', [$validated['from_date'], $validated['to_date']])
+            ->where('type', 'locum')
+            ->get()
+            ->groupBy('expense_date');
+
+        // Format hasilnya sesuai yang diinginkan
+        $formattedLocums = $locums->map(function ($group, $date) {
+            return [
+                'expense_date' => $date,
+                'total_cost' => $group->sum(function ($locum) {
+                    // Ambil addition yang sudah otomatis dalam bentuk array
+                    $addition = $locum->addition;
+
+                    // Pastikan addition memiliki items
+                    if (!isset($addition['items']) || !is_array($addition['items'])) {
+                        return 0;
+                    }
+
+                    // Hitung total dari semua fee dalam items
+                    return collect($addition['items'])->sum(function ($item) {
+                        return ($item['locum_fee'] ?? 0) + 
+                            ($item['procedure_fee'] ?? 0) + 
+                            ($item['patient_fee'] ?? 0) + 
+                            ($item['night_slot_fee'] ?? 0);
+                    });
+                }),
+                'locums' => $group->map(function ($locum) {
+                    $addition = $locum->addition; // Sudah array
+
+                    return [
+                        'clinic_name' => $addition['name'] ?? null,
+                        'cost' => collect($addition['items'] ?? [])->sum(function ($item) {
+                            return ($item['locum_fee'] ?? 0) + 
+                                ($item['procedure_fee'] ?? 0) + 
+                                ($item['patient_fee'] ?? 0) + 
+                                ($item['night_slot_fee'] ?? 0);
+                        }),
+                        'status' => $locum->status,
+                        'unique_id' => $locum->unique_id
+                    ];
+                })->values(),
+            ];
+        })->values();
+
+        // Return response dalam bentuk JSON
+        return response()->json([
+            'status' => 'success',
+            'data' => $formattedLocums,
+        ], 200);
+    }
+
 
     public function settlements(ReportInformationRequest $request)
     {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\GenerateUniqueIdHelper;
 use App\Models\BoInvoice;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -53,7 +54,9 @@ class BoInvoiceController extends Controller
         $validated = $request->validated();
         DB::beginTransaction();
         try {
+            $uniqId = GenerateUniqueIdHelper::generateInvoiceId();
             $invoice = BoInvoice::create([
+                'unique_id' => $uniqId,
                 'invoice_date' => $validated['invoice_date'],
                 'due_date'=> $validated['due_date'],
                 'clinic_name'=> $validated['clinic_name'],

@@ -138,7 +138,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/request-clinic', [RequestClinicController::class, 'index']);
                 Route::delete('/delete/{clinic}', [RequestClinicController::class, 'destroy']);
                 Route::put('/accept-request/{clinic}', [RequestClinicController::class, 'update']);
-                Route::store('/store', [RequestClinicController::class, 'store']);
+                Route::post('/store', [RequestClinicController::class, 'store']);
                 Route::prefix('update-request')->group(function () {
                     Route::get('/', [ClinicUpdateRequestController::class, 'getPendingUpdates']);
                     Route::put('/proccess-update/{requestUpdate}', [ClinicUpdateRequestController::class, 'processUpdateRequest']);

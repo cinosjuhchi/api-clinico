@@ -2,17 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ReportInformationRequest;
 use App\Models\Billing;
+use App\Models\BoInvoice;
 use Illuminate\Http\Request;
 
 class BoReportController extends Controller
 {
-    public function totalSales(Request $request)
+
+    public function invoices(ReportInformationRequest $request)
     {
-        $validated = $request->validate([
-            'from_date' => 'required|date|before:to_date',
-            'to_date' => 'required|date|after:from_date'
-        ]);
+        $validated = $request->validated();
+        $invoices = BoInvoice::whereBetween('invoice_date', $validated['from_date'], $validated['to_date'])
+        ->with(['items'])
+        ->get()
+        ->groupBy('invoice_date');
+
+    }
+
+    public function totalSales(ReportInformationRequest $request)
+    {
+        $validated = $request->validated();
 
         $transactions = Billing::whereBetween('transaction_date', [$validated['from_date'], $validated['to_date']])
             ->where('is_paid', true)

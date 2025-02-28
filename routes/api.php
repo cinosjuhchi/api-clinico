@@ -183,6 +183,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/invoices', [BoReportController::class, 'invoices']);
                 Route::get('/settlements', [BoReportController::class, 'settlements']);
                 Route::get('/total-cash', [BoReportController::class, 'totalCash']);
+                Route::get('/total-order', [BoReportController::class, 'totalOrders']);
             });
         
         });

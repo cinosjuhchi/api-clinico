@@ -26,6 +26,27 @@ class BoExpenseController extends Controller
         //
     }
 
+    public function completed(BoExpense $boExpense)
+    {
+        DB::beginTransaction();
+        try {
+            $boExpense->update([
+                'status' => 'completed'
+            ]);
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Successfully confirm'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'An error occurred while confirm: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -68,7 +89,12 @@ class BoExpenseController extends Controller
      */
     public function show(BoExpense $boExpense)
     {
-        //
+        $boExpense->load('items');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Retrieved expense is success',
+            'data' => $boExpense
+        ], 200);
     }
 
     /**
@@ -92,6 +118,23 @@ class BoExpenseController extends Controller
      */
     public function destroy(BoExpense $boExpense)
     {
-        //
+        DB::beginTransaction();
+        try {
+            // Hapus pasien dari database
+            $boExpense->delete();
+            DB::commit();
+            // Mengembalikan respons sukses
+            return response()->json([
+                'success' => true,
+                'message' => 'Expense deleted successfully.',
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Menangani kesalahan yang mungkin terjadi saat penghapusan
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while deleting the procedure: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

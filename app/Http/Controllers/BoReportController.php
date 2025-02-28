@@ -52,7 +52,7 @@ class BoReportController extends Controller
         $settlements = ClinicSettlement::whereBetween('settlement_date', [$validated['from_date'], $validated['to_date']])
             ->with(['clinic'])
             ->get()
-            ->groupBy('invoice_date');
+            ->groupBy('settlement_date');
 
         // Format hasilnya sesuai yang diinginkan
         $formattedSettlements = $settlements->map(function ($group, $date) {

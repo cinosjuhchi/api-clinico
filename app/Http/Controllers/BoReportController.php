@@ -30,6 +30,7 @@ class BoReportController extends Controller
                         'clinic_name' => $invoice->clinic_name,
                         'cost' => $invoice->items->sum('price'), // Total price per invoice
                         'status' => $invoice->status,
+                        'unique_id' => $invoice->unique_id
                     ];
                 })->values(), // Reset index array agar tidak berbentuk koleksi asosiatif
             ];

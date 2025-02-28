@@ -83,7 +83,7 @@ class BoExpenseController extends Controller
             $boExpense = BoExpense::create([
                 'unique_id' => $uniqId,
                 'expense_date' => $validated['expense_date'],
-                'due_date' => $validated['due_date'],
+                'due_date' => $validated['due_date'] ?? null,
                 'addition' => $validated['addition'],
                 'type' => $validated['type'],                    
             ]);

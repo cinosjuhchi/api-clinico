@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ReportInformationRequest;
 use App\Models\Billing;
 use App\Models\BoInvoice;
+use App\Models\ClinicSettlement;
 use Illuminate\Http\Request;
 
 class BoReportController extends Controller
@@ -40,7 +41,40 @@ class BoReportController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $formattedInvoices,
-        ]);
+        ], 200);
+    }
+
+    public function settlements(ReportInformationRequest $request)
+    {
+        $validated = $request->validated();
+
+        // Ambil semua invoice dalam rentang tanggal dengan relasi items
+        $settlements = ClinicSettlement::whereBetween('settlement_date', [$validated['from_date'], $validated['to_date']])
+            ->with(['clinic'])
+            ->get()
+            ->groupBy('invoice_date');
+
+        // Format hasilnya sesuai yang diinginkan
+        $formattedSettlements = $settlements->map(function ($group, $date) {
+            return [
+                'settlement_date' => $date,
+                'total_cost' => $group->sum(fn ($settlement) => $settlement->total_sales), // Total semua price dari relasi items
+                'settlements' => $group->map(function ($settlement) {
+                    return [
+                        'clinico_id' => $settlement->clinico_id,
+                        'clinic_name'=> $settlement->clinic->name,
+                        'total_sales' => $settlement->total_sales,
+                        'status' => $settlement->status,                        
+                    ];
+                })->values(), // Reset index array agar tidak berbentuk koleksi asosiatif
+            ];
+        })->values(); // Reset index array agar format JSON rapi
+
+        // Return response dalam bentuk JSON
+        return response()->json([
+            'status' => 'success',
+            'data' => $formattedSettlements,
+        ], 200);
     }
 
 

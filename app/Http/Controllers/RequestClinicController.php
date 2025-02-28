@@ -2,11 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Clinic;
+use App\Models\Referral;
+use App\Mail\VerifyEmail;
+use Illuminate\Support\Str;
+use App\Models\ReferralCode;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Resources\ClinicResource;
+use App\Http\Requests\StoreClinicRequest;
+use App\Notifications\SetUpProfileNotification;
 
 class RequestClinicController extends Controller
 {
@@ -41,9 +51,74 @@ class RequestClinicController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreClinicRequest $request)
     {
-        
+        DB::beginTransaction();
+        try {
+            $referralCodeOwner = null;
+            if (!empty($request["referral_number"])) {
+                $referralCodeOwner = ReferralCode::where('code', $request['referral_number'])->first();
+
+                if (!$referralCodeOwner) {
+                    return response()->json([
+                        "status" => "error",
+                        "message" => "Referral number not found",
+                        "data" => ["code" => $request['referral_number']]
+                    ], 422);
+                }
+            }
+
+            $user = User::create([
+                'email' => $request['email'],
+                'password' => bcrypt($request['password']),
+                'phone_number' => $request['phone_number'],
+                'role' => 'clinic',
+            ]);
+
+            $verificationUrl = URL::temporarySignedRoute(
+                'verification.verify', now()->addMinutes(60), ['id' => $user->id]
+            );
+
+            $clinic = Clinic::create([
+                'name' => $request['name'],
+                'company' => $request['company'],
+                'ssm_number' => $request['ssm_number'],
+                'registration_number' => $request['registration_number'],
+                'user_id' => $user->id,
+                'status' => true,
+                'slug' => Str::slug($request['name']),
+                'referral_number' => $referralCodeOwner ? $request['referral_number'] : null,
+            ]);
+
+            if ($referralCodeOwner) {
+                $referralCodeOwner->increment("score", 1);
+
+                Referral::create([
+                    'user_id' => $user->id,
+                    'admin_id' => $referralCodeOwner->user_id,
+                ]);
+            }
+
+            Mail::to($user->email)->send(new VerifyEmail([
+                'name' => $clinic->name,
+                'verification_url' => $verificationUrl,
+            ]));
+
+            try {
+                $user->notify(new SetUpProfileNotification());
+            } catch (\Exception $e) {
+                Log::error('Notification error: ' . $e->getMessage());
+            }
+
+            DB::commit();
+
+            return response()->json(['status' => 'success', 'message' => 'Register Successful'], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Transaction failed: ' . $e->getMessage());
+
+            return response()->json(['status' => 'error', 'message' => 'Registration failed'], 500);
+        }
     }
 
     /**

@@ -169,7 +169,7 @@ Route::prefix('v1')->group(function () {
                 });
             });
 
-            Route::prefiX('expense')->group(function () {
+            Route::prefix('expense')->group(function () {
                 Route::get('/', [BoExpenseController::class, 'index']);
                 Route::post('/store', [BoExpenseController::class, 'store']);
                 Route::get('/confirm/{boExpense}', [BoExpenseController::class, 'completed']);

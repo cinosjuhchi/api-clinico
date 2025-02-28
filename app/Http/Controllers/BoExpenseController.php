@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\BoExpense;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\GenerateUniqueIdHelper;
 use App\Http\Requests\StoreBoExpenseRequest;
 use App\Http\Requests\UpdateBoExpenseRequest;
 
@@ -13,10 +15,31 @@ class BoExpenseController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $search = $request->input('search');
+
+        $boExpense = BoExpense::with(['items'])
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('unique_id', 'LIKE', "%{$search}%")
+                        ->orWhere('status', 'LIKE', "%{$search}%")
+                        ->orWhereHas('items', function ($qi) use ($search) {
+                            $qi->where('name', 'LIKE', "%{$search}%");
+                        })
+                        ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(addition, '$.name')) LIKE ?", ["%{$search}%"])
+                        ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(addition, '$.vendor_name')) LIKE ?", ["%{$search}%"])
+                        ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(addition, '$.vendor_company')) LIKE ?", ["%{$search}%"]);
+                });
+            })
+            ->paginate(10);
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => $boExpense
+        ], 200);
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -56,7 +79,9 @@ class BoExpenseController extends Controller
         DB::beginTransaction();
 
         try {                        
+            $uniqId = GenerateUniqueIdHelper::generateExpenseId();
             $boExpense = BoExpense::create([
+                'unique_id' => $uniqId,
                 'expense_date' => $validated['expense_date'],
                 'due_date' => $validated['due_date'],
                 'addition' => $validated['addition'],

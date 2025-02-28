@@ -110,6 +110,39 @@ class BoReportController extends Controller
             'data' => $formattedOrders,
         ], 200);
     }
+    public function totalVouchers(ReportInformationRequest $request)
+    {
+        $validated = $request->validated();
+
+        // Ambil semua invoice dalam rentang tanggal dengan relasi items
+        $vouchers = BoExpense::whereBetween('expense_date', [$validated['from_date'], $validated['to_date']])
+            ->where('type', 'voucher')
+            ->with(['items'])
+            ->get()
+            ->groupBy('expense_date');
+
+        // Format hasilnya sesuai yang diinginkan
+        $formattedVouchers = $vouchers->map(function ($group, $date) {
+            return [
+                'expense_date' => $date,
+                'total_cost' => $group->sum(fn ($voucher) => $voucher->items->sum('price')), // Total semua price dari relasi items
+                'vouchers' => $group->map(function ($voucher) {
+                    return [
+                        'clinic_name' => $voucher->addition['name'] ?? null,
+                        'cost' => $voucher->items->sum('price'), // Total price per voucher
+                        'status' => $voucher->status,
+                        'unique_id' => $voucher->unique_id
+                    ];
+                })->values(), // Reset index array agar tidak berbentuk koleksi asosiatif
+            ];
+        })->values(); // Reset index array agar format JSON rapi
+
+        // Return response dalam bentuk JSON
+        return response()->json([
+            'status' => 'success',
+            'data' => $formattedVouchers,
+        ], 200);
+    }
 
     public function settlements(ReportInformationRequest $request)
     {

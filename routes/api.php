@@ -184,6 +184,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/settlements', [BoReportController::class, 'settlements']);
                 Route::get('/total-cash', [BoReportController::class, 'totalCash']);
                 Route::get('/total-orders', [BoReportController::class, 'totalOrders']);
+                Route::get('/total-vouchers', [BoReportController::class, 'totalVouchers']);
             });
         
         });

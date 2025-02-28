@@ -13,6 +13,7 @@ use App\Http\Controllers\AllergyController;
 use App\Http\Controllers\ChronicController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\VisitorController;
+use App\Http\Controllers\BoReportController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PhysicalController;
@@ -175,6 +176,10 @@ Route::prefix('v1')->group(function () {
                 Route::get('/confirm/{boExpense}', [BoExpenseController::class, 'completed']);
                 Route::get('/show/{boExpense}', [BoExpenseController::class, 'show']);
                 Route::delete('/delete/{boExpense}', [BoExpenseController::class, 'destroy']);
+            });
+
+            Route::prefix('report-information')->group(function () {
+                Route::get('/total-sales', [BoReportController::class, 'totalSales']);
             });
         
         });

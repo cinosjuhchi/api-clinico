@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreBoExpenseRequest extends FormRequest
@@ -11,6 +12,10 @@ class StoreBoExpenseRequest extends FormRequest
      */
     public function authorize(): bool
     {
+        $user = Auth::user();
+        if($user->role == "admin" || $user->role == "superadmin") {
+            return true;
+        }
         return false;
     }
 
@@ -22,7 +27,13 @@ class StoreBoExpenseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'expense_date' => 'required|date',
+            'due_date' => 'required|date',
+            'addition' => 'required|json',
+            'type' => 'required|in:cash,voucher,order,locum',
+            'items' => 'nullable|array',
+            'items.*.name' => 'required|string',
+            'items.*.price' => 'required|numeric|min:0|max_digits:8'
         ];
     }
 }

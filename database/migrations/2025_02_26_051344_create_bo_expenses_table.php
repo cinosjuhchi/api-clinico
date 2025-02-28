@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('bo_expenses', function (Blueprint $table) {
             $table->id();
             $table->date('expense_date');
-            $table->date('due_date');
-            
-            $table->enum('status', ['pending', 'completed']);
+            $table->date('due_date')->nullable();            
+            $table->json('addition')->nullable();
+            $table->enum('type', ['cash', 'voucher', 'order', 'locum']);
+            $table->enum('status', ['pending', 'completed'])->default('pending');            
             $table->timestamps();
         });
     }

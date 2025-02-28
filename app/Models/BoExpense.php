@@ -11,5 +11,8 @@ class BoExpense extends Model
 
     protected $guarded = ['id'];
 
-    
+    public function items()
+    {
+        return $this->hasMany(BoExpenseItem::class);
+    }
 }

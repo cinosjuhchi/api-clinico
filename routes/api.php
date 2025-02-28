@@ -16,6 +16,7 @@ use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PhysicalController;
+use App\Http\Controllers\BoExpenseController;
 use App\Http\Controllers\BoInvoiceController;
 use App\Http\Controllers\DiagnosisController;
 use App\Http\Controllers\InjectionController;
@@ -164,6 +165,12 @@ Route::prefix('v1')->group(function () {
                 Route::prefix('items')->group(function () {
                     Route::delete('/delete/{boInvoiceItem}', [BoInvoiceItemController::class, 'destroy']);
                 });
+            });
+
+            Route::prefiX('expense')->group(function () {
+                Route::get('/', [BoExpenseController::class, 'index']);
+                Route::post('/store', [BoExpenseController::class, 'store']);
+                Route::get('/', [BoExpenseController::class, 'store']);
             });
         
         });

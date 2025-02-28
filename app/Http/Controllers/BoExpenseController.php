@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\BoExpense;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreBoExpenseRequest;
 use App\Http\Requests\UpdateBoExpenseRequest;
 
@@ -29,8 +31,37 @@ class BoExpenseController extends Controller
      */
     public function store(StoreBoExpenseRequest $request)
     {
-        //
+        $validated = $request->validated();
+        DB::beginTransaction();
+
+        try {                        
+            $boExpense = BoExpense::create([
+                'expense_date' => $validated['expense_date'],
+                'due_date' => $validated['due_date'],
+                'addition' => $validated['addition'],
+                'type' => $validated['type'],                    
+            ]);
+
+            if ($validated['type'] !== 'locum' && isset($validated['items'])) {
+                $boExpense->items()->createMany($validated['items']);
+            }           
+
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Successfully added expense'
+            ], 201);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
+
+
 
     /**
      * Display the specified resource.

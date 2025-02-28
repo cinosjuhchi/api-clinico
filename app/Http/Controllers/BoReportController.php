@@ -10,8 +10,8 @@ class BoReportController extends Controller
     public function totalSales(Request $request)
     {
         $validated = $request->validate([
-            'from_date' => 'required|date|before:to_date',
-            'to_date' => 'required|date|after:from_date'
+            'from_date' => 'required|date',
+            'to_date' => 'required|date'
         ]);
 
         $totalSales = Billing::whereBetween('transaction_date', [$validated['from_date'], $validated['to_date']])

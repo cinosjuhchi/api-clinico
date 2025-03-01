@@ -2,19 +2,33 @@
 
 namespace App\Models;
 
+use App\Models\Room;
+use App\Models\User;
+use App\Models\Staff;
+use App\Models\Doctor;
+use App\Models\Billing;
+use App\Models\Employee;
+use App\Models\Injection;
+use App\Models\Procedure;
+use App\Models\Medication;
 use App\Models\Appointment;
+use App\Models\ClinicImage;
+use App\Models\ClinicService;
 use App\Models\ClinicLocation;
 use App\Models\ClinicSchedule;
-use App\Models\ClinicService;
-use App\Models\Doctor;
-use App\Models\Room;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Models\DoctorSchedule;
+use App\Models\ClinicFinancial;
+use App\Models\LeaveTypeDetail;
+use App\Models\ClinicSettlement;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\ClinicUpdateRequest;
+use App\Models\InvestigationClinic;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Clinic extends Authenticatable
 {
@@ -169,5 +183,10 @@ class Clinic extends Authenticatable
     public function settlements()
     {
         return $this->hasMany(ClinicSettlement::class);
+    }
+
+    public function moh()
+    {
+        return $this->hasOne(MohClinic::class);
     }
 }

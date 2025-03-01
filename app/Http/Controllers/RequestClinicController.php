@@ -121,6 +121,83 @@ class RequestClinicController extends Controller
         }
     }
 
+    public function storeMoh(StoreClinicRequest $request)
+    {
+        DB::beginTransaction();
+        try {
+            $referralCodeOwner = null;
+            if (!empty($request["referral_number"])) {
+                $referralCodeOwner = ReferralCode::where('code', $request['referral_number'])->first();
+
+                if (!$referralCodeOwner) {
+                    return response()->json([
+                        "status" => "error",
+                        "message" => "Referral number not found",
+                        "data" => ["code" => $request['referral_number']]
+                    ], 422);
+                }
+            }
+
+            $user = User::create([
+                'email' => $request['email'],
+                'password' => bcrypt($request['password']),
+                'phone_number' => $request['phone_number'],
+                'role' => 'clinic',
+            ]);
+
+            $verificationUrl = URL::temporarySignedRoute(
+                'verification.verify', now()->addMinutes(60), ['id' => $user->id]
+            );
+
+            $clinic = Clinic::create([
+                'name' => $request['name'],                                
+                'is_moh' => true,
+                'user_id' => $user->id,
+                'status' => true,
+                'slug' => Str::slug($request['name']),
+                'referral_number' => $referralCodeOwner ? $request['referral_number'] : null,
+            ]);
+
+            $clinic->moh()->create([
+                'clinic_number_phone' => $request['clinic_number_phone'],
+                'head_department' => $request['head_department'],
+                'post_code' => $request['post_code'],
+                'state' => $request['state'],
+            ]);
+
+            if ($referralCodeOwner) {
+                $referralCodeOwner->increment("score", 1);
+
+                Referral::create([
+                    'user_id' => $user->id,
+                    'admin_id' => $referralCodeOwner->user_id,
+                ]);
+            }
+
+            Mail::to($user->email)->send(new VerifyEmail([
+                'name' => $clinic->name,
+                'verification_url' => $verificationUrl,
+            ]));
+
+            try {
+                $user->notify(new SetUpProfileNotification());
+            } catch (\Exception $e) {
+                Log::error('Notification error: ' . $e->getMessage());
+            }
+
+            DB::commit();
+
+            return response()->json(['status' => 'success', 'message' => 'Register Successful'], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Transaction failed: ' . $e->getMessage());
+
+            return response()->json(['status' => 'error', 'message' => 'Registration failed'], 500);
+        }
+    }
+
+
+
     /**
      * Display the specified resource.
      */

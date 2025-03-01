@@ -62,7 +62,7 @@ class BoReportController extends Controller
                 'total_cost' => $group->sum(fn ($cash) => $cash->items->sum('price')), // Total semua price dari relasi items
                 'cashs' => $group->map(function ($cash) {
                     return [
-                        'clinic_name' => json_decode($cash->addition, true)['name'] ?? null,
+                        'clinic_name' => $cash->addition['name'] ?? null,
                         'cost' => $cash->items->sum('price'), // Total price per cash
                         'status' => $cash->status,
                         'unique_id' => $cash->unique_id
@@ -95,7 +95,7 @@ class BoReportController extends Controller
                 'total_cost' => $group->sum(fn ($order) => $order->items->sum('price')), // Total semua price dari relasi items
                 'orders' => $group->map(function ($order) {
                     return [
-                        'clinic_name' => json_decode($order->addition, true)['ship_to_name'] ?? null,
+                        'clinic_name' => $order->addition['ship_to_name'] ?? null,
                         'cost' => $order->items->sum('price'), // Total price per order
                         'status' => $order->status,
                         'unique_id' => $order->unique_id
@@ -128,7 +128,7 @@ class BoReportController extends Controller
                 'total_cost' => $group->sum(fn ($voucher) => $voucher->items->sum('price')), // Total semua price dari relasi items
                 'vouchers' => $group->map(function ($voucher) {
                     return [
-                        'clinic_name' => json_decode($voucher->addition, true)['name'] ?? null,
+                        'clinic_name' => $voucher->addition['name'] ?? null,
                         'cost' => $voucher->items->sum('price'), // Total price per voucher
                         'status' => $voucher->status,
                         'unique_id' => $voucher->unique_id
@@ -177,12 +177,9 @@ class BoReportController extends Controller
                     });
                 }),
                 'locums' => $group->map(function ($locum) {
-                    // Pastikan addition dalam bentuk array
-                    $addition = is_array($locum->addition) ? $locum->addition : json_decode($locum->addition, true);
-                
                     return [
-                        'clinic_name' => data_get($addition, 'name'),
-                        'cost' => collect(data_get($addition, 'items', []))->sum(function ($item) {
+                        'clinic_name' => data_get($locum->addition, 'name'),
+                        'cost' => collect(data_get($locum->addition, 'items', []))->sum(function ($item) {
                             return data_get($item, 'locum_fee', 0) +
                                    data_get($item, 'procedure_fee', 0) +
                                    data_get($item, 'patient_fee', 0) +

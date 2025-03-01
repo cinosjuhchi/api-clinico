@@ -86,14 +86,13 @@ class BoExpenseController extends Controller
         $validated = $request->validated();
         DB::beginTransaction();
 
-        try {                        
-            $addition = json_encode($validated['addition']);
+        try {                                    
             $uniqId = GenerateUniqueIdHelper::generateExpenseId();
             $boExpense = BoExpense::create([
                 'unique_id' => $uniqId,
                 'expense_date' => $validated['expense_date'],
                 'due_date' => $validated['due_date'] ?? null,
-                'addition' => $addition,
+                'addition' => $validated['addition'],
                 'type' => $validated['type'],                    
             ]);
 

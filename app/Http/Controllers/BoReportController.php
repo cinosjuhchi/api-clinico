@@ -50,7 +50,7 @@ class BoReportController extends Controller
 
         // Ambil semua invoice dalam rentang tanggal dengan relasi items
         $cashs = BoExpense::whereBetween('expense_date', [$validated['from_date'], $validated['to_date']])
-            ->where('type', 'order')
+            ->where('type', 'cash')
             ->with(['items'])
             ->get()
             ->groupBy('expense_date');

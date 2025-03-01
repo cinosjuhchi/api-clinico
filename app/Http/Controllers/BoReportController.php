@@ -62,7 +62,7 @@ class BoReportController extends Controller
                 'total_cost' => $group->sum(fn ($cash) => $cash->items->sum('price')), // Total semua price dari relasi items
                 'cashs' => $group->map(function ($cash) {
                     return [
-                        'clinic_name' => optional(json_decode($cash->addition, true))['name'] ?? null,
+                        'clinic_name' => optional(json_decode($cash->addition, true))['name'],
                         'cost' => $cash->items->sum('price'), // Total price per cash
                         'status' => $cash->status,
                         'unique_id' => $cash->unique_id

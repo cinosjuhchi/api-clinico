@@ -29,7 +29,7 @@ class StoreBoExpenseRequest extends FormRequest
         return [
             'expense_date' => 'required|date',
             'due_date' => 'nullable|date',
-            'addition' => 'required|json',
+            'addition' => 'required',
             'type' => 'required|in:cash,voucher,order,locum',
             'items' => 'nullable|array',
             'items.*.name' => 'required|string',

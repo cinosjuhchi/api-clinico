@@ -10,10 +10,6 @@ class BoExpense extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
-
-    protected $casts = [
-        'addition' => 'array',
-    ];
     
     public function items()
     {

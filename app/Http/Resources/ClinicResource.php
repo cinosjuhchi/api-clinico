@@ -30,6 +30,7 @@ class ClinicResource extends JsonResource
             'company' => $this->company,
             'ssm_number' => $this->ssm_number,
             'registration_number' => $this->registration_number,
+            'moh' => new MohResource($this->whenLoaded('moh')),
             'referral_number' => $this->referral_number,
             'appointments' => AppointmentResource::collection($this->whenLoaded('appointments')),
             'pendingAppointments' => AppointmentResource::collection($this->whenLoaded('pendingAppointments')),

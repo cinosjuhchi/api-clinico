@@ -61,6 +61,7 @@ use App\Http\Controllers\ClinicSettlementController;
 use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\MedicationRecordController;
 use App\Http\Controllers\PushNotificationController;
+use App\Http\Controllers\api\v1\AffiliatedController;
 use App\Http\Controllers\Api\V1\AttendanceController;
 use App\Http\Controllers\BackOfficeRevenueController;
 use App\Http\Controllers\PregnancyCategoryController;
@@ -93,11 +94,6 @@ Route::prefix('v1')->group(function () {
         Route::middleware(['auth:sanctum', 'abilities:backOffice'])->group(function () {
             Route::get('/me', [BackOfficeController::class, 'me']);
             Route::get('/top-employee', [TopEmployeeController::class, 'index']);
-            // Route::prefix('payslip')->group(function () {
-            //     Route::get('/', [MonthlyPayslipController::class, 'index']);
-            //     Route::get('/{id}', [MonthlyPayslipController::class, 'show']);
-            //     Route::post('/', [MonthlyPayslipController::class, 'store']);
-            // });
             Route::prefix('visit')->group(function () {
                 Route::get('/get-total-visit', [VisitorController::class, 'getTotalViewPage']);
             });
@@ -133,6 +129,7 @@ Route::prefix('v1')->group(function () {
                 Route::put('/schedules/{staff}', [StaffScheduleController::class, 'update']);
                 Route::delete('/schedules/{staff}', [StaffScheduleController::class, 'destroy']);
                 Route::post('/store', [BackOfficeController::class, 'storeStaff']);
+                Route::get('/{id}', [BackOfficeController::class, 'show']);
             });
             Route::prefix('clinic')->group(function () {
                 Route::get('/request-clinic', [RequestClinicController::class, 'index']);
@@ -157,7 +154,7 @@ Route::prefix('v1')->group(function () {
             Route::prefix('teleconsult')->group(function () {
                 Route::get('/', [TeleconsultController::class, 'index']);
                 Route::get('/get-message/{onlineConsultation}', [TeleconsultController::class, 'show']);
-                Route::post('/send-message/{onlineConsultation}', [TeleconsultController::class, 'store']);                
+                Route::post('/send-message/{onlineConsultation}', [TeleconsultController::class, 'store']);
             });
 
             Route::prefix('invoice')->group(function () {
@@ -188,7 +185,8 @@ Route::prefix('v1')->group(function () {
                 Route::get('/total-vouchers', [BoReportController::class, 'totalVouchers']);
                 Route::get('/total-locums', [BoReportController::class, 'totalLocums']);
             });
-        
+
+            Route::post('/affiliated/{referralId}/month/{month}', [AffiliatedController::class, 'update']);
         });
     });
     Route::prefix('doctor-category')->group(function () {

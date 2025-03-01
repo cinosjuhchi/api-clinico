@@ -34,7 +34,12 @@ class BackOfficeController extends Controller
             'financialInformation',
             'employmentInformation',
             'schedules',
-        ]);
+            'user.referralCode',
+            'user.referredBy.user.clinic'
+        ])
+        ->with(['user' => function($query) {
+            $query->withCount('referredBy');
+        }]);
 
         // Tambahkan filter untuk pencarian berdasarkan name
         if ($request->has('search') && ! empty($request->search)) {
@@ -50,6 +55,65 @@ class BackOfficeController extends Controller
             'data'   => $data,
         ]);
     }
+
+    public function show($id)
+    {
+        $adminClinico = AdminClinico::with([
+            'user',
+            'demographic',
+            'educational',
+            'contributionInfo',
+            'emergencyContact',
+            'spouseInformation',
+            'childsInformation',
+            'parentInformation',
+            'reference',
+            'basicSkills',
+            'financialInformation',
+            'employmentInformation',
+            'schedules',
+            'user.referralCode',
+            'user.referredBy.user.clinic',
+            'user.referredBy.affiliated',
+        ])
+        ->with(['user' => function($query) {
+            $query->withCount('referredBy');
+        }])
+        ->find($id);
+
+        if (!$adminClinico) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Data not found',
+            ], 404);
+        }
+
+        // Tambahkan data bulan ke setiap referred_by
+        $referredByData = $adminClinico->user->referredBy->map(function ($referred) {
+            $affiliated = optional($referred)->affiliated;
+
+            // Loop untuk bulan 1 sampai 18
+            $months = collect(range(1, 18))->mapWithKeys(function ($month) use ($affiliated) {
+                $monthData = optional($affiliated)->firstWhere('month', $month);
+                return ["month_$month" => $monthData ? $monthData->status : "pending"];
+            });
+
+            // Gabungkan months ke dalam referred_by
+            return array_merge($referred->toArray(), ['months' => $months]);
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => array_merge($adminClinico->toArray(), ['user' => [
+                'referral_code' => $adminClinico->user->referralCode,
+                'referred_by'   => $referredByData
+            ]])
+        ]);
+    }
+
+
+
+
 
     public function login(BackOfficeRequest $request)
     {
@@ -201,6 +265,8 @@ class BackOfficeController extends Controller
             ], 500);
         }
     }
+
+
 
     public function growthOfRegistration(Request $request)
     {

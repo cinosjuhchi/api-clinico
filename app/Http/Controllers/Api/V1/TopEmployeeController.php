@@ -32,4 +32,9 @@ class TopEmployeeController extends Controller
             "data" => $users
         ]);
     }
+
+    // public function show(User $user)
+    // {
+
+    // }
 }

@@ -26,10 +26,8 @@ class StoreClinicRequest extends FormRequest
         return [
             'name' => 'required|string|max:255|min:3|unique:clinics,name',
             'company' => 'required|string|max:255|min:3',
-            'state' => 'required|string',
-            'clinic_number_phone' => 'required|string|min:10',
-            'head_department' => 'required|string',
-            'post_code' => 'required|integer',            
+            'ssm_number' => 'required|integer',
+            'registration_number' => 'required|integer',
             'referral_number' => 'nullable|string',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',

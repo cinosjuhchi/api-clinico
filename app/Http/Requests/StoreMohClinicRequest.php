@@ -11,7 +11,7 @@ class StoreMohClinicRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,16 @@ class StoreMohClinicRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'required|string|max:255|min:3|unique:clinics,name',    
+            'incharge_name' => 'required|string|max:255|min:3',    
+            'state' => 'required|string',
+            'incharge_phone_number' => 'required|string|min:10',
+            'head_department' => 'required|string',
+            'post_code' => 'required|integer',            
+            'referral_number' => 'nullable|string',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6',
+            'phone_number' => 'required|string|min:10|unique:users',
         ];
     }
 }

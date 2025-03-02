@@ -61,7 +61,7 @@ use App\Http\Controllers\ClinicSettlementController;
 use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\MedicationRecordController;
 use App\Http\Controllers\PushNotificationController;
-use App\Http\Controllers\api\v1\AffiliatedController;
+use App\Http\Controllers\Api\V1\AffiliatedController;
 use App\Http\Controllers\Api\V1\AttendanceController;
 use App\Http\Controllers\BackOfficeRevenueController;
 use App\Http\Controllers\PregnancyCategoryController;

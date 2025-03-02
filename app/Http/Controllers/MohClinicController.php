@@ -18,23 +18,8 @@ class MohClinicController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'latitude' => 'required_with:longitude|numeric',
-            'longitude' => 'required_with:latitude|numeric',
-            'radius' => 'numeric',
-            'search' => 'string|nullable',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $perPage = 3;
+    {        
+        $perPage = 10;
         $clinics = Clinic::with([
             'moh',
             'doctors.category',
@@ -42,18 +27,7 @@ class MohClinicController extends Controller
             'rooms',
             'location',
             'schedule',
-        ])->where('is_moh', true)->where('status', 'true');
-
-        // If coordinates provided, apply nearby filter
-        if ($request->filled(['latitude', 'longitude'])) {
-            $radius = $request->input('radius', 5000);
-            $clinics = $clinics->join('clinic_locations', 'clinic_locations.clinic_id', '=', 'clinics.id')
-                ->whereRaw(ClinicHelper::nearbyClinic(
-                    $request->latitude,
-                    $request->longitude,
-                    $radius
-                ));
-        }
+        ])->where('is_moh', true)->where('status', 'true');                
 
         // Apply search filter if provided
         if ($request->has('search')) {

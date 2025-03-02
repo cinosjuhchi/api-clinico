@@ -133,6 +133,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/{id}', [BackOfficeController::class, 'show']);
             });
             Route::prefix('clinic')->group(function () {
+                Route::get('/', [ClinicController::class, 'clinics']);
                 Route::get('/request-clinic', [RequestClinicController::class, 'index']);
                 Route::delete('/delete/{clinic}', [RequestClinicController::class, 'destroy']);
                 Route::put('/accept-request/{clinic}', [RequestClinicController::class, 'update']);

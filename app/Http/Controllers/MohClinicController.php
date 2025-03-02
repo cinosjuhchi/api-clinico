@@ -27,7 +27,7 @@ class MohClinicController extends Controller
             'rooms',
             'location',
             'schedule',
-        ])->where('is_moh', true)->where('status', 'true');                
+        ])->where('is_moh', true);                
 
         // Apply search filter if provided
         if ($request->has('search')) {

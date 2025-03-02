@@ -25,6 +25,7 @@ class StoreMohClinicRequest extends FormRequest
             'name' => 'required|string|max:255|min:3|unique:clinics,name',    
             'incharge_name' => 'required|string|max:255|min:3',    
             'state' => 'required|string',
+            'address' => 'required|string',
             'incharge_phone_number' => 'required|string|min:10',
             'head_department' => 'required|string',
             'post_code' => 'required|integer',            

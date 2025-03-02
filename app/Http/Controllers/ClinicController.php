@@ -74,6 +74,8 @@ class ClinicController extends Controller
         $perPage = 10;
 
         $clinics = Clinic::with([
+            'user',
+            'financial',
             'doctors.category',
             'doctors.doctorSchedules',
             'rooms',

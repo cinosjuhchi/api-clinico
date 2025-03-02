@@ -27,7 +27,7 @@ class StoreMohClinicRequest extends FormRequest
             'state' => 'required|string',
             'address' => 'required|string',
             'incharge_phone_number' => 'required|string|min:10',
-            'head_department' => 'required|string',
+            'head_departement' => 'required|string',
             'post_code' => 'required|integer',            
             'referral_number' => 'nullable|string',
             'email' => 'required|string|email|max:255|unique:users',

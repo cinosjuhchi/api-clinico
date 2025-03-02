@@ -164,7 +164,7 @@ class RequestClinicController extends Controller
             $clinic->moh()->create([
                 'incharge_name' => $request['incharge_name'],
                 'incharge_phone_number' => $request['incharge_phone_number'],
-                'head_department' => $request['head_department'],
+                'head_departement' => $request['head_departement'],
                 'post_code' => $request['post_code'],
                 'state' => $request['state'],
             ]);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreMohClinicRequest;
 use App\Models\User;
 use App\Models\Clinic;
 use App\Models\Referral;
@@ -121,7 +122,7 @@ class RequestClinicController extends Controller
         }
     }
 
-    public function storeMoh(StoreClinicRequest $request)
+    public function storeMoh(StoreMohClinicRequest $request)
     {
         DB::beginTransaction();
         try {
@@ -159,7 +160,8 @@ class RequestClinicController extends Controller
             ]);
 
             $clinic->moh()->create([
-                'clinic_number_phone' => $request['clinic_number_phone'],
+                'incharge_name' => $request['incharge_name'],
+                'incharge_phone_number' => $request['incharge_phone_number'],
                 'head_department' => $request['head_department'],
                 'post_code' => $request['post_code'],
                 'state' => $request['state'],

@@ -80,8 +80,7 @@ class ClinicController extends Controller
             'location',
             'schedule',
         ])
-        ->where('is_moh', false)
-        ->where('status', true)
+        ->where('is_moh', false)        
         ->when($request->filled('search'), function ($query) use ($request) {
             $query->where('name', 'like', "%{$request->search}%");
         })

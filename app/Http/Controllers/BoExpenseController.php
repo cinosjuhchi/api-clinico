@@ -34,6 +34,14 @@ class BoExpenseController extends Controller
             })
             ->paginate(10);
 
+        // Decode addition sebelum dikirim ke response
+        $boExpense->getCollection()->transform(function ($expense) {
+            $expense->addition = is_array($expense->addition) 
+                ? $expense->addition 
+                : json_decode($expense->addition, true);
+            return $expense;
+        });
+
         return response()->json([
             'status' => 'success',
             'data'   => $boExpense
@@ -78,7 +86,7 @@ class BoExpenseController extends Controller
         $validated = $request->validated();
         DB::beginTransaction();
 
-        try {                        
+        try {                                    
             $uniqId = GenerateUniqueIdHelper::generateExpenseId();
             $boExpense = BoExpense::create([
                 'unique_id' => $uniqId,

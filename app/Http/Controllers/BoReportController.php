@@ -50,7 +50,7 @@ class BoReportController extends Controller
 
         // Ambil semua invoice dalam rentang tanggal dengan relasi items
         $cashs = BoExpense::whereBetween('expense_date', [$validated['from_date'], $validated['to_date']])
-            ->where('type', 'order')
+            ->where('type', 'cash')
             ->with(['items'])
             ->get()
             ->groupBy('expense_date');
@@ -177,20 +177,18 @@ class BoReportController extends Controller
                     });
                 }),
                 'locums' => $group->map(function ($locum) {
-                    $addition = $locum->addition; // Sudah array
-
                     return [
-                        'clinic_name' => $addition['name'] ?? null,
-                        'cost' => collect($addition['items'] ?? [])->sum(function ($item) {
-                            return ($item['locum_fee'] ?? 0) + 
-                                ($item['procedure_fee'] ?? 0) + 
-                                ($item['patient_fee'] ?? 0) + 
-                                ($item['night_slot_fee'] ?? 0);
+                        'clinic_name' => data_get($locum->addition, 'name'),
+                        'cost' => collect(data_get($locum->addition, 'items', []))->sum(function ($item) {
+                            return data_get($item, 'locum_fee', 0) +
+                                   data_get($item, 'procedure_fee', 0) +
+                                   data_get($item, 'patient_fee', 0) +
+                                   data_get($item, 'night_slot_fee', 0);
                         }),
                         'status' => $locum->status,
                         'unique_id' => $locum->unique_id
                     ];
-                })->values(),
+                })->values(),                
             ];
         })->values();
 

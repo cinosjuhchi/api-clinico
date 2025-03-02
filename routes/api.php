@@ -21,6 +21,7 @@ use App\Http\Controllers\BoExpenseController;
 use App\Http\Controllers\BoInvoiceController;
 use App\Http\Controllers\DiagnosisController;
 use App\Http\Controllers\InjectionController;
+use App\Http\Controllers\MohClinicController;
 use App\Http\Controllers\ProcedureController;
 use App\Http\Controllers\StaffAuthController;
 use App\Http\Controllers\BackOfficeController;
@@ -61,6 +62,7 @@ use App\Http\Controllers\ClinicSettlementController;
 use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\MedicationRecordController;
 use App\Http\Controllers\PushNotificationController;
+use App\Http\Controllers\Api\v1\AffiliatedController;
 use App\Http\Controllers\Api\V1\AffiliatedController;
 use App\Http\Controllers\Api\V1\AttendanceController;
 use App\Http\Controllers\BackOfficeRevenueController;
@@ -136,6 +138,10 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/delete/{clinic}', [RequestClinicController::class, 'destroy']);
                 Route::put('/accept-request/{clinic}', [RequestClinicController::class, 'update']);
                 Route::post('/store', [RequestClinicController::class, 'store']);
+                Route::prefix('moh')->group(function () {
+                    Route::get('/', [MohClinicController::class, 'index']);
+                    Route::post('/store', [RequestClinicController::class, 'storeMoh']);
+                });
                 Route::prefix('update-request')->group(function () {
                     Route::get('/', [ClinicUpdateRequestController::class, 'getPendingUpdates']);
                     Route::put('/proccess-update/{requestUpdate}', [ClinicUpdateRequestController::class, 'processUpdateRequest']);

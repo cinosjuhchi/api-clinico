@@ -79,19 +79,18 @@ class ClinicController extends Controller
             'rooms',
             'location',
             'schedule',
-        ])        
+        ])
+        ->where('is_moh', false)        
         ->when($request->filled('search'), function ($query) use ($request) {
             $query->where('name', 'like', "%{$request->search}%");
         })
         ->paginate($perPage);
-
-        return (ClinicResource::collection($clinics))
-            ->additional([
-                'status' => 'success',
-                'message' => 'Success to get clinic data.',
-                'nextPage' => $clinics->hasMorePages() ? $clinics->currentPage() + 1 : null,
-                'totalPages' => $clinics->lastPage(),
-            ]);
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Retrieved Clinic Data.',
+            'data' => $clinics
+        ]);
     }
 
 

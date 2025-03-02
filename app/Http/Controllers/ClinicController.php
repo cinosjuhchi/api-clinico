@@ -70,24 +70,24 @@ class ClinicController extends Controller
     }
 
     public function clinics(Request $request)
-    {        
+    {
         $perPage = 10;
-        $clinics = Clinic::with([            
+
+        $clinics = Clinic::with([
             'doctors.category',
             'doctors.doctorSchedules',
             'rooms',
             'location',
             'schedule',
-        ])->where('is_moh', false)->where('status', true);
-                
-        // Apply search filter if provided
-        if ($request->has('search')) {
-            $clinics = $clinics->where('name', 'like', "%{$request->search}%");
-        }
+        ])
+        ->where('is_moh', false)
+        ->where('status', true)
+        ->when($request->filled('search'), function ($query) use ($request) {
+            $query->where('name', 'like', "%{$request->search}%");
+        })
+        ->paginate($perPage);
 
-        $clinics = $clinics->paginate($perPage);
-
-        return ClinicResource::collection($clinics)
+        return (ClinicResource::collection($clinics))
             ->additional([
                 'status' => 'success',
                 'message' => 'Success to get clinic data.',
@@ -95,6 +95,7 @@ class ClinicController extends Controller
                 'totalPages' => $clinics->lastPage(),
             ]);
     }
+
 
     public function clinicInformation(Request $request)
     {

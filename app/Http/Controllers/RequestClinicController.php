@@ -124,6 +124,7 @@ class RequestClinicController extends Controller
 
     public function storeMoh(StoreMohClinicRequest $request)
     {
+        $validated = $request->validated();
         DB::beginTransaction();
         try {
             $referralCodeOwner = null;

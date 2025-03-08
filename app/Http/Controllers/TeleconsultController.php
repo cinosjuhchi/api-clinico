@@ -17,15 +17,16 @@ class TeleconsultController extends Controller
         $user = Auth::user();
         $onlineConsultation = $user->doctorOnlineConsultation()
             ->with(['patient.demographics', 'patient.user'])
+            ->orderBy('created_at', 'desc') // Urutkan dari yang terbaru
             ->paginate(10);
-
+    
         return response()->json([
             'status'  => 'success',
             'message' => 'Successfully get online consultation',
             'data'    => $onlineConsultation,
         ], 200);
-
     }
+    
 
     /**
      * Store a newly created resource in storage.

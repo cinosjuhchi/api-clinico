@@ -90,10 +90,10 @@ class CompleteAppointmentRequest extends FormRequest
                 'timer' => 'nullable|date_format:H:i:s',
                 // Gestational Age
                 'gestational_age' => 'nullable|array',
-                'gestational_age.plus' => 'required|integer|min:0',
-                'gestational_age.para' => 'required|integer|min:0',
-                'gestational_age.gravida' => 'required|integer|min:0',
-                'gestational_age.menstruation_date' => 'required|date',
+                'gestational_age.plus' => 'sometimes|required|integer|min:0',
+                'gestational_age.para' => 'sometimes|required|integer|min:0',
+                'gestational_age.gravida' => 'sometimes|required|integer|min:0',
+                'gestational_age.menstruation_date' => 'sometimes|required|date',
         ];
     }
 }

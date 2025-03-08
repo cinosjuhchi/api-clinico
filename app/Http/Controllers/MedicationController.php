@@ -175,6 +175,9 @@ class MedicationController extends Controller
             'for' => 'string|sometimes|max:255|min:3',
             'manufacture' => 'string|sometimes|max:255|min:3',
             'supplier' => 'string|sometimes|max:255|min:3',
+            'sell_price' => 'numeric|sometimes',            
+            'supplier_contact' => 'sometimes|string',
+            'dosage' => 'sometimes|string',
         ]);
 
         $medication->fill($validated);

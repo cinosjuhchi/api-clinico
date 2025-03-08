@@ -35,7 +35,10 @@ class StoreMedicationRequest extends FormRequest
             'manufacture' => 'string|required',
             'for' => 'string|required|max:125|min:3',
             'supplier' => 'string|required|max:255|min:3',      
-            'clinic_id' => 'required|exists:clinics,id'
+            'clinic_id' => 'required|exists:clinics,id',
+            'sell_price' => 'numeric|required',            
+            'supplier_contact' => 'required|string',
+            'dosage' => 'required|string',
         ];
     }
 }

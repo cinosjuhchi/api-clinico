@@ -308,6 +308,9 @@ class ConsultationController extends Controller
                         'procedureRecords',
                         'injectionRecords.injection',
                         'diagnosisRecord',
+                        'gestationalAge',
+                        'consultationPhotos',
+                        'consultationDocuments'
                     ]);
                 },
             ])

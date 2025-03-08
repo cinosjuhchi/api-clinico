@@ -172,11 +172,13 @@ class ClinicDataController extends Controller
                 'phone_number' => $validated['emergency_contact_number'],
             ]);
 
-            $newDoctor->spouseInformation()->create([
-                'name'       => $validated['spouse_name'],
-                'contact'    => $validated['spouse_phone'],
-                'occupation' => $validated['spouse_occupation'],
-            ]);
+            if (!empty($validated['spouse_name'])) {
+                $newDoctor->spouseInformation()->create([
+                    'name'       => $validated['spouse_name'],
+                    'contact'    => $validated['spouse_phone'],
+                    'occupation' => $validated['spouse_occupation'],
+                ]);
+            }
 
             if (! empty($validated['childs'])) {
                 foreach ($validated['childs'] as $child) {
@@ -347,11 +349,13 @@ class ClinicDataController extends Controller
                 'phone_number' => $validated['emergency_contact_number'],
             ]);
 
-            $newStaff->spouseInformation()->create([
-                'name'       => $validated['spouse_name'],
-                'contact'    => $validated['spouse_phone'],
-                'occupation' => $validated['spouse_occupation'],
-            ]);
+            if (!empty($validated['spouse_name'])) {
+                $newStaff->spouseInformation()->create([
+                    'name'       => $validated['spouse_name'],
+                    'contact'    => $validated['spouse_phone'],
+                    'occupation' => $validated['spouse_occupation'],
+                ]);
+            }
 
             if (! empty($validated['childs'])) {
                 foreach ($validated['childs'] as $child) {

@@ -77,9 +77,9 @@ class StoreStaffRequest extends FormRequest
             'emergency_contact_number' => 'required|string|min:10',
             'emergency_contact_relation' => 'required|string',
             // Spouse Information
-            'spouse_name' => 'nullable|string',
-            'spouse_occupation' => 'nullable|string',
-            'spouse_phone' => 'nullable|string',
+            'spouse_name'       => 'nullable|string',
+            'spouse_phone'      => 'required_with:spouse_name|string',
+            'spouse_occupation' => 'required_with:spouse_name|string',
             // Child Information
             'childs' => 'array|nullable',
             'childs.*.name' => 'required|string',

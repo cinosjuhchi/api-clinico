@@ -32,7 +32,10 @@ class StoreInjectionRequest extends FormRequest
             'batch' => 'integer|required',
             'expired_date' => 'date|required',
             'total_amount' => 'integer|required',            
-            'clinic_id' => 'required|exists:clinics,id'
+            'clinic_id' => 'required|exists:clinics,id',
+            'supplier' => 'required|string',
+            'manufacture' => 'required|string',
+            'supplier_contact' => 'required|string',
         ];
     }
 }

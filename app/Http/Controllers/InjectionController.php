@@ -121,6 +121,9 @@ class InjectionController extends Controller
             'paediatric_dose' => 'integer|sometimes',
             'unit' => 'string|sometimes|max:255',
             'expired_date' => 'date|sometimes',
+            'supplier' => 'sometimes|string',
+            'manufacture' => 'sometimes|string',
+            'supplier_contact' => 'sometimes|string',
         ]);
 
         $injection->fill($validated);

@@ -189,4 +189,14 @@ class Clinic extends Authenticatable
     {
         return $this->hasOne(MohClinic::class);
     }
+
+    public function expenses()
+    {
+        return $this->hasMany(ClinicExpense::class);
+    }
+
+    public function invoices()
+    {
+        return $this->hasMany(ClinicInvoice::class);
+    }
 }

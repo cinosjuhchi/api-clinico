@@ -4,16 +4,24 @@ namespace App\Helpers;
 
 use App\Models\BoExpense;
 use App\Models\BoInvoice;
+use App\Models\ClinicExpense;
+use App\Models\ClinicInvoice;
+use InvalidArgumentException;
 
 class GenerateUniqueIdHelper
 {
     /**
      * Create a new class instance.
      */
-    public static function generateInvoiceId($prefix = 'INC')
+    public static function generateInvoiceId($prefix = 'INC', $type = 'bo')
     {
-        $lastInvoice = BoInvoice::where('unique_id', 'LIKE', $prefix . '%')
-            ->latest('unique_id')
+        $lastInvoiceQuery = match ($type) {
+            'bo' => BoInvoice::where('unique_id', 'LIKE', $prefix . '%'),
+            'clinic' => ClinicInvoice::where('unique_id', 'LIKE', $prefix . '%'),
+            default => throw new InvalidArgumentException("Invalid type: $type")
+        };
+
+        $lastInvoice = $lastInvoiceQuery->latest('unique_id')
             ->first();
 
         if (!$lastInvoice) {
@@ -27,10 +35,14 @@ class GenerateUniqueIdHelper
         // Pastikan angka tetap 8 digit
         return $prefix . str_pad($newNumber, 8, '0', STR_PAD_LEFT);
     }
-    public static function generateExpenseId($prefix = 'EXP')
+    public static function generateExpenseId($prefix = 'EXP', $type = 'bo')
     {
-        $lastExpense = BoExpense::where('unique_id', 'LIKE', $prefix . '%')
-            ->latest('unique_id')
+        $lastExpenseQuery = match ($type) {
+            'bo' => BoExpense::where('unique_id', 'LIKE', $prefix . '%'),
+            'clinic' => ClinicExpense::where('unique_id', 'LIKE', $prefix . '%'),
+            default => throw new InvalidArgumentException("Invalid type: $type"),
+        };
+        $lastExpense = $lastExpenseQuery->latest('unique_id')
             ->first();
 
         if (!$lastExpense) {

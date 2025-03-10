@@ -10,7 +10,7 @@ class Medication extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
-    
+
     public function clinic()
     {
         return $this->belongsTo(Clinic::class, 'clinic_id');
@@ -18,5 +18,10 @@ class Medication extends Model
     public function pregnancyCategory()
     {
         return $this->belongsTo(PregnancyCategory::class, 'pregnancy_category_id');
+    }
+
+    public function records()
+    {
+        return $this->hasMany(MedicationRecord::class, 'medication_id');
     }
 }

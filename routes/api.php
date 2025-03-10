@@ -70,11 +70,14 @@ use App\Http\Controllers\Api\V1\AppointmentController;
 use App\Http\Controllers\Api\V1\TopEmployeeController;
 use App\Http\Controllers\FamilyRelationshipController;
 use App\Http\Controllers\OnlineConsultationController;
+use App\Http\Controllers\Api\V1\ClinicReportController;
 use App\Http\Controllers\Api\V1\LeaveBalanceController;
 use App\Http\Controllers\Api\V1\User\ProfileController;
 use App\Http\Controllers\ClinicUpdateRequestController;
 use App\Http\Controllers\InvestigationClinicController;
 use App\Http\Controllers\PatientNotificationController;
+use App\Http\Controllers\Api\V1\ClinicExpenseController;
+use App\Http\Controllers\Api\V1\ClinicInvoiceController;
 use App\Http\Controllers\Api\V1\ClinicProfileController;
 use App\Http\Controllers\Api\V1\DoctorProfileController;
 use App\Http\Controllers\Api\V1\ReportBugTypeController;
@@ -87,6 +90,7 @@ use App\Http\Controllers\Api\V1\ClaimPermissionController;
 use App\Http\Controllers\Api\V1\LeavePermissionController;
 use App\Http\Controllers\Api\V1\LeaveTypeDetailController;
 use App\Http\Controllers\DemographicInformationController;
+use App\Http\Controllers\Api\V1\ClinicInvoiceItemController;
 use App\Http\Controllers\Api\V1\OvertimePermissionController;
 
 Route::prefix('v1')->group(function () {
@@ -371,11 +375,6 @@ Route::prefix('v1')->group(function () {
         Route::get('/nearby', [ClinicController::class, 'nearby']);
         Route::get('/show/{slug}', [ClinicController::class, 'show']);
         Route::middleware(['auth:sanctum', 'abilities:clinic'])->group(function () {
-            // Route::prefix('payslip')->group(function () {
-            //     Route::get('/', [MonthlyPayslipController::class, 'index']);
-            //     Route::get('/{id}', [MonthlyPayslipController::class, 'show']);
-            //     Route::post('/', [MonthlyPayslipController::class, 'store']);
-            // });
             Route::prefix('me')->group(function () {
                 Route::get('/logout-clinic', [ClinicAuthController::class, 'logout']);
                 Route::get('/user', [ClinicDataController::class, 'me']);
@@ -383,6 +382,37 @@ Route::prefix('v1')->group(function () {
                 Route::get('/clinic-patient', [ClinicProfileController::class, 'clinicPatient']);
                 Route::post('/{clinic}/images', [ClinicImageController::class, 'store']);
                 Route::post('/store-profile-image', [ClinicImageController::class, 'storeProfile']);
+            });
+
+            Route::prefix('invoice')->group(function () {
+                Route::get('/', [ClinicInvoiceController::class, 'index']);
+                Route::post('/', [ClinicInvoiceController::class, 'store']);
+                Route::get('/confirm/{clinicInvoice}', [ClinicInvoiceController::class, 'completed']);
+                Route::get('/{clinicInvoice}', [ClinicInvoiceController::class, 'show']);
+                Route::delete('/{clinicInvoice}', [ClinicInvoiceController::class,'destroy']);
+                Route::prefix('items')->group(function () {
+                    Route::delete('/{clinicInvoiceItem}', [ClinicInvoiceItemController::class, 'destroy']);
+                });
+            });
+
+            Route::prefix('report-information')->group(function () {
+                Route::get('/total-sales', [ClinicReportController::class, 'totalSales']);
+                Route::get('/invoices', [ClinicReportController::class, 'invoices']);
+                Route::get('/total-cash', [ClinicReportController::class, 'totalCash']);
+                Route::get('/total-orders', [ClinicReportController::class, 'totalOrders']);
+                Route::get('/total-vouchers', [ClinicReportController::class, 'totalVouchers']);
+                Route::get('/total-locums', [ClinicReportController::class, 'totalLocums']);
+                Route::get('/average-charge-per-patient', [ClinicReportController::class, 'averageChargePerPatient']);
+                Route::get('/locum', [ClinicReportController::class, 'locum']);
+                Route::get('/commonly-prescribe-medicine', [ClinicReportController::class, 'commonlyPrescribeMedicine']);
+            });
+
+            Route::prefix('expenses')->group(function () {
+                Route::get('/', [ClinicExpenseController::class, 'index']);
+                Route::post('/', [ClinicExpenseController::class, 'store']);
+                Route::get('/{clinicExpense}', [ClinicExpenseController::class, 'show']);
+                Route::put('/{clinicExpense}/confirm', [ClinicExpenseController::class, 'completed']);
+                Route::delete('/{clinicExpense}', [ClinicExpenseController::class, 'destroy']);
             });
         });
         Route::middleware(['auth:sanctum', 'abilities:hasAccessResource'])->group(function () {
@@ -484,6 +514,7 @@ Route::prefix('v1')->group(function () {
 
             Route::prefix('settlements')->group(function () {
                 Route::get('/', [ClinicDataController::class, 'getSettlements']);
+                Route::put('/{clinicSettlement}/upload', [ClinicSettlementController::class, 'upload']);
             });
         });
     });

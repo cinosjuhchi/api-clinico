@@ -156,10 +156,33 @@ class ClinicSettlementController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Billing $billing)
+    public function upload(Request $request, ClinicSettlement $clinicSettlement)
     {
-        //
+        $request->validate([
+            'file' => 'required|file|mimes:pdf,jpg,jpeg,png',
+        ]);
+        $file = $request->file('file');
+
+        if (!$file) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'No file uploaded!',
+            ], 400);
+        }
+
+        $path = $file->store('payment_proof', 'public');
+
+        $clinicSettlement->update([
+            'payment_proof' => $path,
+            'status' => 'checking',
+        ]);
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'File uploaded!',
+        ]);
     }
+
 
     /**
      * Remove the specified resource from storage.

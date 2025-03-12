@@ -35,8 +35,17 @@ class ClinicInvoiceController extends Controller
             })
             ->paginate(10);
 
+        $totalInvoiceGlobal = 0;
+        $clinicInvoice->getCollection()->transform(function ($invoice) use (&$totalInvoiceGlobal) {
+            $total = $invoice->items->sum('price');
+            $invoice->total_invoice = number_format($total, 2, '.', '');
+            $totalInvoiceGlobal += $total;
+            return $invoice;
+        });
+
         return response()->json([
             'status' => 'success',
+            'total_invoice' => number_format($totalInvoiceGlobal, 2, '.', ''),
             'data'   => $clinicInvoice
         ], 200);
     }

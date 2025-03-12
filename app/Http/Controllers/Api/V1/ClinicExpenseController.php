@@ -29,18 +29,48 @@ class ClinicExpenseController extends Controller
             })
             ->paginate(10);
 
-        $clinicExpense->getCollection()->transform(function ($expense) {
+        $totals = [
+            'total_cash' => 0,
+            'total_payment_voucher' => 0,
+            'total_purchase_order' => 0,
+            'total_locum_payment' => 0,
+        ];
+
+        $clinicExpense->getCollection()->transform(function ($expense) use (&$totals) {
             $expense->addition = is_array($expense->addition)
                 ? $expense->addition
                 : json_decode($expense->addition, true);
+
+            $totalPrice = collect($expense->items)->sum('price');
+
+            switch ($expense->type) {
+                case 'cash':
+                    $totals['total_cash'] += $totalPrice;
+                    break;
+                case 'voucher':
+                    $totals['total_payment_voucher'] += $totalPrice;
+                    break;
+                case 'order':
+                    $totals['total_purchase_order'] += $totalPrice;
+                    break;
+                case 'locum':
+                    $totals['total_locum_payment'] += $totalPrice;
+                    break;
+            }
+
             return $expense;
         });
 
         return response()->json([
             'status' => 'success',
+            'total_cash' => $totals['total_cash'],
+            'total_payment_voucher' => $totals['total_payment_voucher'],
+            'total_purchase_order' => $totals['total_purchase_order'],
+            'total_locum_payment' => $totals['total_locum_payment'],
             'data'   => $clinicExpense
         ], 200);
     }
+
 
     public function show(ClinicExpense $clinicExpense)
     {

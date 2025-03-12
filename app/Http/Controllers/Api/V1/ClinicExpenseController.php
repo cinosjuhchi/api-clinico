@@ -41,7 +41,23 @@ class ClinicExpenseController extends Controller
                 ? $expense->addition
                 : json_decode($expense->addition, true);
 
-            $totalPrice = collect($expense->items)->sum('price');
+            if ($expense->type === 'locum') {
+                $totalPrice = collect($expense->addition['items'] ?? [])->sum(function ($item) {
+                    $unit = isset($item['unit']) ? (float) $item['unit'] : 0;
+                    $fees = [
+                        'locum_fee' => isset($item['locum_fee']) ? (float) $item['locum_fee'] : 0,
+                        'procedure_fee' => isset($item['procedure_fee']) ? (float) $item['procedure_fee'] : 0,
+                        'patient_fee' => isset($item['patient_fee']) ? (float) $item['patient_fee'] : 0,
+                        'night_slot_fee' => isset($item['night_slot_fee']) ? (float) $item['night_slot_fee'] : 0,
+                    ];
+                    return $unit * array_sum($fees);
+                });
+            } else {
+                $totalPrice = collect($expense->items ?? [])->sum(function ($item) {
+                    return isset($item['price']) ? (float) $item['price'] : 0;
+                });
+            }
+
 
             switch ($expense->type) {
                 case 'cash':

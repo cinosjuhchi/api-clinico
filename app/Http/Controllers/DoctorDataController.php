@@ -22,25 +22,60 @@ class DoctorDataController extends Controller
     {
         $user = Auth::user();
         $doctor = $user->doctor;
+
         if (!$doctor) {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'user not found',
+                'message' => 'User not found',
             ]);
         }
+
         $query = $request->input('q');
 
-        $appointments = $doctor->consultationAppointments()->with(['patient.demographics', 'doctor.category', 'clinic', 'service', 'medicalRecord'])->when($query, function ($q) use ($query) {
-            $q->where(function ($subQuery) use ($query) {
-                $subQuery->where('waiting_number', 'like', "%{$query}%")
-                    ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {
-                        $categoryQuery->where('name', 'like', "%{$query}%");
-                    });
-            });
-        })->orderBy('waiting_number')->paginate(5);
+        // Mendapatkan antrian utama berdasarkan prioritas on-consultation
+        $currentAppointment = $doctor->consultationAppointments()
+            ->where('status', 'on-consultation')
+            ->orderBy('waiting_number')
+            ->first();
+
+        // Jika tidak ada yang on-consultation, ambil yang consultation
+        if (!$currentAppointment) {
+            $currentAppointment = $doctor->consultationAppointments()
+                ->where('status', 'consultation')
+                ->orderBy('waiting_number')
+                ->first();
+        }
+
+        $currentWaitingNumber = $currentAppointment ? $currentAppointment->waiting_number : null;
+
+        $appointments = $doctor->consultationAppointments()
+            ->with(['patient.demographics', 'doctor.category', 'clinic', 'service', 'medicalRecord'])
+            ->when($query, function ($q) use ($query) {
+                $q->where(function ($subQuery) use ($query) {
+                    $subQuery->where('waiting_number', 'like', "%{$query}%")
+                        ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {
+                            $categoryQuery->where('name', 'like', "%{$query}%");
+                        });
+                });
+            })
+            ->orderBy('waiting_number')
+            ->paginate(5);
+
+        // Menambahkan prediksi waktu tunggu
+        $appointments->getCollection()->transform(function ($appointment) use ($currentWaitingNumber) {
+            $waitingTime = 0;
+
+            if ($currentWaitingNumber !== null) {
+                $waitingTime = max(0, ($appointment->waiting_number - $currentWaitingNumber) * 20);
+            }
+
+            $appointment->waiting_time_prediction = $waitingTime . ' minutes';
+            return $appointment;
+        });
 
         return response()->json($appointments);
     }
+
     public function pendingEntry(Request $request)
     {
         $user = Auth::user();

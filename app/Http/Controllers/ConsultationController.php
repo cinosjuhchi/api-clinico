@@ -330,44 +330,103 @@ class ConsultationController extends Controller
 
     public function consultationEntry(Request $request)
     {
-        $user   = Auth::user();
+        $user = Auth::user();
         $clinic = match ($user->role) {
             'clinic' => $user->clinic,
             'doctor' => $user->doctor->clinic,
-            'staff' => $user->staff->clinic,
-            default => abort(401, 'Unauthorized access. Invalid role.'),
+            'staff'  => $user->staff->clinic,
+            default  => abort(401, 'Unauthorized access. Invalid role.'),
         };
 
         $query = $request->input('q');
 
-        if (! $clinic) {
+        if (!$clinic) {
             $doctor = $user->doctor;
-            if (! $doctor) {
+            if (!$doctor) {
                 return response()->json([
                     'status'  => 'failed',
-                    'message' => 'user not found',
+                    'message' => 'User not found',
                 ]);
             }
-            $appointments = $doctor->consultationAppointments()->with(['patient', 'doctor.category', 'clinic', 'service', 'bill', 'medicalRecord', 'medicalRecord.clinicService', 'medicalRecord.serviceRecord', 'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords', 'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords', 'medicalRecord.diagnosisRecord'])->when($query, function ($q) use ($query) {
+
+            // Menentukan antrian patokan (on-consultation > consultation)
+            $currentAppointment = $doctor->consultationAppointments()
+                ->whereIn('status', ['on-consultation', 'consultation'])
+                ->orderByRaw("FIELD(status, 'on-consultation', 'consultation')")
+                ->orderBy('waiting_number')
+                ->first();
+
+            $currentWaitingNumber = $currentAppointment?->waiting_number ?? null;
+
+            $appointments = $doctor->consultationAppointments()
+                ->with(['patient', 'doctor.category', 'clinic', 'service', 'bill', 'medicalRecord', 
+                    'medicalRecord.clinicService', 'medicalRecord.serviceRecord', 
+                    'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords', 
+                    'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords', 
+                    'medicalRecord.diagnosisRecord'])
+                ->when($query, function ($q) use ($query) {
+                    $q->where(function ($subQuery) use ($query) {
+                        $subQuery->where('waiting_number', 'like', "%{$query}%")
+                            ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {
+                                $categoryQuery->where('name', 'like', "%{$query}%");
+                            });
+                    });
+                })
+                ->latest()
+                ->paginate(5);
+
+            // Menambahkan waiting_time_prediction
+            $appointments->getCollection()->transform(function ($appointment) use ($currentWaitingNumber) {
+                $waitingTime = 0;
+                if ($currentWaitingNumber !== null) {
+                    $waitingTime = max(0, ($appointment->waiting_number - $currentWaitingNumber) * 20);
+                }
+                $appointment->waiting_time_prediction = $waitingTime . ' minutes';
+                return $appointment;
+            });
+
+            return response()->json($appointments);
+        }
+
+        // Menentukan antrian patokan (on-consultation > consultation) untuk klinik
+        $currentAppointment = $clinic->consultationAppointments()
+            ->whereIn('status', ['on-consultation', 'consultation'])
+            ->orderByRaw("FIELD(status, 'on-consultation', 'consultation')")
+            ->orderBy('waiting_number')
+            ->first();
+
+        $currentWaitingNumber = $currentAppointment?->waiting_number ?? null;
+
+        $appointments = $clinic->consultationAppointments()
+            ->with(['patient', 'doctor.category', 'clinic', 'service', 'bill', 'medicalRecord', 
+                'medicalRecord.clinicService', 'medicalRecord.serviceRecord', 
+                'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords', 
+                'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords', 
+                'medicalRecord.diagnosisRecord'])
+            ->when($query, function ($q) use ($query) {
                 $q->where(function ($subQuery) use ($query) {
                     $subQuery->where('waiting_number', 'like', "%{$query}%")
                         ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {
                             $categoryQuery->where('name', 'like', "%{$query}%");
                         });
                 });
-            })->latest()->paginate(5);
-            return response()->json($appointments);
-        }
-        $appointments = $clinic->consultationAppointments()->with(['patient', 'doctor.category', 'clinic', 'service', 'bill', 'medicalRecord', 'medicalRecord.clinicService', 'medicalRecord.serviceRecord', 'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords', 'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords', 'medicalRecord.diagnosisRecord'])->when($query, function ($q) use ($query) {
-            $q->where(function ($subQuery) use ($query) {
-                $subQuery->where('waiting_number', 'like', "%{$query}%")
-                    ->orWhereHas('patient.demographics', function ($categoryQuery) use ($query) {
-                        $categoryQuery->where('name', 'like', "%{$query}%");
-                    });
-            });
-        })->latest()->paginate(5);
+            })
+            ->latest()
+            ->paginate(5);
+
+        // Menambahkan waiting_time_prediction
+        $appointments->getCollection()->transform(function ($appointment) use ($currentWaitingNumber) {
+            $waitingTime = 0;
+            if ($currentWaitingNumber !== null) {
+                $waitingTime = max(0, ($appointment->waiting_number - $currentWaitingNumber) * 20);
+            }
+            $appointment->waiting_time_prediction = $waitingTime . ' minutes';
+            return $appointment;
+        });
+
         return response()->json($appointments);
     }
+
 
     public function takeMedicine(Request $request, Appointment $appointment)
     {

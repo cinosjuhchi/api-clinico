@@ -12,15 +12,17 @@ class CallPatientNotification extends Notification
     protected $room;
     protected $waitingNumber;
     protected $title;
+    protected $message;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($room, $waitingNumber, $title)
+    public function __construct($room, $waitingNumber, $title, $message)
     {
         $this->room = $room;
         $this->waitingNumber = $waitingNumber;
         $this->title = $title;
+        $this->message = $message;
     }
 
     /**
@@ -52,8 +54,8 @@ class CallPatientNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'title' => 'Your number is called : ' . $this->waitingNumber,
-            'message' => 'Please enter the ' . $this->room->name . ' room immediately',
+            'title' => "LIVE Queue Alert! | " . $this->room->name,
+            'message' => $this->message,
             // 'action_url' => env('WEB_CLINICO_URL') . '/patient/profile',
             'type' => 'info'            
         ];        

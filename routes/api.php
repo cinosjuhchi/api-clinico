@@ -361,13 +361,7 @@ Route::prefix('v1')->group(function () {
             Route::prefix('me')->group(function () {
                 Route::get('/logout-staff', [StaffAuthController::class, 'logout']);
                 Route::get('/user', [StaffAuthController::class, 'me']);
-            });
-            Route::prefix('consultation')->group(function () {
-                Route::put('/complete/{appointment}', [ConsultationController::class, 'complete']);
-                Route::put('/call-patient/{appointment}', [ConsultationController::class, 'callPatient']);
-                Route::put('/call-patient-vital-sign/{appointment}', [ConsultationController::class, 'callPatientVitalSign']);
-                Route::put('/call-patient-dispensary/{appointment}', [ConsultationController::class, 'callPatientDispensary']);
-            });
+            });            
         });
     });
     Route::prefix('clinic')->group(function () {
@@ -422,7 +416,12 @@ Route::prefix('v1')->group(function () {
                 Route::get('/search', [PatientController::class, 'search']);
                 Route::post('/store', [PatientController::class, 'store']);
             });
-
+            Route::prefix('consultation')->group(function () {
+                Route::put('/complete/{appointment}', [ConsultationController::class, 'complete']);
+                Route::put('/call-patient/{appointment}', [ConsultationController::class, 'callPatient']);
+                Route::put('/call-patient-vital-sign/{appointment}', [ConsultationController::class, 'callPatientVitalSign']);
+                Route::put('/call-patient-dispensary/{appointment}', [ConsultationController::class, 'callPatientDispensary']);
+            });
             Route::prefix('medicines')->group(function () {
                 Route::get('/', [MedicationController::class, 'index']);
                 Route::get('/doctor-resource', [MedicationController::class, 'doctorResource']);

@@ -286,7 +286,7 @@ class ClinicReportController extends Controller
                 DB::raw("SUM(CASE WHEN type = 'clinico' THEN total_cost ELSE 0 END) as total_clinico"),
                 DB::raw("SUM(CASE WHEN type = 'panel' THEN total_cost ELSE 0 END) as total_panel")
             )
-            ->groupBy('patient_id')
+            ->groupBy('billings.patient_id', 'patients.name')
             ->get();
 
         // Menghitung total pasien

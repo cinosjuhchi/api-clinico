@@ -554,7 +554,8 @@ class ConsultationController extends Controller
 
         // Kirim notifikasi Laravel
         try {
-            $user->notify(new CallPatientNotification($room, $appointment->waiting_number, 'Enter the Room'));
+            $message = "Your number {$appointment->waiting_number} is calling. Please proceed to {$room->name} now for consultation. Thank you.";
+            $user->notify(new CallPatientNotification($room, $appointment->waiting_number, 'Enter the Room', $message));
             $notification = $user->notifications()->latest()->first();
             $notification->update([
                 'expired_at' => now()->addDay(),
@@ -578,7 +579,7 @@ class ConsultationController extends Controller
                 // Payload data untuk notifikasi
                 $payload = json_encode([
                     'title' => 'The doctor calling you',
-                    'body'  => "Please proceed to room $room->name.  Your queue number is {$appointment->waiting_number}.",
+                    'body'  => "Your number {$appointment->waiting_number} is calling. Please proceed to {$room->name} now for consultation. Thank you.",
                     'icon'  => '/icon512_rounded.png',
                     'data'  => [
                         'url' => env('WEB_CLINICO_URL'),
@@ -648,7 +649,8 @@ class ConsultationController extends Controller
 
         // Kirim notifikasi Laravel
         try {
-            $user->notify(new CallPatientNotification($room, $appointment->waiting_number, 'Vital Checks'));
+            $message = "Your number {$appointment->waiting_number} is calling. Please proceed to Triage now for vital signs taking. Thank you.";
+            $user->notify(new CallPatientNotification($room, $appointment->waiting_number, 'Vital Checks', $message));
             $notification = $user->notifications()->latest()->first();
             $notification->update([
                 'expired_at' => now()->addDay(),
@@ -672,7 +674,7 @@ class ConsultationController extends Controller
                 // Payload data untuk notifikasi
                 $payload = json_encode([
                     'title' => 'Vital checks calling you',
-                    'body'  => "Please proceed to room $room->name.  Your queue number is {$appointment->waiting_number}.",
+                    'body'  => "Your number {$appointment->waiting_number} is calling. Please proceed to Triage now for vital signs taking. Thank you.",
                     'icon'  => '/icon512_rounded.png',
                     'data'  => [
                         'url' => env('WEB_CLINICO_URL'),
@@ -722,7 +724,8 @@ class ConsultationController extends Controller
 
         // Kirim notifikasi Laravel
         try {
-            $user->notify(new CallPatientNotification($room, $appointment->waiting_number, 'Dispensary'));
+            $message = "Your number {$appointment->waiting_number} is calling. Please proceed to Dispensary now to take the medicine. Thank you.";
+            $user->notify(new CallPatientNotification($room, $appointment->waiting_number, 'Dispensary', $message));
             $notification = $user->notifications()->latest()->first();
             $notification->update([
                 'expired_at' => now()->addDay(),
@@ -746,7 +749,7 @@ class ConsultationController extends Controller
                 // Payload data untuk notifikasi
                 $payload = json_encode([
                     'title' => 'Dispensary calling you',
-                    'body'  => "Please proceed to room $room->name.  Your queue number is {$appointment->waiting_number}.",
+                    'body'  => "Your number {$appointment->waiting_number} is calling. Please proceed to Dispensary now to take the medicine. Thank you.",
                     'icon'  => '/icon512_rounded.png',
                     'data'  => [
                         'url' => env('WEB_CLINICO_URL'),

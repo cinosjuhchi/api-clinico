@@ -32,7 +32,8 @@ class RequestClinicController extends Controller
             'doctors.category',
             'doctors.schedules',
             'rooms',
-            'location', 
+            'location',
+            'user',
             'schedule'
         ])
         ->where('status', false)
@@ -85,7 +86,7 @@ class RequestClinicController extends Controller
                 'company' => $request['company'],
                 'ssm_number' => $request['ssm_number'],
                 'registration_number' => $request['registration_number'],
-                'user_id' => $user->id,                
+                'user_id' => $user->id,
                 'status' => true,
                 'slug' => Str::slug($request['name']),
                 'referral_number' => $referralCodeOwner ? $request['referral_number'] : null,
@@ -152,7 +153,7 @@ class RequestClinicController extends Controller
             );
 
             $clinic = Clinic::create([
-                'name' => $request['name'],                                
+                'name' => $request['name'],
                 'address' => $request['address'],
                 'is_moh' => true,
                 'user_id' => $user->id,
@@ -221,7 +222,7 @@ class RequestClinicController extends Controller
                 'status' => true
             ]);
 
-            DB::commit();            
+            DB::commit();
             return response()->json([
                 'status' => 'success',
                 'message' => 'Success to update clinic data.',

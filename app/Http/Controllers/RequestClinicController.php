@@ -243,7 +243,7 @@ class RequestClinicController extends Controller
     {
         DB::beginTransaction();
         try {
-            $clinic->delete();
+            $clinic->user()->delete();
             DB::commit();
             return response()->json([
                 'status' => 'success',

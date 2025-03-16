@@ -15,7 +15,7 @@ Route::get('/check-timezone', function () {
     $now = Carbon::now();
     return response()->json([
         'timezone' => config('app.timezone'),
-        'now' => $now->timezone,
+        'now' => $now,
         'utc_now' => now()->setTimezone('UTC'),
     ]);
 });

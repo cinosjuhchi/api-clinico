@@ -273,9 +273,11 @@ class AppointmentController extends Controller
             $waitingNumber = $bookedOnConsultation->waiting_number + 1;
         }
 
+        $time = now()->setTimezone('Asia/Jakarta');
         // Update appointment
         $appointment->update([
             'status' => 'consultation',
+            'check_in_at' => $time,
             'waiting_number' => $waitingNumber,
         ]);
 

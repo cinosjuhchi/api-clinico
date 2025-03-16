@@ -14,7 +14,7 @@ Route::get('/', function () {
 Route::get('/check-timezone', function () {
     return response()->json([
         'timezone' => config('app.timezone'),
-        'check_in' => now(),
+        'check_in' => now()->setTimezone('Asia/Jakarta'),
         'now' => now()->toDateTimeString(), // Menggunakan waktu default dari Laravel (APP_TIMEZONE)
         'utc_now' => now()->setTimezone('UTC')->toDateTimeString(), // Konversi ke UTC
     ]);

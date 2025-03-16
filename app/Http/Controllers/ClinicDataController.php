@@ -927,37 +927,65 @@ class ClinicDataController extends Controller
     public function destroyDoctor(Doctor $doctor)
     {
         try {
-            DB::beginTransaction();
-            $doctor->user()->delete();
+            DB::beginTransaction(); // Mulai transaksi
+
+            // Hapus user terlebih dahulu, karena user memiliki cascading ke doctor
+            if ($doctor->user) {
+                $doctor->user->delete(); // Menghapus user akan otomatis menghapus doctor
+            }
+
+            // Hapus employee jika ada
+            if ($doctor->employmentInformation) {
+                $doctor->employmentInformation->delete();
+            }
+
+            DB::commit(); // Simpan perubahan jika tidak ada error
+
             return response()->json([
                 'status'  => 'success',
-                'message' => 'Doctor deleted',
+                'message' => 'Doctor and related data deleted successfully',
             ], 200);
         } catch (\Exception $e) {
-            DB::rollBack();
+            DB::rollBack(); // Batalkan transaksi jika terjadi kesalahan
+
             return response()->json([
                 'status'  => 'failed',
-                'message' => 'something wrong happen',
-            ]);
+                'message' => 'Something went wrong: ' . $e->getMessage(),
+            ], 500);
         }
     }
+
     public function destroyStaff(Staff $staff)
     {
         try {
-            DB::beginTransaction();
-            $staff->user()->delete();
+            DB::beginTransaction(); // Mulai transaksi
+
+            // Hapus user terlebih dahulu, karena user memiliki cascading ke staff
+            if ($staff->user) {
+                $staff->user->delete(); // Menghapus user akan otomatis menghapus staff
+            }
+
+            // Hapus employee jika ada
+            if ($staff->employmentInformation) {
+                $staff->employmentInformation->delete();
+            }
+
+            DB::commit(); // Simpan perubahan jika tidak ada error
+
             return response()->json([
                 'status'  => 'success',
-                'message' => 'Staff deleted',
+                'message' => 'Staff and related data deleted successfully',
             ], 200);
         } catch (\Exception $e) {
-            DB::rollBack();
+            DB::rollBack(); // Batalkan transaksi jika terjadi kesalahan
+
             return response()->json([
                 'status'  => 'failed',
-                'message' => 'something wrong happen',
-            ]);
+                'message' => 'Something went wrong: ' . $e->getMessage(),
+            ], 500);
         }
     }
+
 
     public function staffs(Request $request)
     {

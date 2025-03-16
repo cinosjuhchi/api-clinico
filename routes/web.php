@@ -12,7 +12,7 @@ Route::get('/', function () {
 });
 
 Route::get('/check-timezone', function () {
-    $now = Carbon::now();
+    $now = Carbon::now('Asia/Jakarta');
     return response()->json([
         'timezone' => config('app.timezone'),
         'now' => $now,

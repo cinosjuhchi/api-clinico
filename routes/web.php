@@ -1,6 +1,7 @@
 <?php
 
 use Minishlink\WebPush\VAPID;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ImportDiagnosis;
 use App\Http\Controllers\DiagnosisController;
@@ -11,9 +12,10 @@ Route::get('/', function () {
 });
 
 Route::get('/check-timezone', function () {
+    $now = Carbon::now();
     return response()->json([
         'timezone' => config('app.timezone'),
-        'now' => now(config('app.timezone')),
+        'now' => $now->timezone,
         'utc_now' => now()->setTimezone('UTC'),
     ]);
 });

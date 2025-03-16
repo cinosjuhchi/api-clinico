@@ -13,7 +13,7 @@ Route::get('/', function () {
 Route::get('/check-timezone', function () {
     return response()->json([
         'timezone' => config('app.timezone'),
-        'now' => now(),
+        'now' => now(config('app.timezone')),
         'utc_now' => now()->setTimezone('UTC'),
     ]);
 });

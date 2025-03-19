@@ -262,9 +262,7 @@ class BillController extends Controller
     public function getMyDailyRevenue(DateRequest $request)
     {
         // Validasi input agar tidak terjadi error
-        $request->validate([
-            'date' => 'required|date_format:Y-m-d',
-        ]);
+        $request->validated();
 
         // Ambil dokter yang sedang login
         $doctor = Auth::user()->doctor;

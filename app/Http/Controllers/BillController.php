@@ -234,7 +234,6 @@ class BillController extends Controller
     }
     public function getMyRevenue(Request $request)
     {
-        return response()->json(200);
         $doctor = Auth::user()->doctor;
 
         // Total pendapatan bulan ini

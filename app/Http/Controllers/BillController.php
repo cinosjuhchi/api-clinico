@@ -1,17 +1,16 @@
 <?php
-
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BillStoreRequest;
+use App\Http\Requests\DateRequest;
 use App\Models\Billing;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use App\Http\Requests\DateRequest;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use App\Http\Requests\BillStoreRequest;
+use Illuminate\Support\Facades\Log;
 
 class BillController extends Controller
 {
@@ -20,7 +19,7 @@ class BillController extends Controller
      */
     public function index(Request $request)
     {
-        $user = Auth::user();
+        $user  = Auth::user();
         $query = $request->input('q');
 
         $bills = $user->bills()
@@ -40,15 +39,15 @@ class BillController extends Controller
             ->paginate(10);
 
         return response()->json([
-            'status' => 'success',
+            'status'  => 'success',
             'message' => 'Successfully fetch data',
-            'data' => $bills,
+            'data'    => $bills,
         ]);
     }
 
     public function clinicRevenue(Request $request)
     {
-        $user = Auth::user();
+        $user   = Auth::user();
         $clinic = match ($user->role) {
             'clinic' => $user->clinic,
             'doctor' => $user->doctor->clinic,
@@ -56,9 +55,9 @@ class BillController extends Controller
             default => abort(401, 'Unauthorized access. Invalid role.'),
         };
 
-        if (!$clinic) {
+        if (! $clinic) {
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Clinic not found.',
             ], 404);
         }
@@ -69,15 +68,15 @@ class BillController extends Controller
             ->paginate(5);
 
         return response()->json([
-            'status' => 'success',
+            'status'  => 'success',
             'message' => 'Success to fetch the data.',
-            'data' => $revenue,
+            'data'    => $revenue,
         ], 200);
     }
 
     public function clinicTransaction(Request $request)
     {
-        $user = Auth::user();
+        $user   = Auth::user();
         $clinic = match ($user->role) {
             'clinic' => $user->clinic,
             'doctor' => $user->doctor->clinic,
@@ -85,9 +84,9 @@ class BillController extends Controller
             default => abort(401, 'Unauthorized access. Invalid role.'),
         };
 
-        if (!$clinic) {
+        if (! $clinic) {
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Clinic not found.',
             ], 404);
         }
@@ -97,16 +96,16 @@ class BillController extends Controller
             ->paginate(5);
 
         return response()->json([
-            'status' => 'success',
+            'status'  => 'success',
             'message' => 'Success to fetch the data.',
-            'data' => $revenue,
+            'data'    => $revenue,
         ], 200);
 
     }
 
     public function clinicTotalRevenue(Request $request)
     {
-        $user = Auth::user();
+        $user   = Auth::user();
         $clinic = match ($user->role) {
             'clinic' => $user->clinic,
             'doctor' => $user->doctor->clinic,
@@ -114,15 +113,15 @@ class BillController extends Controller
             default => abort(401, 'Unauthorized access. Invalid role.'),
         };
 
-        if (!$clinic) {
+        if (! $clinic) {
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Clinic not found.',
             ], 404);
         }
 
         $month = $request->input('month');
-        $year = $request->input('year');
+        $year  = $request->input('year');
 
         // Memfilter berdasarkan bulan dan tahun pada kolom transaction_date jika diberikan
         $query = $clinic->bills()->where('is_paid', true);
@@ -141,14 +140,14 @@ class BillController extends Controller
         $adjustedRevenue = $totalRevenue * 0.95;
 
         return response()->json([
-            'status' => 'success',
-            'message' => 'Success to fetch the total revenue.',
+            'status'        => 'success',
+            'message'       => 'Success to fetch the total revenue.',
             'total_revenue' => $adjustedRevenue,
         ], 200);
     }
     public function clinicDailyTotalRevenue(Request $request)
     {
-        $user = Auth::user();
+        $user   = Auth::user();
         $clinic = match ($user->role) {
             'clinic' => $user->clinic,
             'doctor' => $user->doctor->clinic,
@@ -156,9 +155,9 @@ class BillController extends Controller
             default => abort(401, 'Unauthorized access. Invalid role.'),
         };
 
-        if (!$clinic) {
+        if (! $clinic) {
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Clinic not found.',
             ], 404);
         }
@@ -178,14 +177,14 @@ class BillController extends Controller
         $adjustedRevenue = $totalRevenue * 0.95;
 
         return response()->json([
-            'status' => 'success',
-            'message' => 'Success to fetch the daily total revenue.',
+            'status'        => 'success',
+            'message'       => 'Success to fetch the daily total revenue.',
             'total_revenue' => $adjustedRevenue,
         ], 200);
     }
     public function clinicTotalRevenueByDoctor(Request $request)
     {
-        $user = Auth::user();
+        $user   = Auth::user();
         $clinic = match ($user->role) {
             'clinic' => $user->clinic,
             'doctor' => $user->doctor->clinic,
@@ -193,9 +192,9 @@ class BillController extends Controller
             default => abort(401, 'Unauthorized access. Invalid role.'),
         };
 
-        if (!$clinic) {
+        if (! $clinic) {
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Clinic not found.',
             ], 404);
         }
@@ -217,27 +216,26 @@ class BillController extends Controller
 
         $doctorsRevenue = $query->get()->map(function ($item) {
             return [
-                'doctor_id' => $item->id,
-                'doctor_name' => $item->doctor_name,
-                'total_patients' => $item->total_patients,
-                'category_name' => $item->category_name,
-                'total_revenue' => $item->total_revenue,
-                'image' => $item->image,
+                'doctor_id'        => $item->id,
+                'doctor_name'      => $item->doctor_name,
+                'total_patients'   => $item->total_patients,
+                'category_name'    => $item->category_name,
+                'total_revenue'    => $item->total_revenue,
+                'image'            => $item->image,
                 'adjusted_revenue' => $item->total_revenue * 0.95, // Pengurangan 5%
             ];
         });
 
         return response()->json([
-            'status' => 'success',
+            'status'  => 'success',
             'message' => 'Success to fetch doctors revenue.',
-            'data' => $doctorsRevenue,
+            'data'    => $doctorsRevenue,
         ], 200);
     }
     public function getMyRevenue(Request $request)
     {
-        $doctor = Auth::user()->doctor;
-
         return response()->json(200);
+        $doctor = Auth::user()->doctor;
 
         // Total pendapatan bulan ini
         $currentMonthRevenue = $doctor->bills()
@@ -254,10 +252,10 @@ class BillController extends Controller
             ->sum('total_cost');
 
         return response()->json([
-            'status' => 'success',
-            'message' => 'Successfully retrieved revenue',
+            'status'                => 'success',
+            'message'               => 'Successfully retrieved revenue',
             'current_month_revenue' => $currentMonthRevenue,
-            'last_month_revenue' => $lastMonthRevenue
+            'last_month_revenue'    => $lastMonthRevenue,
         ], 200);
     }
 
@@ -265,17 +263,17 @@ class BillController extends Controller
     {
         // Validasi input agar tidak terjadi error
         $request->validate([
-            'date' => 'required|date_format:Y-m-d'
+            'date' => 'required|date_format:Y-m-d',
         ]);
 
         // Ambil dokter yang sedang login
         $doctor = Auth::user()->doctor;
 
         // Cek apakah dokter ada
-        if (!$doctor) {
+        if (! $doctor) {
             return response()->json([
-                'status' => 'error',
-                'message' => 'Doctor not found'
+                'status'  => 'error',
+                'message' => 'Doctor not found',
             ], 404);
         }
 
@@ -289,25 +287,25 @@ class BillController extends Controller
             ->sum('total_cost');
 
         return response()->json([
-            'status' => 'success',
-            'message' => 'Successfully retrieved revenue',
-            'today_revenue' => $currentDailyRevenue
+            'status'        => 'success',
+            'message'       => 'Successfully retrieved revenue',
+            'today_revenue' => $currentDailyRevenue,
         ]);
     }
 
     public function callback(Request $request)
     {
-        $billId = $request->input('id');
-        $paid = $request->input('paid');
-        $signature = $request->header('X-Signature');
-        $data = $request->all();
+        $billId     = $request->input('id');
+        $paid       = $request->input('paid');
+        $signature  = $request->header('X-Signature');
+        $data       = $request->all();
         $xSignature = $data['x_signature'] ?? null;
 
         // Hapus x_signature dari data untuk validasi
         unset($data['x_signature']);
 
         // Validasi signature
-        if (!$this->validateSignature($data, $xSignature)) {
+        if (! $this->validateSignature($data, $xSignature)) {
             Log::error('Invalid Billplz signature');
             return response()->json(['error' => 'Invalid signature'], 401);
         }
@@ -328,7 +326,7 @@ class BillController extends Controller
 
     private function validateSignature(array $data, ?string $xSignature): bool
     {
-        if (!$xSignature) {
+        if (! $xSignature) {
             return false;
         }
 
@@ -366,16 +364,16 @@ class BillController extends Controller
         $validated = $request->validated();
 
         $billData = [
-            'collection_id' => env('BILLPLZ_COLLECTION'),
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'amount' => $validated['amount'] * 100,
-            'description' => $validated['description'],
-            'due_at' => $validated['due_date'],
-            'deliver' => true,
-            'callback_url' => env('BILLPLZ_CALLBACK'),
+            'collection_id'     => env('BILLPLZ_COLLECTION'),
+            'name'              => $validated['name'],
+            'email'             => $validated['email'],
+            'amount'            => $validated['amount'] * 100,
+            'description'       => $validated['description'],
+            'due_at'            => $validated['due_date'],
+            'deliver'           => true,
+            'callback_url'      => env('BILLPLZ_CALLBACK'),
             'reference_1_label' => $validated['reference_1_label'],
-            'reference_1' => $validated['reference_1'],
+            'reference_1'       => $validated['reference_1'],
         ];
 
         $response = Http::withBasicAuth(env('BILLPLZ_KEY'), '')
@@ -383,15 +381,15 @@ class BillController extends Controller
 
         if ($response->successful()) {
             $responseData = $response->json();
-            $billing = Billing::find($validated['bill_id']);
+            $billing      = Billing::find($validated['bill_id']);
             $billing->update([
-                'billz_id' => $responseData['id'],
+                'billz_id'   => $responseData['id'],
                 'total_cost' => $validated['amount'],
             ]);
             return response()->json([
-                'status' => 'success',
-                'message' => 'Bill created successfully.',
-                'data' => $responseData,
+                'status'   => 'success',
+                'message'  => 'Bill created successfully.',
+                'data'     => $responseData,
                 'bill_url' => $responseData['url'] . '?auto_submit=true',
             ], 201);
         } else {
@@ -406,9 +404,9 @@ class BillController extends Controller
     {
         $billing->load(['appointment.doctor', 'appointment.clinic', 'injections', 'service', 'medications', 'procedures', 'investigations', 'appointment.patient']);
         return response()->json([
-            'status' => 'success',
+            'status'  => 'success',
             'message' => 'Succesfully fetch bill!',
-            'data' => $billing,
+            'data'    => $billing,
         ]);
     }
 

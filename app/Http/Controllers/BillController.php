@@ -237,6 +237,8 @@ class BillController extends Controller
     {
         $doctor = Auth::user()->doctor;
 
+        return response()->json(200);
+
         // Total pendapatan bulan ini
         $currentMonthRevenue = $doctor->bills()
             ->where('is_paid', true)

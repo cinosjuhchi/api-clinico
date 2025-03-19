@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\BillStoreRequest;
 use App\Models\Billing;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use App\Http\Requests\DateRequest;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use App\Http\Requests\BillStoreRequest;
 
 class BillController extends Controller
 {
@@ -255,6 +257,40 @@ class BillController extends Controller
             'current_month_revenue' => $currentMonthRevenue,
             'last_month_revenue' => $lastMonthRevenue
         ], 200);
+    }
+
+    public function getMyDailyRevenue(DateRequest $request)
+    {
+        // Validasi input agar tidak terjadi error
+        $request->validate([
+            'date' => 'required|date_format:Y-m-d'
+        ]);
+
+        // Ambil dokter yang sedang login
+        $doctor = Auth::user()->doctor;
+
+        // Cek apakah dokter ada
+        if (!$doctor) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Doctor not found'
+            ], 404);
+        }
+
+        // Pastikan format tanggal valid
+        $date = Carbon::parse($request->input('date'))->toDateString();
+
+        // Ambil total revenue berdasarkan tanggal saja
+        $currentDailyRevenue = $doctor->bills()
+            ->where('is_paid', true)
+            ->whereDate('transaction_date', $date) // Hanya membandingkan tanggal
+            ->sum('total_cost');
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully retrieved revenue',
+            'today_revenue' => $currentDailyRevenue
+        ]);
     }
 
     public function callback(Request $request)

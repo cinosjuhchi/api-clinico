@@ -352,6 +352,7 @@ Route::prefix('v1')->group(function () {
             });
             Route::prefix('revenue')->group(function () {
                 Route::get('/', [BillController::class, 'getMyRevenue']);
+                Route::get('/daily', [BillController::class, 'getMyDailyRevenue']);
             });
         });
     });

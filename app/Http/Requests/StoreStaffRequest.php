@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreStaffRequest extends FormRequest
 {
@@ -65,9 +67,9 @@ class StoreStaffRequest extends FormRequest
             'bank_name' => 'required|string',
             'account_number' => 'required|string|max:20',
             // Contribution Info
-            'kwsp_number' => 'required|integer',
+            'kwsp_number' => 'required',
             'kwsp_amount' => 'required|numeric',
-            'perkeso_number' => 'required|integer',
+            'perkeso_number' => 'required',
             'perkeso_amount' => 'required|numeric',
             'tax_number' => 'required|string',
             'tax_amount' => 'required|numeric',
@@ -92,6 +94,14 @@ class StoreStaffRequest extends FormRequest
             'father_contact' => 'required|string|min:10',
             'mother_contact' => 'required|string|min:10',
         ];
+    }
 
+    public function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->json([
+            'status' => 'error',
+            'message' => 'Validation error',
+            'errors' => $validator->errors(),
+        ], 422));
     }
 }

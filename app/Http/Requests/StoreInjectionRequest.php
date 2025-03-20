@@ -23,7 +23,7 @@ class StoreInjectionRequest extends FormRequest
     {
         return [
             'name' => 'string|required|max:255|min:3',
-            'price' => 'numeric|required',            
+            'price' => 'numeric|required',
             'brand' => 'string|required|max:255|min:3',
             'pregnancy_category_id' => 'required|exists:pregnancy_categories,id',
             'sku_code' => 'string|required|max:255|min:5',
@@ -31,11 +31,14 @@ class StoreInjectionRequest extends FormRequest
             'unit' => 'string|required|max:255',
             'batch' => 'integer|required',
             'expired_date' => 'date|required',
-            'total_amount' => 'integer|required',            
+            'total_amount' => 'integer|required',
             'clinic_id' => 'required|exists:clinics,id',
             'supplier' => 'required|string',
             'manufacture' => 'required|string',
             'supplier_contact' => 'required|string',
+            'for' => 'required|string',
+            'dosage' => 'required|string',
+            'sell_price' => 'required|decimal:1,2',
         ];
     }
 }

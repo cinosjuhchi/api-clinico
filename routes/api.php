@@ -92,6 +92,7 @@ use App\Http\Controllers\Api\V1\LeaveTypeDetailController;
 use App\Http\Controllers\DemographicInformationController;
 use App\Http\Controllers\Api\V1\ClinicInvoiceItemController;
 use App\Http\Controllers\Api\V1\OvertimePermissionController;
+use App\Http\Controllers\Api\V1\StaffClinicScheduleController;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('back-office')->group(function () {
@@ -362,7 +363,7 @@ Route::prefix('v1')->group(function () {
             Route::prefix('me')->group(function () {
                 Route::get('/logout-staff', [StaffAuthController::class, 'logout']);
                 Route::get('/user', [StaffAuthController::class, 'me']);
-            });            
+            });
         });
     });
     Route::prefix('clinic')->group(function () {
@@ -467,6 +468,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('/store', [ClinicDataController::class, 'storeStaff']);
                 Route::put('/update/{staff}', [ClinicDataController::class, 'updateStaff']);
                 Route::delete('/delete/{staff}', [ClinicDataController::class, 'destroyStaff']);
+                Route::apiResource('schedule', StaffClinicScheduleController::class);
             });
             Route::prefix('rooms')->group(function () {
                 Route::get('/resource', [RoomController::class, 'roomResource']);

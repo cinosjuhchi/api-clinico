@@ -470,9 +470,9 @@ class ClinicDataController extends Controller
             'bank_name'                  => 'required|string',
             'account_number'             => 'required|string|max:20',
             // Contribution Info
-            'kwsp_number'                => 'required|integer',
+            'kwsp_number'                => 'required',
             'kwsp_amount'                => 'required|numeric',
-            'perkeso_number'             => 'required|integer',
+            'perkeso_number'             => 'required',
             'perkeso_amount'             => 'required|numeric',
             'tax_number'                 => 'required|string',
             'tax_amount'                 => 'required|numeric',
@@ -651,7 +651,7 @@ class ClinicDataController extends Controller
     {
         $validated = $request->validate([
             'name'                       => 'required|string',
-            'phone_number'               => 'required|string|min:10',            
+            'phone_number'               => 'required|string|min:10',
             // Demographic Information
             'nric'                       => 'required|string|min:5',
             'birth_date'                 => 'required|date|before:today',
@@ -691,9 +691,9 @@ class ClinicDataController extends Controller
             'bank_name'                  => 'required|string',
             'account_number'             => 'required|string|max:20',
             // Contribution Info
-            'kwsp_number'                => 'required|integer',
+            'kwsp_number'                => 'required',
             'kwsp_amount'                => 'required|numeric',
-            'perkeso_number'             => 'required|integer',
+            'perkeso_number'             => 'required',
             'perkeso_amount'             => 'required|numeric',
             'tax_number'                 => 'required|string',
             'tax_amount'                 => 'required|numeric',
@@ -734,7 +734,7 @@ class ClinicDataController extends Controller
 
             // Update main doctor information
             $fieldsToUpdate = [
-                'name'        => $validated['name'],                
+                'name'        => $validated['name'],
             ];
             $staff->update($fieldsToUpdate);
 

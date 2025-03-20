@@ -134,6 +134,8 @@ class MedicationController extends Controller
         try {
             // Menggunakan DB transaction untuk menjaga integritas data
             DB::transaction(function () use ($validated) {
+                $total_cost = $validated['sell_price'] * $validated['total_amount'];
+                $validated['total_cost'] = number_format($total_cost, 2, '.', '');
                 Medication::create($validated);
             });
 
@@ -175,10 +177,13 @@ class MedicationController extends Controller
             'for' => 'string|sometimes|max:255|min:3',
             'manufacture' => 'string|sometimes|max:255|min:3',
             'supplier' => 'string|sometimes|max:255|min:3',
-            'sell_price' => 'numeric|sometimes',            
+            'sell_price' => 'numeric|sometimes',
             'supplier_contact' => 'sometimes|string',
             'dosage' => 'sometimes|string',
         ]);
+
+        $total_cost = $validated['sell_price'] * $medication->total_amount;
+        $validated['total_cost'] = number_format($total_cost, 2, '.', '');
 
         $medication->fill($validated);
 
@@ -214,6 +219,9 @@ class MedicationController extends Controller
         ]);
         $medication->total_amount += $validated['total_amount'];
         $medication->batch += 1;
+
+        $total_cost = $medication->sell_price * $medication->total_amount;
+        $medication->total_cost = number_format($total_cost, 2, '.', '');
         try {
             DB::transaction(function () use ($medication) {
                 $medication->save();
@@ -254,7 +262,7 @@ class MedicationController extends Controller
         }
         $medicines = $clinic->medications();
         $totalMedicines = $medicines->count();
-        $totalStock = $medicines->sum('total_amount');
+        $totalStock = $medicines->sum('total_cost');
         $totalPrice = $medicines->sum('price');
         return response()->json([
             'total_medicine' => $totalMedicines,

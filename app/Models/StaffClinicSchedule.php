@@ -16,17 +16,11 @@ class StaffClinicSchedule extends Model
         "day",
         "clinic_id",
         "staff_id",
-        "room_id", // nullable
     ];
 
     public function staff(): BelongsTo
     {
         return $this->belongsTo(Staff::class);
-    }
-
-    public function room(): BelongsTo
-    {
-        return $this->belongsTo(Room::class);
     }
 
     public function clinic(): BelongsTo

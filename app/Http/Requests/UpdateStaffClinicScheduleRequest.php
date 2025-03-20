@@ -25,7 +25,6 @@ class UpdateStaffClinicScheduleRequest extends FormRequest
             'start_time' => 'sometimes|date_format:H:i',
             'end_time' => 'sometimes|date_format:H:i',
             'day' => 'sometimes|string',
-            'room_id' => 'sometimes|exists:rooms,id',
             'staff_id' => 'sometimes|exists:doctors,id'
         ];
     }

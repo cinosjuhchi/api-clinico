@@ -33,13 +33,10 @@ class StaffClinicScheduleController extends Controller
                 $q->whereHas('staff', function ($subQuery) use ($query) {
                     $subQuery->where('name', 'like', "%{$query}%");
                 })
-                ->orWhereHas('room', function ($subQuery) use ($query) {
-                    $subQuery->where('name', 'like', "%{$query}%");
-                })
                 ->orWhere('day', 'like', "%{$query}%");
             });
 
-            // ?name=xx&day=xx&room=xx
+            // ?name=xx&day=xx
             if ($request->filled('name')) {
                 $name = $request->name;
                 $schedulesQuery->where(function ($query) use ($name) {
@@ -53,14 +50,7 @@ class StaffClinicScheduleController extends Controller
                 $schedulesQuery->where('day', $request->day);
             }
 
-            if ($request->filled('room')) {
-                $room = $request->room;
-                $schedulesQuery->whereHas('room', function ($query) use ($room) {
-                    $query->where('name', 'like', '%' . $room . '%');
-                });
-            }
-
-            $schedulesQuery->with(['staff.employmentInformation', 'room']);
+            $schedulesQuery->with('staff.employmentInformation');
             $paginate = filter_var($request->input('paginate', 'true'), FILTER_VALIDATE_BOOLEAN);
             $schedules = $paginate
                 ? $schedulesQuery->paginate($request->input('per_page', 10))

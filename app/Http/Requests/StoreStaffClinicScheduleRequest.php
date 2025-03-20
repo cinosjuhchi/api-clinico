@@ -26,7 +26,6 @@ class StoreStaffClinicScheduleRequest extends FormRequest
             'end_time' => 'required|date_format:H:i',
             'day' => 'required|string',
             'clinic_id' => 'required|exists:clinics,id',
-            'room_id' => 'required|exists:rooms,id',
             'staff_id' => 'required|exists:staff,id'
         ];
     }

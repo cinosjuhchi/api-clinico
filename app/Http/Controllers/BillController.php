@@ -278,7 +278,8 @@ class BillController extends Controller
         $currentDailyRevenue = $doctor->bills()
             ->where('is_paid', true)
             ->whereDate('transaction_date', $date) // Hanya membandingkan tanggal
-            ->sum('total_cost');
+            ->sum('total_cost')
+            ->get();
 
         return response()->json([
             'status'        => 'success',

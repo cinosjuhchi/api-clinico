@@ -115,10 +115,11 @@ class StaffClinicScheduleController extends Controller
         }
     }
 
-    public function destroy(StaffClinicSchedule $staffClinicSchedule)
+    public function destroy($id)
     {
         DB::beginTransaction();
         try {
+            $staffClinicSchedule = StaffClinicSchedule::findOrFail($id);
             $staffClinicSchedule->delete();
             DB::commit();
             return response()->json([

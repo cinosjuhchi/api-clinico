@@ -60,7 +60,27 @@ class StoreAdminRequest extends FormRequest
             // Financial
             'bank_name' => 'required|string',
             'account_number' => 'required|string',
-            'is_doctor' => 'required|in:true,false'
+            'is_doctor' => 'required|in:true,false',
+            // Emergency Contact
+            'emergency_contact'          => 'required|string',
+            'emergency_contact_number'   => 'required|string|min:10',
+            'emergency_contact_relation' => 'required|string',
+            // Spouse Information
+            'spouse_name'                => 'nullable|string',
+            'spouse_occupation'          => 'nullable|string',
+            'spouse_phone'               => 'nullable|string',
+            // Child Information
+            'childs'                     => 'array|nullable',
+            'childs.*.name'              => 'required|string',
+            'childs.*.occupation'         => 'required|string',
+            'childs.*.contact'           => 'required|string',
+            // Parent Information
+            'father_name'                => 'required|string',
+            'mother_name'                => 'required|string',
+            'father_occupation'          => 'required|string',
+            'mother_occupation'          => 'required|string',
+            'father_contact'             => 'required|string|min:10',
+            'mother_contact'             => 'required|string|min:10',
         ];
     }
 

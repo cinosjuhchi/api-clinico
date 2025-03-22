@@ -204,4 +204,9 @@ class Clinic extends Authenticatable
     {
         return $this->hasMany(ClinicInvoice::class);
     }
+
+    public function panels()
+    {
+        return $this->hasMany(PanelClinic::class);
+    }
 }

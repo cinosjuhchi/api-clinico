@@ -258,11 +258,8 @@ class BillController extends Controller
         ], 200);
     }
 
-    public function getMyDailyRevenue(DateRequest $request)
-    {
-        // Validasi input agar tidak terjadi error
-        $request->validated();
-
+    public function getMyDailyRevenue(Request $request)
+    {        
         // Ambil dokter yang sedang login
         $doctor = Auth::user()->doctor;
 
@@ -275,7 +272,7 @@ class BillController extends Controller
         }
 
         // Pastikan format tanggal valid
-        $date = Carbon::parse($request->input('date'))->toDateString();
+        $date = $request->input('date');
 
         // Ambil total revenue berdasarkan tanggal saja
         $currentDailyRevenue = $doctor->bills()

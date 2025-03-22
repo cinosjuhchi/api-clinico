@@ -5,9 +5,13 @@ use App\Helpers\GenerateStaffIdHelper;
 use App\Http\Requests\BackOfficeRequest;
 use App\Http\Requests\StoreAdminRequest;
 use App\Models\AdminClinico;
+use App\Models\BoChildren;
 use App\Models\BoContributionInfo;
 use App\Models\BoDemographic;
+use App\Models\BoEmergencyContact;
 use App\Models\BoFinancial;
+use App\Models\BoParent;
+use App\Models\BoSpouseInformation;
 use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -144,7 +148,18 @@ class BackOfficeController extends Controller
 
     public function me()
     {
-        $user = Auth::user()->load('referredBy', 'referralCode', 'adminClinico.demographic', 'adminClinico.contributionInfo', 'adminClinico.employmentInformation', 'adminClinico.financialInformation');
+        $user = Auth::user()->load(
+            'referredBy',
+            'referralCode',
+            'adminClinico.demographic',
+            'adminClinico.contributionInfo',
+            'adminClinico.employmentInformation',
+            'adminClinico.financialInformation',
+            'adminClinico.emergencyContact',
+            'adminClinico.spouseInformation',
+            'adminClinico.childsInformation',
+            'adminClinico.parentInformation',
+        );
         return response()->json([[
             'status'  => 'success',
             'message' => 'get current user',
@@ -243,6 +258,47 @@ class BackOfficeController extends Controller
                 'bank_name'        => $validated['bank_name'],
                 'account_number'   => $validated['account_number'],
                 'admin_clinico_id' => $staff->id,
+            ]);
+
+            // Create staff Emergency
+            $emergency = BoEmergencyContact::create([
+                'name'         => $validated['emergency_contact'],
+                'relationship' => $validated['emergency_contact_relation'],
+                'phone_number' => $validated['emergency_contact_number'],
+                'admin_clinico_id' => $staff->id,
+            ]);
+
+            // Create staff Spouse
+            if (!empty($validated['spouse_name'])) {
+                $spouseInformation = BoSpouseInformation::create([
+                    'name'       => $validated['spouse_name'],
+                    'occupation' => $validated['spouse_occupation'],
+                    'contact'    => $validated['spouse_phone'],
+                    'admin_clinico_id' => $staff->id,
+                ]);
+            }
+
+            // Create staff child
+            if (!empty($validated['childs'])) {
+                foreach ($validated['childs'] as $child) {
+                    $childsInformation = BoChildren::create([
+                        'name' => $child['name'],
+                        'occupation'  => $child['occupation'],
+                        'contact'  => $child['contact'],
+                        'admin_clinico_id' => $staff->id,
+                    ]);
+                }
+            }
+
+            // Create staff parent
+            $parentInformation = BoParent::create([
+                'father_name'       => $validated['father_name'],
+                'father_occupation' => $validated['father_occupation'],
+                'mother_name'       => $validated['mother_name'],
+                'mother_occupation' => $validated['mother_occupation'],
+                'father_contact'    => $validated['father_contact'],
+                'mother_contact'    => $validated['mother_contact'],
+                'admin_clinico_id'  => $staff->id,
             ]);
 
             DB::commit();

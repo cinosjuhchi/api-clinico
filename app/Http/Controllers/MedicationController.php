@@ -262,8 +262,8 @@ class MedicationController extends Controller
         }
         $medicines = $clinic->medications();
         $totalMedicines = $medicines->count();
-        $totalStock = $medicines->sum('total_cost');
-        $totalPrice = $medicines->sum('price');
+        $totalStock = $medicines->sum('total_amount');
+        $totalPrice = $medicines->sum('total_cost');
         return response()->json([
             'total_medicine' => $totalMedicines,
             'total_stock' => $totalStock,

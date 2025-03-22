@@ -61,7 +61,7 @@ class DoctorScheduleController extends Controller
                 });
             }
 
-            $schedulesQuery->with(['doctor.category', 'room']);
+            $schedulesQuery->with(['doctor.category', 'room', 'doctor.employmentInformation']);
             $paginate = filter_var($request->input('paginate', 'true'), FILTER_VALIDATE_BOOLEAN);
             $schedules = $paginate
                 ? $schedulesQuery->paginate($request->input('per_page', 10))

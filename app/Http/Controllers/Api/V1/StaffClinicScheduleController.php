@@ -134,4 +134,21 @@ class StaffClinicScheduleController extends Controller
             ], 500);
         }
     }
+    // Di fix cino
+    public function show($id)
+    {
+        try {
+            $staffClinicSchedule = StaffClinicSchedule::findOrFail($id);
+            return response()->json([
+                'status' => 'success',
+                'data' => $staffClinicSchedule
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Data not found',
+                'error' => $e->getMessage()
+            ], 404);
+        }
+    }
 }

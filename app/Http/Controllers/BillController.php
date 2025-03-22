@@ -283,6 +283,7 @@ class BillController extends Controller
         return response()->json([
             'status'        => 'success',
             'message'       => 'Successfully retrieved revenue',
+            'doctor' => $doctor,
             'today_revenue' => $currentDailyRevenue,
         ]);
     }

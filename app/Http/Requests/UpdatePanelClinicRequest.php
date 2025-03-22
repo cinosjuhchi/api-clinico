@@ -11,7 +11,7 @@ class UpdatePanelClinicRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,11 @@ class UpdatePanelClinicRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'required|string|max:255',
+            'address' => 'nullable|string|max:500',
+            'phone_number' => 'nullable|string|max:20',
+            'claim' => 'nullable|numeric|min:0',
+            'memo' => 'nullable|string',
         ];
     }
 }

@@ -16,10 +16,39 @@ class PanelClinicController extends Controller
      */
     public function index()
     {
-        //
+        $user = Auth::user();
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            'staff' => $user->staff->clinic,
+            default => abort(401, 'Unauthorized access. Invalid role.'),
+        };
+        
+        if (!$clinic) {
+            return response()->json([
+                'status' => 'not found',
+                'message' => 'Clinic not found',
+            ], 404);
+        }
+        
+        $query = $clinic->panels();
+        
+        if (request()->has('search')) {
+            $search = request()->query('search');
+            $query->where('name', 'like', "%$search%")
+                ->orWhere('address', 'like', "%$search%")
+                ->orWhere('phone_number', 'like', "%$search%");
+        }
+        
+        $panels = $query->paginate(10);
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => $panels
+        ], 200);
     }
 
-    /**
+     /**
      * Show the form for creating a new resource.
      */
     public function create()
@@ -34,7 +63,12 @@ class PanelClinicController extends Controller
     {
         $validated = $request->validated();
         $user   = Auth::user();
-        $clinic = $user->clinic;
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            'staff' => $user->staff->clinic,
+            default => abort(401, 'Unauthorized access. Invalid role.'),
+        };
         if(!$clinic)
         {
             return response()->json([
@@ -55,13 +89,13 @@ class PanelClinicController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Panel Created'
-            ]);
+            ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'status' => 'failed',
                 'message' => $e->getMessage()
-            ]);
+            ], 500);
         }
     }
 
@@ -70,7 +104,11 @@ class PanelClinicController extends Controller
      */
     public function show(PanelClinic $panelClinic)
     {
-        //
+        $user = Auth::user();                        
+        return response()->json([
+            'status' => 'success',
+            'data' => $panelClinic
+        ]);
     }
 
     /**
@@ -86,7 +124,25 @@ class PanelClinicController extends Controller
      */
     public function update(UpdatePanelClinicRequest $request, PanelClinic $panelClinic)
     {
-        //
+        $validated = $request->validated();
+        
+        DB::beginTransaction();
+        try {
+            $panelClinic->update($validated);
+            DB::commit();
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Panel updated successfully',
+                'data' => $panelClinic
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -94,6 +150,22 @@ class PanelClinicController extends Controller
      */
     public function destroy(PanelClinic $panelClinic)
     {
-        //
+        $user = Auth::user();        
+        
+        DB::beginTransaction();
+        try {
+            $panelClinic->delete();
+            DB::commit();            
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Panel deleted successfully'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }

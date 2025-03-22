@@ -33,6 +33,7 @@ use App\Http\Controllers\OccupationController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\ClinicImageController;
+use App\Http\Controllers\PanelClinicController;
 use App\Http\Controllers\TeleconsultController;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\ImmunizationController;
@@ -378,7 +379,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('/{clinic}/images', [ClinicImageController::class, 'store']);
                 Route::post('/store-profile-image', [ClinicImageController::class, 'storeProfile']);
             });
-
+           
             Route::prefix('invoice')->group(function () {
                 Route::get('/', [ClinicInvoiceController::class, 'index']);
                 Route::post('/', [ClinicInvoiceController::class, 'store']);
@@ -516,6 +517,13 @@ Route::prefix('v1')->group(function () {
             Route::prefix('settlements')->group(function () {
                 Route::get('/', [ClinicDataController::class, 'getSettlements']);
                 Route::put('/{clinicSettlement}/upload', [ClinicSettlementController::class, 'upload']);
+            });
+            Route::prefix('panel')->group(function () {
+                Route::get('/', [PanelClinicController::class, 'index']); // List all panels
+                Route::post('/store', [PanelClinicController::class, 'store']); // Store new panel
+                Route::get('/show/{panelClinic}', [PanelClinicController::class, 'show']); // Show a specific panel
+                Route::put('/update/{panelClinic}', [PanelClinicController::class, 'update']); // Update a panel
+                Route::delete('/delete/{panelClinic}', [PanelClinicController::class, 'update']); // Update a panel
             });
         });
     });

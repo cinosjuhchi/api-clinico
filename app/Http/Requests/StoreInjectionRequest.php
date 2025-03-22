@@ -38,7 +38,7 @@ class StoreInjectionRequest extends FormRequest
             'supplier_contact' => 'required|string',
             'for' => 'required|string',
             'dosage' => 'required|string',
-            'sell_price' => 'required|decimal:1,2',
+            'sell_price' => 'numeric|required',
         ];
     }
 }

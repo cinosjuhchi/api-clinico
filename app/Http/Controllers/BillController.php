@@ -271,20 +271,17 @@ class BillController extends Controller
             ], 404);
         }
 
-        // Pastikan format tanggal valid
-        $date = $request->input('date');
-
         // Ambil total revenue berdasarkan tanggal saja
+        $date = $request->input('date');
         $currentDailyRevenue = $doctor->bills()
             ->where('is_paid', true)
             ->whereDate('transaction_date', $date) // Hanya membandingkan tanggal
-            ->sum('total_cost')
-            ->get();
+            ->sum('total_cost'); // Tidak perlu get() setelah sum()
 
         return response()->json([
             'status'        => 'success',
             'message'       => 'Successfully retrieved revenue',
-            'doctor' => $doctor,
+            'doctor'        => $doctor,
             'today_revenue' => $currentDailyRevenue,
         ]);
     }

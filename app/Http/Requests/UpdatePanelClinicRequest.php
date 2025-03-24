@@ -25,7 +25,7 @@ class UpdatePanelClinicRequest extends FormRequest
             'name' => 'required|string|max:255',
             'address' => 'nullable|string|max:500',
             'phone_number' => 'nullable|string|max:20',
-            'claim' => 'nullable|numeric|min:0',
+            'claim' => 'required|url|max:2048',
             'memo' => 'nullable|string',
         ];
     }

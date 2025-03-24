@@ -525,7 +525,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('/store', [PanelClinicController::class, 'store']); // Store new panel
                 Route::get('/show/{panelClinic}', [PanelClinicController::class, 'show']); // Show a specific panel
                 Route::put('/update/{panelClinic}', [PanelClinicController::class, 'update']); // Update a panel
-                Route::delete('/delete/{panelClinic}', [PanelClinicController::class, 'update']); // Update a panel
+                Route::delete('/delete/{panelClinic}', [PanelClinicController::class, 'destroy']); // Update a panel
             });
         });
     });

@@ -195,7 +195,8 @@ class ConsultationController extends Controller
                 foreach($validated['medical_record_allergies'] as $item)
                 {
                     $medicalRecord->allergies()->create([
-                        'name' => $item
+                        'medicine_name' => $item['medicine_name'],
+                        'reaction' => $item['reaction']
                     ]);
                 }
             }

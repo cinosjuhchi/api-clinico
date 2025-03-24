@@ -38,7 +38,7 @@ class MedicalRecordController extends Controller
             ], 404);
         }
 
-        $medicalRecord->load(['patient', 'doctor', 'clinic', 'serviceRecord', 'investigationRecord', 'diagnosisRecord', 'procedureRecords', 'medicationRecords', 'injectionRecords', 'consultationPhotos', 'consultationDocuments', 'gestationalAge']); // Periksa konsistensi nama relasi
+        $medicalRecord->load(['patient', 'doctor', 'clinic', 'serviceRecord', 'investigationRecord', 'diagnosisRecord', 'procedureRecords', 'medicationRecords', 'injectionRecords', 'consultationPhotos', 'consultationDocuments', 'gestationalAge', 'allergies']); // Periksa konsistensi nama relasi
 
         return response()->json([
             'status' => 'success',
@@ -60,7 +60,8 @@ class MedicalRecordController extends Controller
             'injectionRecords',
             'medicationRecords',
             'riskFactors',
-            'gestationalAge'
+            'gestationalAge',
+            'allergies'
         );
 
         $patientId = $request->input('patient_id');

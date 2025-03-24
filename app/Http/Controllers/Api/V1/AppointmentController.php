@@ -63,6 +63,7 @@ class AppointmentController extends Controller
             'medicalRecord.medicationRecords',
             'medicalRecord.procedureRecords',
             'medicalRecord.injectionRecords',
+            'medicalRecord.allergies'
         ];
 
         // Jika status consultation, tambahkan relasi room.onConsultation

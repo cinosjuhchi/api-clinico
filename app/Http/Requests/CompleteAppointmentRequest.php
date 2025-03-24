@@ -96,7 +96,8 @@ class CompleteAppointmentRequest extends FormRequest
                 'gestational_age.menstruation_date' => 'sometimes|required|date',
                 // Medical Record Allergies
                 'medical_record_allergies' => 'nullable|array',
-                'medical_record_allergies.*' => 'nullable|string'
+                'medical_record_allergies.*.medicine_name' => 'sometimes|required|string',
+                'medical_record_allergies.*.reaction' => 'sometimes|required|string'
         ];
     }
 }

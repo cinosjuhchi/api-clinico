@@ -190,6 +190,16 @@ class ConsultationController extends Controller
                 );
             }
 
+            if(!empty($validated['medical_record_allergies']))
+            {
+                foreach($validated['medical_record_allergies'] as $item)
+                {
+                    $medicalRecord->allergies()->create([
+                        'name' => $item
+                    ]);
+                }
+            }
+
             if (!empty($validated['images'])) {
                 foreach ($validated['images'] as $index => $image) {
                     // Store the image

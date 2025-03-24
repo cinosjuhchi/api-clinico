@@ -94,4 +94,9 @@ class MedicalRecord extends Model
     {
         return $this->hasMany(ConsultationDocument::class, 'medical_record_id');
     }
+
+    public function allergies()
+    {
+        return $this->hasMany(MedicalRecordAllergie::class);
+    }
 }

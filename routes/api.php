@@ -353,7 +353,7 @@ Route::prefix('v1')->group(function () {
                 Route::put('/call-patient/{appointment}', [ConsultationController::class, 'callPatient']);
             });
             Route::prefix('revenue')->group(function () {
-                Route::get('/', [BillController::class, 'getMyRevenue']);
+                Route::get('/month', [BillController::class, 'getMyRevenue']);
                 Route::get('/daily', [BillController::class, 'getMyDailyRevenue']);
             });
         });

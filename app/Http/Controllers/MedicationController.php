@@ -37,7 +37,7 @@ class MedicationController extends Controller
         }
 
         // Mengambil data obat berdasarkan clinic dan melakukan pencarian jika parameter 'q' ada
-        $medicines = $clinic->medications()->with(['pregnancyCategory'])->get();
+        $medicines = $clinic->medications()->with(['pregnancyCategory', 'allergies'])->get();
 
         return response()->json([
             'status' => 'success',
@@ -107,7 +107,7 @@ class MedicationController extends Controller
         $query = $request->input('q');
 
         // Mengambil data obat berdasarkan clinic dan melakukan pencarian jika parameter 'q' ada
-        $medicines = $clinic->medications()->with(['pregnancyCategory'])
+        $medicines = $clinic->medications()->with(['pregnancyCategory', 'allergies'])
             ->when($query, function ($q, $query) {
                 $q->where('name', 'like', "%{$query}%")
                     ->orWhere('sku_code', 'like', "%{$query}%")

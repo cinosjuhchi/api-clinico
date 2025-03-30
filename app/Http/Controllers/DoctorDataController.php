@@ -27,7 +27,7 @@ class DoctorDataController extends Controller
             return response()->json([
                 'status' => 'failed',
                 'message' => 'User not found',
-            ]);
+            ], 400);
         }
 
         $query = $request->input('q');
@@ -35,19 +35,20 @@ class DoctorDataController extends Controller
         // Mendapatkan antrian utama berdasarkan prioritas on-consultation
         $currentAppointment = $doctor->consultationAppointments()
             ->where('status', 'on-consultation')
-            ->orderBy('waiting_number')
+            ->orderBy('waiting_number', 'asc') // Pastikan urut terkecil
             ->first();
 
         // Jika tidak ada yang on-consultation, ambil yang consultation
         if (!$currentAppointment) {
             $currentAppointment = $doctor->consultationAppointments()
                 ->where('status', 'consultation')
-                ->orderBy('waiting_number')
+                ->orderBy('waiting_number', 'asc') // Pastikan urut terkecil
                 ->first();
         }
 
         $currentWaitingNumber = $currentAppointment ? $currentAppointment->waiting_number : null;
 
+        // Ambil daftar appointment dan urutkan dari waiting_number terkecil
         $appointments = $doctor->consultationAppointments()
             ->with(['patient.demographics', 'doctor.category', 'clinic', 'service', 'medicalRecord'])
             ->when($query, function ($q) use ($query) {
@@ -58,8 +59,8 @@ class DoctorDataController extends Controller
                         });
                 });
             })
-            ->orderBy('waiting_number')
-            ->paginate(5);
+            ->orderBy('waiting_number', 'asc') // Pastikan selalu urut terkecil
+            ->paginate(15);
 
         // Menambahkan prediksi waktu tunggu
         $appointments->getCollection()->transform(function ($appointment) use ($currentWaitingNumber) {
@@ -75,6 +76,7 @@ class DoctorDataController extends Controller
 
         return response()->json($appointments);
     }
+
 
     public function pendingEntry(Request $request)
     {

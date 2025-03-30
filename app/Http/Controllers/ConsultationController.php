@@ -80,7 +80,7 @@ class ConsultationController extends Controller
                     'follow_up_date'       => $validated['follow_up_date'],
                     'follow_up_remark'     => $validated['follow_up_remark'],
                     'timer'                => $validated['timer'],
-                    'alert'                => $validated['alert_medical_record'],
+                    'alert'                => $validated['alert'] ?? null,
 
                 ]);
             } else {
@@ -102,7 +102,7 @@ class ConsultationController extends Controller
                     'follow_up_date'       => $validated['follow_up_date'],
                     'follow_up_remark'     => $validated['follow_up_remark'],
                     'timer'                => $validated['timer'],
-                    'alert'                => $validated['alert_medical_record'],
+                    'alert'                => $validated['alert'] ?? null,
                 ]);
             }
 

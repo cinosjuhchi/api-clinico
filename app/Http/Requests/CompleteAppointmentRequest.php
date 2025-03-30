@@ -32,8 +32,7 @@ class CompleteAppointmentRequest extends FormRequest
                 'sp02' => 'required|numeric',
                 'pain_score' => 'required|numeric',
                 'respiratory_rate' => 'required|numeric',
-                'alert' => 'nullable|string',
-                'alert_medical_record' => 'nullable|string',
+                'alert' => 'nullable|string',            
                 // History
                 'patient_condition' => 'required|string',
                 'consultation_note' => 'required|string',

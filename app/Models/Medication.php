@@ -24,4 +24,9 @@ class Medication extends Model
     {
         return $this->hasMany(MedicationRecord::class, 'medication_id');
     }
+
+    public function allergies()
+    {
+        return $this->hasMany(MedicationAllergie::class);
+    }
 }

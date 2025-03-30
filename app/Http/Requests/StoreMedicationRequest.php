@@ -39,6 +39,9 @@ class StoreMedicationRequest extends FormRequest
             'sell_price' => 'numeric|required',            
             'supplier_contact' => 'required|string',
             'dosage' => 'required|string',
+            'allergies' => 'nullable|array',
+            'allergies.*.name' => 'required|sometimes|string',
+            'allergies.*.reaction' => 'required|sometimes|string',
         ];
     }
 }

@@ -37,7 +37,7 @@ class MedicationController extends Controller
         }
 
         // Mengambil data obat berdasarkan clinic dan melakukan pencarian jika parameter 'q' ada
-        $medicines = $clinic->medications()->with(['pregnancyCategory'])->get();
+        $medicines = $clinic->medications()->with(['pregnancyCategory', 'allergies'])->get();
 
         return response()->json([
             'status' => 'success',
@@ -107,7 +107,7 @@ class MedicationController extends Controller
         $query = $request->input('q');
 
         // Mengambil data obat berdasarkan clinic dan melakukan pencarian jika parameter 'q' ada
-        $medicines = $clinic->medications()->with(['pregnancyCategory'])
+        $medicines = $clinic->medications()->with(['pregnancyCategory', 'allergies'])
             ->when($query, function ($q, $query) {
                 $q->where('name', 'like', "%{$query}%")
                     ->orWhere('sku_code', 'like', "%{$query}%")
@@ -130,20 +130,45 @@ class MedicationController extends Controller
     {
         // Validasi data yang dikirim dari request
         $validated = $request->validated();
-
-        try {
-            // Menggunakan DB transaction untuk menjaga integritas data
-            DB::transaction(function () use ($validated) {
+        DB::beginTransaction();
+        try {                        
                 $total_cost = $validated['sell_price'] * $validated['total_amount'];
                 $validated['total_cost'] = number_format($total_cost, 2, '.', '');
-                Medication::create($validated);
-            });
-
+                $medication = Medication::create([
+                    'name' => $validated['name'],
+                    'price' => $validated['price'],
+                    'brand' => $validated['brand'],
+                    'pregnancy_category_id' => $validated['pregnancy_category_id'],
+                    'sku_code' => $validated['sku_code'],
+                    'paediatric_dose' => $validated['paediatric_dose'],
+                    'unit' => $validated['unit'],
+                    'batch' => $validated['batch'],
+                    'expired_date' => $validated['expired_date'],
+                    'total_amount' => $validated['total_amount'],
+                    'manufacture' => $validated['manufacture'],
+                    'for' => $validated['for'],
+                    'supplier' => $validated['supplier'],
+                    'clinic_id' => $validated['clinic_id'],
+                    'sell_price' => $validated['sell_price'],
+                    'suplier_contact' => $validated['suplier_contact'],
+                    'dosage' => $validated['dosage'],
+                ]);
+                if(!empty($validated['allergies']))
+                {
+                    foreach ($validated['allergies'] as $item) {
+                        $medication->allergies()->create([
+                            'name' => $validated['name'],
+                            'reaction' => $validated['reaction'],
+                        ]);                        
+                    }
+                }            
+            DB::commit();
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data successfully stored.',
             ], 201);
         } catch (\Exception $e) {
+            DB::rollBack(); 
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to store data.',
@@ -166,51 +191,55 @@ class MedicationController extends Controller
     public function update(Request $request, Medication $medication)
     {
         $validated = $request->validate([
-            'name' => 'string|sometimes|max:255|min:3',
-            'price' => 'numeric|sometimes',
-            'brand' => 'string|sometimes|max:255|min:3',
-            'pregnancy_category_id' => 'sometimes|exists:pregnancy_categories,id',
-            'sku_code' => 'string|sometimes|max:255|min:5',
-            'paediatric_dose' => 'integer|sometimes',
-            'unit' => 'string|sometimes|max:255',
-            'expired_date' => 'date|sometimes',
-            'for' => 'string|sometimes|max:255|min:3',
-            'manufacture' => 'string|sometimes|max:255|min:3',
-            'supplier' => 'string|sometimes|max:255|min:3',
-            'sell_price' => 'numeric|sometimes',
-            'supplier_contact' => 'sometimes|string',
-            'dosage' => 'sometimes|string',
+            'name' => 'sometimes|required|string|max:255|min:3',
+            'price' => 'sometimes|required|numeric',
+            'brand' => 'sometimes|required|string|max:255|min:3',
+            'pregnancy_category_id' => 'sometimes|required|exists:pregnancy_categories,id',
+            'sku_code' => 'sometimes|required|string|max:255|min:5',
+            'paediatric_dose' => 'sometimes|required|integer',
+            'unit' => 'sometimes|required|string|max:255',
+            'expired_date' => 'sometimes|required|date',
+            'for' => 'sometimes|required|string|max:255|min:3',
+            'manufacture' => 'sometimes|required|string|max:255|min:3',
+            'supplier' => 'sometimes|required|string|max:255|min:3',
+            'sell_price' => 'sometimes|required|numeric',
+            'supplier_contact' => 'nullable|string',
+            'dosage' => 'nullable|string',
+            'allergies' => 'nullable|array',
+            'allergies.*.name' => 'required|string',
+            'allergies.*.reaction' => 'required|string',
         ]);
 
-        $total_cost = $validated['sell_price'] * $medication->total_amount;
-        $validated['total_cost'] = number_format($total_cost, 2, '.', '');
-
-        $medication->fill($validated);
-
-        if ($medication->isDirty()) {
-            try {
-                DB::transaction(function () use ($medication) {
-                    $medication->save();
-                });
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Update successfully!',
-                ], 200);
-            } catch (\Exception $e) {
-                DB::rollBack();
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Failed to store data.',
-                    'error' => $e->getMessage(),
-                ], 500);
-            }
+        // Hitung total_cost jika sell_price diberikan
+        if (isset($validated['sell_price'])) {
+            $total_cost = $validated['sell_price'] * $medication->total_amount;
+            $validated['total_cost'] = number_format($total_cost, 2, '.', '');
         }
 
-        return response()->json([
-            'status' => 'info',
-            'message' => 'No changes made.',
-        ], 200);
+        return DB::transaction(function () use ($medication, $validated) {
+            // Update data medication
+            $medication->update($validated);
+
+            // Jika ada alergi baru, perbarui relasi
+            if (!empty($validated['allergies'])) {
+                $medication->allergies()->delete(); // Hapus alergi lama
+                foreach ($validated['allergies'] as $allergy) {
+                    $medication->allergies()->create([
+                        'name' => $allergy['name'],
+                        'reaction' => $allergy['reaction'],
+                    ]);
+                }
+            }else{
+                $medication->allergies()->delete(); // Hapus alergi lama
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Update successfully!',
+            ], 200);
+        });
     }
+
 
     public function addBatch(Request $request, Medication $medication)
     {

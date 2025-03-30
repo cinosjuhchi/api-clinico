@@ -234,20 +234,32 @@ class BillController extends Controller
     }
     public function getMyRevenue(Request $request)
     {
-        $doctor = Auth::user()->doctor;
+        $user = Auth::user();
+
+        // Pastikan user login dan memiliki relasi dokter
+        if (!$user || !$user->doctor) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Unauthorized or doctor not found',
+            ], 400);
+        }
+
+        $doctor = $user->doctor;
+        $now = \Carbon\Carbon::now();
+        $lastMonth = $now->copy()->subMonth();
 
         // Total pendapatan bulan ini
         $currentMonthRevenue = $doctor->bills()
             ->where('is_paid', true)
-            ->whereMonth('transaction_date', now()->month)
-            ->whereYear('transaction_date', now()->year)
+            ->whereMonth('transaction_date', $now->month)
+            ->whereYear('transaction_date', $now->year)
             ->sum('total_cost');
 
         // Total pendapatan bulan lalu
         $lastMonthRevenue = $doctor->bills()
             ->where('is_paid', true)
-            ->whereMonth('transaction_date', now()->subMonth()->month)
-            ->whereYear('transaction_date', now()->subMonth()->year)
+            ->whereMonth('transaction_date', $lastMonth->month)
+            ->whereYear('transaction_date', $lastMonth->year)
             ->sum('total_cost');
 
         return response()->json([
@@ -257,6 +269,7 @@ class BillController extends Controller
             'last_month_revenue'    => $lastMonthRevenue,
         ], 200);
     }
+
 
     public function getMyDailyRevenue(Request $request)
     {        

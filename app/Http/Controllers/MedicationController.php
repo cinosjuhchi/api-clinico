@@ -229,6 +229,8 @@ class MedicationController extends Controller
                         'reaction' => $allergy['reaction'],
                     ]);
                 }
+            }else{
+                $medication->allergies()->delete(); // Hapus alergi lama
             }
 
             return response()->json([

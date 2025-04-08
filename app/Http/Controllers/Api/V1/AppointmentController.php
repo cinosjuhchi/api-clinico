@@ -60,7 +60,7 @@ class AppointmentController extends Controller
             'medicalRecord.clinicService',
             'medicalRecord.serviceRecord',
             'medicalRecord.investigationRecord',
-            'medicalRecord.medicationRecords',
+            'medicalRecord.medicationRecords.medication',
             'medicalRecord.procedureRecords',
             'medicalRecord.injectionRecords',
             'medicalRecord.allergies'

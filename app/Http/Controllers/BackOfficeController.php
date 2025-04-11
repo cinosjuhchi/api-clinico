@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Helpers\GenerateStaffIdHelper;
 use App\Http\Requests\BackOfficeRequest;
 use App\Http\Requests\StoreAdminRequest;
+use App\Http\Requests\UpdateAdminRequest;
 use App\Models\AdminClinico;
 use App\Models\BoChildren;
 use App\Models\BoContributionInfo;
@@ -221,7 +222,6 @@ class BackOfficeController extends Controller
                     'is_doctor'   => false,
                     'department'  => $validated['department'],
                 ]);
-
             }
             // Create staff
 
@@ -322,6 +322,150 @@ class BackOfficeController extends Controller
         }
     }
 
+    public function updateStaff(UpdateAdminRequest $request, AdminClinico $admin)
+    {
+        try {
+            DB::beginTransaction();
+
+            $fieldsToUpdate = [
+                'name'        => $request['name'],
+            ];
+            $admin->update($fieldsToUpdate);
+
+            $admin->user()->update([
+                'email'    => $request['email'],
+                'phone_number' => $request['phone_number'],
+            ]);
+
+            $employeeFieldsToUpdate = [
+                'branch'       => $request['branch'],
+                'position'     => $request['position'],
+                'apc'          => $request['apc'],
+                'mmc'          => $request['mmc'],
+                'staff_id'     => $request['staff_id'],
+                'tenure'       => $request['tenure'],
+                'basic_salary' => $request['basic_salary'],
+                'elaun'        => $request['elaun'],
+            ];
+            if ($request->hasFile('image_profile')) {
+                $employeeFieldsToUpdate['image_profile'] = $request->file('image_profile')->store('image_profile');
+            }
+
+            if ($request->hasFile('image_signature')) {
+                $employeeFieldsToUpdate['image_signature'] = $request->file('image_signature')->store('image_signature');
+            }
+
+            $admin->employmentInformation()->update($employeeFieldsToUpdate);
+            $user = $admin->user;
+
+            // Update related information (demographic, educational, etc.)
+            $admin->demographic()->updateOrCreate([], [
+                'nric'           => $request['nric'],
+                'name'           => $request['name'],
+                'email'          => $user->email,
+                'birth_date'     => $request['birth_date'],
+                'place_of_birth' => $request['place_of_birth'],
+                'marital_status' => $request['marital_status'],
+                'phone_number'   => $request['phone_number'],
+                'address'        => $request['address'],
+                'country'        => $request['country'],
+                'postal_code'    => $request['postal_code'],
+                'gender'         => $request['gender'],
+            ]);
+
+            // $admin->educational()->updateOrCreate([], [
+            //     'graduated_from'  => $request['graduated_from'],
+            //     'bachelor'        => $request['bachelor'],
+            //     'graduation_year' => $request['graduation_year'],
+            // ]);
+
+            $admin->contributionInfo()->updateOrCreate([], [
+                'kwsp_number'    => $request['kwsp_number'],
+                'kwsp_amount'    => $request['kwsp_amount'],
+                'perkeso_number' => $request['perkeso_number'],
+                'perkeso_amount' => $request['perkeso_amount'],
+                'tax_number'     => $request['tax_number'],
+                'tax_amount'     => $request['tax_amount'],
+                'eis'            => $request['eis'],
+            ]);
+
+            $admin->emergencyContact()->updateOrCreate([], [
+                'name'         => $request['emergency_contact'],
+                'relationship' => $request['emergency_contact_relation'],
+                'phone_number' => $request['emergency_contact_number'],
+            ]);
+
+            // Optional spouse information
+            if (! empty($validated['spouse_name'])) {
+                $admin->spouseInformation()->updateOrCreate([], [
+                    'name'       => $request['spouse_name'],
+                    'occupation' => $request['spouse_occupation'],
+                    'contact'    => $request['spouse_phone'],
+                ]);
+            }
+
+            // Child information
+            $admin->childsInformation()->delete();
+            if (! empty($request['childs'])) {
+                foreach ($request['childs'] as $child) {
+                    $admin->childsInformation()->create([
+                        'name' => $child['name'],
+                        'occupation'  => $child['occupation'],
+                        'contact'  => $child['contact'],
+                    ]);
+                }
+            }
+
+            // Parent information
+            $admin->parentInformation()->updateOrCreate([], [
+                'father_name'       => $request['father_name'],
+                'mother_name'       => $request['mother_name'],
+                'father_occupation' => $request['father_occupation'],
+                'mother_occupation' => $request['mother_occupation'],
+                'father_contact'    => $request['father_contact'],
+                'mother_contact'    => $request['mother_contact'],
+            ]);
+
+            // Reference information
+            $admin->reference()->updateOrCreate([], [
+                'name'         => $request['reference_name'],
+                'company'      => $request['reference_company'],
+                'number_phone' => $request['reference_phone'],
+                'position'     => $request['reference_position'],
+                'email'        => $request['reference_email'],
+            ]);
+
+            // Basic skills information
+            $admin->basicSkills()->updateOrCreate([], [
+                'languange_spoken'  => $request['languange_spoken_skill'],
+                'languange_written' => $request['languange_written_skill'],
+                'microsoft_office'  => $request['microsoft_office_skill'],
+                'others'            => $request['others_skill'],
+            ]);
+
+            // Financial information
+            $admin->financialInformation()->updateOrCreate([], [
+                'bank_name'      => $request['bank_name'],
+                'account_number' => $request['account_number'],
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Staff updated successfully',
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Failed to create staff',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
 
 
     public function growthOfRegistration(Request $request)

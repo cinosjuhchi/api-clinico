@@ -559,6 +559,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/dispensary', [ConsultationController::class, 'dispensary']);
             Route::get('/consultation-entry', [ConsultationController::class, 'consultationEntry']);
             Route::put('/take-medicine/{appointment}', [ConsultationController::class, 'takeMedicine']);
+            Route::put('/{appointment}/change-doctor', [ConsultationController::class, 'changeDoctor']);
         });
         Route::prefix('diagnosis')->group(function () {
             Route::get('/', [DiagnosisController::class, 'index']);

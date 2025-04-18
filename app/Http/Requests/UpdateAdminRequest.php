@@ -96,6 +96,11 @@ class UpdateAdminRequest extends FormRequest
             'reference_phone'            => 'required|string',
             'reference_email'            => 'required|email',
 
+            // Educational Information
+            'graduated_from' => 'required|string',
+            'bachelor' => 'required|string',
+            'graduation_year' => 'required|integer',
+
             // Basic Skill Information
             'languange_spoken_skill'     => 'nullable|string',
             'languange_written_skill'    => 'nullable|string',

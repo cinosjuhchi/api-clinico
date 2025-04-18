@@ -324,6 +324,12 @@ class BackOfficeController extends Controller
 
     public function updateStaff(UpdateAdminRequest $request, AdminClinico $admin)
     {
+        if (!$admin) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Admin not found',
+            ], 404);
+        }
         try {
             DB::beginTransaction();
 
@@ -373,11 +379,11 @@ class BackOfficeController extends Controller
                 'gender'         => $request['gender'],
             ]);
 
-            // $admin->educational()->updateOrCreate([], [
-            //     'graduated_from'  => $request['graduated_from'],
-            //     'bachelor'        => $request['bachelor'],
-            //     'graduation_year' => $request['graduation_year'],
-            // ]);
+            $admin->educational()->updateOrCreate([], [
+                'graduated_from'  => $request['graduated_from'],
+                'bachelor'        => $request['bachelor'],
+                'graduation_year' => $request['graduation_year'],
+            ]);
 
             $admin->contributionInfo()->updateOrCreate([], [
                 'kwsp_number'    => $request['kwsp_number'],
@@ -462,6 +468,23 @@ class BackOfficeController extends Controller
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Failed to create staff',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function deleteStaff(AdminClinico $admin)
+    {
+        try {
+            $admin->delete();
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Staff deleted successfully',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Failed to delete staff',
                 'error'   => $e->getMessage(),
             ], 500);
         }

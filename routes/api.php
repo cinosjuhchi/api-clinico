@@ -138,6 +138,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('/store', [BackOfficeController::class, 'storeStaff']);
                 Route::get('/{id}', [BackOfficeController::class, 'show']);
                 Route::put('/{admin}', [BackOfficeController::class, 'updateStaff']);
+                Route::delete('/{admin}', [BackOfficeController::class, 'deleteStaff']);
             });
             Route::prefix('clinic')->group(function () {
                 Route::get('/', [ClinicController::class, 'clinics']);

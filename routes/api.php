@@ -571,8 +571,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/show/{pregnancyCategory}', [PregnancyCategoryController::class, 'show']);
         });
         Route::prefix('rooms')->group(function () {
-            Route::get('/resource', [RoomController::class, 'roomResource']);
             Route::get('/', [RoomController::class, 'index']);
+            Route::get('/resource', [RoomController::class, 'roomResource']);
         });
         Route::prefix('attendance')->group(function () {
             Route::get('/show/{attendance}', [AttendanceController::class, 'show']);

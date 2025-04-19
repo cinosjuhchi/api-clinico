@@ -50,7 +50,7 @@ class DoctorDataController extends Controller
 
         // Ambil daftar appointment dan urutkan dari waiting_number terkecil
         $appointments = $doctor->consultationAppointments()
-            ->with(['patient.demographics', 'doctor.category', 'clinic', 'service', 'medicalRecord'])
+            ->with(['patient', 'patient.demographics', 'doctor.category', 'clinic', 'service', 'medicalRecord'])
             ->when($query, function ($q) use ($query) {
                 $q->where(function ($subQuery) use ($query) {
                     $subQuery->where('waiting_number', 'like', "%{$query}%")

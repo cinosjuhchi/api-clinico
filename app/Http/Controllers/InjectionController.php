@@ -126,7 +126,7 @@ class InjectionController extends Controller
             'supplier_contact' => 'sometimes|string',
             'for' => 'sometimes|string',
             'dosage' => 'sometimes|string',
-            'sell_price' => 'sometimes|decimal:1,2',
+            'sell_price' => 'numeric|sometimes|nullable',
         ]);
 
         $injection->fill($validated);

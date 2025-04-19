@@ -59,7 +59,7 @@ class ConsultationController extends Controller
                 ]);
             } else {
                 $patient->allergy()->delete();
-            }            
+            }
             $medicalRecord = $appointment->medicalRecord;
             if ($medicalRecord) {
                 $medicalRecord->update([
@@ -182,12 +182,12 @@ class ConsultationController extends Controller
             }
 
             if(!empty($validated['gestational_age'])){
-                $medicalRecord->gestationalAge()->updateOrCreate(                    
+                $medicalRecord->gestationalAge()->updateOrCreate(
                     [
                         'plus' => $validated['gestational_age']['plus'],
                         'para' => $validated['gestational_age']['para'],
                         'gravida' => $validated['gestational_age']['gravida'],
-                        'menstruation_date' => $validated['gestational_age']['menstruation_date']                    
+                        'menstruation_date' => $validated['gestational_age']['menstruation_date']
                     ]
                 );
             }
@@ -245,7 +245,7 @@ class ConsultationController extends Controller
                     'document_path' => $certificatePath,
                     'type'          => 'certificate',
                 ]);
-                
+
             }
 
             if($validated['alert'])
@@ -254,7 +254,7 @@ class ConsultationController extends Controller
                     'alert' => $validated['alert']
                 ]);
             }
-            
+
             $status = $patient->is_offline ? 'completed' : 'waiting-payment';
             if (!empty($validated['medicine'])) {
                 $appointment->update([
@@ -265,7 +265,7 @@ class ConsultationController extends Controller
                     'status' => $status,
                 ]);
             }
-            
+
             DB::commit();
 
             return response()->json([
@@ -411,10 +411,10 @@ class ConsultationController extends Controller
         $currentWaitingNumber = $currentAppointment?->waiting_number ?? null;
 
         $appointments = $clinic->consultationAppointments()
-            ->with(['patient', 'doctor.category', 'clinic', 'service', 'bill', 'medicalRecord', 
-                'medicalRecord.clinicService', 'medicalRecord.serviceRecord', 
-                'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords', 
-                'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords', 
+            ->with(['patient', 'doctor.category', 'clinic', 'service', 'bill', 'medicalRecord',
+                'medicalRecord.clinicService', 'medicalRecord.serviceRecord',
+                'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords',
+                'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords',
                 'medicalRecord.diagnosisRecord'])
             ->when($query, function ($q) use ($query) {
                 $q->where(function ($subQuery) use ($query) {
@@ -722,7 +722,7 @@ class ConsultationController extends Controller
             }
         } catch (Exception $e) {
             Log::error('Web Push error: ' . $e->getMessage());
-        }        
+        }
 
         return response()->json([
             'status'  => 'success',
@@ -797,7 +797,7 @@ class ConsultationController extends Controller
             }
         } catch (Exception $e) {
             Log::error('Web Push error: ' . $e->getMessage());
-        }        
+        }
 
         return response()->json([
             'status'  => 'success',
@@ -841,5 +841,21 @@ class ConsultationController extends Controller
             "status" => "success",
             "data"   => $appointment,
         ]);
+    }
+
+    // ========= CHANGE DOCTOR ========= //
+    public function changeDoctor(Request $request, Appointment $appointment)
+    {
+        $request->validate([
+            'doctor_id' => 'required|exists:doctors,id',
+        ]);
+
+        $appointment->doctor_id = $request->doctor_id;
+        $appointment->save();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Doctor changed successfully!',
+        ], 200);
     }
 }

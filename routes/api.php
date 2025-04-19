@@ -137,6 +137,8 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/schedules/{staff}', [StaffScheduleController::class, 'destroy']);
                 Route::post('/store', [BackOfficeController::class, 'storeStaff']);
                 Route::get('/{id}', [BackOfficeController::class, 'show']);
+                Route::put('/{admin}', [BackOfficeController::class, 'updateStaff']);
+                Route::delete('/{admin}', [BackOfficeController::class, 'deleteStaff']);
             });
             Route::prefix('clinic')->group(function () {
                 Route::get('/', [ClinicController::class, 'clinics']);
@@ -381,7 +383,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('/{clinic}/images', [ClinicImageController::class, 'store']);
                 Route::post('/store-profile-image', [ClinicImageController::class, 'storeProfile']);
             });
-           
+
             Route::prefix('invoice')->group(function () {
                 Route::get('/', [ClinicInvoiceController::class, 'index']);
                 Route::post('/', [ClinicInvoiceController::class, 'store']);
@@ -559,6 +561,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/dispensary', [ConsultationController::class, 'dispensary']);
             Route::get('/consultation-entry', [ConsultationController::class, 'consultationEntry']);
             Route::put('/take-medicine/{appointment}', [ConsultationController::class, 'takeMedicine']);
+            Route::put('/{appointment}/change-doctor', [ConsultationController::class, 'changeDoctor']);
         });
         Route::prefix('diagnosis')->group(function () {
             Route::get('/', [DiagnosisController::class, 'index']);

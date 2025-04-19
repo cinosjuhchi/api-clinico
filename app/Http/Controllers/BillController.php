@@ -272,7 +272,7 @@ class BillController extends Controller
 
 
     public function getMyDailyRevenue(Request $request)
-    {        
+    {
         // Ambil dokter yang sedang login
         $doctor = Auth::user()->doctor;
 
@@ -293,7 +293,7 @@ class BillController extends Controller
 
         return response()->json([
             'status'        => 'success',
-            'message'       => 'Successfully retrieved revenue',            
+            'message'       => 'Successfully retrieved revenue',
             'today_revenue' => $currentDailyRevenue,
         ]);
     }
@@ -407,7 +407,7 @@ class BillController extends Controller
      */
     public function show(Billing $billing)
     {
-        $billing->load(['appointment.doctor', 'appointment.clinic', 'injections', 'service', 'medications', 'procedures', 'investigations', 'appointment.patient']);
+        $billing->load(['appointment.doctor', 'appointment.clinic', 'injections', 'service', 'medications.medication', 'procedures', 'investigations', 'appointment.patient']);
         return response()->json([
             'status'  => 'success',
             'message' => 'Succesfully fetch bill!',

@@ -371,6 +371,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/', [ClinicController::class, 'index']);
         Route::get('/nearby', [ClinicController::class, 'nearby']);
         Route::get('/show/{slug}', [ClinicController::class, 'show']);
+        Route::get('/doctor-schedule/resource', [DoctorScheduleController::class, 'scheduleResource']);
         Route::middleware(['auth:sanctum', 'abilities:clinic'])->group(function () {
             Route::prefix('me')->group(function () {
                 Route::get('/logout-clinic', [ClinicAuthController::class, 'logout']);

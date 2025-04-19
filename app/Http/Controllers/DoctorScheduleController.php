@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Clinic;
+use Illuminate\Http\Request;
+use App\Models\DoctorSchedule;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreDoctorScheduleRequest;
 use App\Http\Requests\UpdateDoctorScheduleRequest;
-use App\Models\DoctorSchedule;
-use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class DoctorScheduleController extends Controller
 {
@@ -81,6 +82,36 @@ class DoctorScheduleController extends Controller
         }
 
     }
+
+
+    public function scheduleResource(Request $request)
+    {
+        // Validasi input
+        $request->validate([
+            'clinic_id' => 'required|exists:clinics,id',
+        ]);
+
+        // Ambil clinic berdasarkan ID
+        $clinicId = $request->input('clinic_id');
+        $clinic = Clinic::find($clinicId);
+
+        // Pastikan clinic ditemukan (meskipun sudah divalidasi)
+        if (!$clinic) {
+            return response()->json([
+                'message' => 'Clinic not found.',
+            ], 404);
+        }
+
+        // Ambil jadwal dokter dari relasi
+        $schedules = $clinic->doctorSchedule()->with('doctor')->get();
+
+        // Kembalikan data dalam format JSON
+        return response()->json([
+            'clinic' => $clinic,
+            'schedules' => $schedules,
+        ]);
+    }
+
 
     /**
      * Show the form for creating a new resource.

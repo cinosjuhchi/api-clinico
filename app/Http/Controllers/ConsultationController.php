@@ -411,7 +411,7 @@ class ConsultationController extends Controller
         $currentWaitingNumber = $currentAppointment?->waiting_number ?? null;
 
         $appointments = $clinic->consultationAppointments()
-            ->with(['patient', 'doctor.category', 'clinic', 'service', 'bill', 'medicalRecord',
+            ->with(['patientdemographics', 'doctor.category', 'clinic', 'service', 'bill', 'medicalRecord',
                 'medicalRecord.clinicService', 'medicalRecord.serviceRecord',
                 'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords',
                 'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords',

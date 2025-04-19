@@ -91,14 +91,14 @@ class StaffClinicScheduleController extends Controller
     }
 
 
-    public function update(UpdateStaffClinicScheduleRequest $request, StaffClinicSchedule $staffClinicSchedule)
+    public function update(UpdateStaffClinicScheduleRequest $request, StaffClinicSchedule $schedule)
     {
         $validated = $request->validated();
-        $staffClinicSchedule->fill($validated);
-        if ($staffClinicSchedule->isDirty()) {
+        $schedule->fill($validated);
+        if ($schedule->isDirty()) {
             DB::beginTransaction();
             try {
-                $staffClinicSchedule->update($validated);
+                $schedule->update($validated);
                 DB::commit();
                 return response()->json([
                     'status' => 'success',

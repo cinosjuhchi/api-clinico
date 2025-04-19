@@ -103,7 +103,7 @@ class DoctorScheduleController extends Controller
         }
 
         // Ambil jadwal dokter dari relasi
-        $schedules = $clinic->doctorSchedule()->with('doctor')->get();
+        $schedules = $clinic->doctorSchedule()->with(['doctor', 'room'])->get();
 
         // Kembalikan data dalam format JSON
         return response()->json([

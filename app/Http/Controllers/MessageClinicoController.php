@@ -45,6 +45,7 @@ class MessageClinicoController extends Controller
 
     public function getMessages(User $user)
     {
+        // Ambil semua pesan antara user yang sedang login dan user yang dimaksud
         $messages = MessageClinico::where(function ($query) use ($user) {
             $query->where('sender_id', Auth::id())
                 ->where('receiver_id', $user->id);
@@ -53,8 +54,15 @@ class MessageClinicoController extends Controller
                 ->where('receiver_id', Auth::id());
         })->orderBy('created_at', 'asc')->get();
 
+        // Update semua pesan dari user tersebut ke user yang sedang login yang belum dibaca menjadi sudah dibaca
+        MessageClinico::where('sender_id', $user->id)
+            ->where('receiver_id', Auth::id())
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+
         return response()->json($messages, 200);
     }
+
 
     public function getChatHistory(User $user)
     {
@@ -108,6 +116,12 @@ class MessageClinicoController extends Controller
             })
             ->values();
 
+        // Hitung jumlah pesan yang belum dibaca dari user tersebut ke Auth::user()
+        $unreadCount = MessageClinico::where('sender_id', $user->id)
+            ->where('receiver_id', Auth::id())
+            ->where('is_read', false)
+            ->count();
+
         $userRole = $user->roles->first()->name ?? null;
         $chatInfo = [
             'user' => [
@@ -116,11 +130,23 @@ class MessageClinicoController extends Controller
                 'role' => $userRole,
                 'is_online' => $user->is_online ?? false,
             ],
+            'unread_count' => $unreadCount,
             'messages' => $messages,
         ];
 
         return response()->json($chatInfo);
     }
+
+    public function getTotalUnreadMessages()
+    {
+        $unreadCount = MessageClinico::where('receiver_id', Auth::id())
+            ->where('is_read', false)
+            ->count();
+
+        return response()->json(['unread_count' => $unreadCount]);
+    }
+
+
 
     private function formatDate(Carbon $date): string
     {

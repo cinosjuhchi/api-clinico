@@ -245,7 +245,7 @@ class PatientController extends Controller
                         $categoryQuery->where('name', 'like', "%{$query}%");
                     });
             });
-        })->orderBy('waiting_number')->paginate(5);
+        })->orderBy('waiting_number')->paginate(15);
 
         return response()->json($appointments);
 

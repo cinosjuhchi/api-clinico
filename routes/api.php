@@ -99,6 +99,9 @@ Route::prefix('v1')->group(function () {
     Route::prefix('back-office')->group(function () {
         Route::post('login', [BackOfficeController::class, 'login']);
         Route::middleware(['auth:sanctum', 'abilities:backOffice'])->group(function () {
+            Route::prefix('web-push')->group(function () {
+                Route::post('/save-notification', [PushNotificationController::class, 'saveSubscription']);
+            });
             Route::get('/me', [BackOfficeController::class, 'me']);
             Route::get('/top-employee', [TopEmployeeController::class, 'index']);
             Route::prefix('visit')->group(function () {

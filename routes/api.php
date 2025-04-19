@@ -373,6 +373,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/', [ClinicController::class, 'index']);
         Route::get('/nearby', [ClinicController::class, 'nearby']);
         Route::get('/show/{slug}', [ClinicController::class, 'show']);
+        Route::get('/doctor-schedule/resource', [DoctorScheduleController::class, 'scheduleResource']);
         Route::middleware(['auth:sanctum', 'abilities:clinic'])->group(function () {
             Route::prefix('me')->group(function () {
                 Route::get('/logout-clinic', [ClinicAuthController::class, 'logout']);
@@ -570,8 +571,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/show/{pregnancyCategory}', [PregnancyCategoryController::class, 'show']);
         });
         Route::prefix('rooms')->group(function () {
-            Route::get('/resource', [RoomController::class, 'roomResource']);
             Route::get('/', [RoomController::class, 'index']);
+            Route::get('/resource', [RoomController::class, 'roomResource']);
         });
         Route::prefix('attendance')->group(function () {
             Route::get('/show/{attendance}', [AttendanceController::class, 'show']);
@@ -586,6 +587,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/get-message/{user}', [MessageClinicoController::class, 'getMessages']);
             Route::post('/send-message', [MessageClinicoController::class, 'sendMessage']);
             Route::get('/history-chat/{user}', [MessageClinicoController::class, 'getChatHistory']);
+            Route::get('/total-unread-messages', [MessageClinicoController::class, 'getChatHistory']);
         });
 
         //================== Permission (Overtime, Claim, Leave) ==================//

@@ -69,7 +69,7 @@ class PatientController extends Controller
                     'appointments' => function ($query) use ($date) {
                         $query->where('status', 'consultation')
                             ->whereDate('appointment_date', $date)
-                            ->orderBy('waiting_number', 'asc')
+                            ->orderBy('waiting_number', 'desc')
                             ->limit(1);
                     }
                 ])

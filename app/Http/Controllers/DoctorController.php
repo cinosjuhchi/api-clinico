@@ -2,25 +2,77 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdatePatientRequest;
+use App\Models\Billing;
 use App\Models\Doctor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DoctorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function patients()
     {
-        //
+        $doctor = Auth::user()->doctor;
+        $collection = $doctor->load([
+            'bills.appointment.patient.demographics',
+            'bills.appointment.doctor',
+            'bills.appointment.service'
+        ]);
+        return $collection;
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function updatePatient(UpdatePatientRequest $request, $billId)
     {
-        //
+        $bill = Billing::find($billId);
+
+        if (!$bill) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Bill not found'
+            ], 404);
+        }
+
+        DB::beginTransaction();
+        try {
+            $bill->update([
+                'total_cost' => $request->amount,
+            ]);
+
+            $appointment = $bill->appointment;
+            $appointment->update([
+                'visit_number' => $request->visit_number,
+                'type' => $request->type,
+                'appointment_date' => $request->appointment_date,
+                'clinic_service_id' => $request->service_id,
+                'doctor_id' => $request->doctor_id,
+            ]);
+
+            $patient = $appointment->patient;
+            $patient->update([
+                'name' => $request->name,
+            ]);
+
+            $demographics = $patient->demographics;
+            $demographics->update([
+                'nric' => $request->nric,
+                'mrn' => $request->mrn,
+            ]);
+
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Patient updated successfully',
+                'data' => $bill
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update patient',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -46,15 +98,6 @@ class DoctorController extends Controller
         'data' => $doctor
     ]);
 }
-
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Doctor $doctor)
-    {
-        //
-    }
 
     /**
      * Remove the specified resource from storage.

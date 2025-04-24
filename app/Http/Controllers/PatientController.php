@@ -69,11 +69,16 @@ class PatientController extends Controller
                     'appointments' => function ($query) use ($date) {
                         $query->where('status', 'consultation')
                             ->whereDate('appointment_date', $date)
-                            ->orderBy('waiting_number', 'desc')
+                            ->orderBy('waiting_number', 'asc') // Change to 'asc' for smallest waiting_number
                             ->limit(1);
                     }
                 ])
-                ->get();
+                ->get()
+                ->each(function ($room) {
+                    $appointment = $room->appointments->first();
+                    $room->status = $appointment ? $appointment->patient->name : 'no status';
+                    $room->save();
+                });
 
             return response()->json([
                 'status' => 'success',

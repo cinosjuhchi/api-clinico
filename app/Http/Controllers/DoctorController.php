@@ -19,7 +19,20 @@ class DoctorController extends Controller
             'bills.appointment.doctor',
             'bills.appointment.service'
         ]);
-        return $collection;
+
+        $totalCashSales = $collection->bills()->where('type', 'cash')->sum('total_cost');
+        $totalPanelSales = $collection->bills()->where('type', 'panel')->sum('total_cost');
+        $totalDailySales = $collection->bills()->where('transaction_date', date('Y-m-d'))->sum('total_cost');
+
+        return response()->json([
+            "status" => "success",
+            "data" => [
+                "total_cash_sales" => $totalCashSales,
+                "total_panel_sales" => $totalPanelSales,
+                "total_daily_sales" => $totalDailySales,
+                "data" => $collection,
+            ]
+        ]);
     }
 
     public function updatePatient(UpdatePatientRequest $request, $billId)

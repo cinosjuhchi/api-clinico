@@ -356,6 +356,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/previous', [ConsultationController::class, 'getPreviousConsultation']);
                 Route::put('/complete/{appointment}', [ConsultationController::class, 'complete']);
                 Route::put('/call-patient/{appointment}', [ConsultationController::class, 'callPatient']);
+                Route::put('/{appointment}/status', [ConsultationController::class, 'updateStatus']);
             });
             Route::prefix('revenue')->group(function () {
                 Route::get('/month', [BillController::class, 'getMyRevenue']);

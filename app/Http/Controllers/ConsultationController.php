@@ -877,4 +877,20 @@ class ConsultationController extends Controller
             'message' => 'Doctor changed successfully!',
         ], 200);
     }
+
+    // ========= UPDATE STATUS ========= //
+    public function updateStatus(Request $request, Appointment $appointment)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,on-consultation,consultation,take-medicine,completed,cancelled,waiting-payment',
+        ]);
+
+        $appointment->status = $request->status;
+        $appointment->save();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Status updated successfully!',
+        ], 200);
+    }
 }

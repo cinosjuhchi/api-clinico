@@ -75,7 +75,7 @@ class PatientController extends Controller
                 ])
                 ->get()
                 ->each(function ($room) {
-                    $appointment = $room->appointments->first();
+                    $appointment = $room->appointments->where('status', 'consultation')->first();
                     $room->status = $appointment ? $appointment->patient->name : 'no status';
                     $room->save();
                 });

@@ -266,6 +266,12 @@ class ConsultationController extends Controller
                 ]);
             }
 
+            // update room status to "No Status"
+            $room = $appointment->room;
+            $room->update([
+                'status' => 'No Status',
+            ]);
+
             DB::commit();
 
             return response()->json([
@@ -372,10 +378,10 @@ class ConsultationController extends Controller
             $currentWaitingNumber = $currentAppointment?->waiting_number ?? null;
 
             $appointments = $doctor->consultationAppointments()
-                ->with(['patient.demographics', 'doctor.category', 'clinic', 'service', 'bill', 'medicalRecord', 
-                    'medicalRecord.clinicService', 'medicalRecord.serviceRecord', 
-                    'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords', 
-                    'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords', 
+                ->with(['patient.demographics', 'doctor.category', 'clinic', 'service', 'bill', 'medicalRecord',
+                    'medicalRecord.clinicService', 'medicalRecord.serviceRecord',
+                    'medicalRecord.investigationRecord', 'medicalRecord.medicationRecords',
+                    'medicalRecord.procedureRecords', 'medicalRecord.injectionRecords',
                     'medicalRecord.diagnosisRecord'])
                 ->when($query, function ($q) use ($query) {
                     $q->where(function ($subQuery) use ($query) {

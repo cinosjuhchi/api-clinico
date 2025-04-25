@@ -655,6 +655,18 @@ class ConsultationController extends Controller
             }
         }
 
+
+        try {
+            DB::beginTransaction();
+            $room->update([
+                "status" => $patient->name
+            ]);
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Error updating room status: ' . $e->getMessage());
+        }
+
         return response()->json([
             'status'  => 'success',
             'message' => 'Notification sent successfully!',

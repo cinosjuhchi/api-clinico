@@ -11,18 +11,21 @@ use Illuminate\Support\Facades\DB;
 
 class DoctorController extends Controller
 {
-    public function patients()
+    public function patients(Request $request)
     {
         $doctor = Auth::user()->doctor;
-        $collection = $doctor->load([
-            'bills.appointment.patient.demographics',
-            'bills.appointment.doctor',
-            'bills.appointment.service'
-        ]);
+        $bills = $doctor->bills()
+            ->with([
+                'appointment.patient.demographics',
+                'appointment.doctor',
+                'appointment.service'
+            ])
+            ->orderBy('transaction_date', 'DESC')
+            ->paginate(5);
 
-        $totalCashSales = $collection->bills()->where('type', 'cash')->sum('total_cost');
-        $totalPanelSales = $collection->bills()->where('type', 'panel')->sum('total_cost');
-        $totalDailySales = $collection->bills()->where('transaction_date', date('Y-m-d'))->sum('total_cost');
+        $totalCashSales = $doctor->bills()->where('type', 'cash')->sum('total_cost');
+        $totalPanelSales = $doctor->bills()->where('type', 'panel')->sum('total_cost');
+        $totalDailySales = $doctor->bills()->where('transaction_date', date('Y-m-d'))->sum('total_cost');
 
         return response()->json([
             "status" => "success",
@@ -30,7 +33,7 @@ class DoctorController extends Controller
                 "total_cash_sales" => $totalCashSales,
                 "total_panel_sales" => $totalPanelSales,
                 "total_daily_sales" => $totalDailySales,
-                "data" => $collection,
+                "data" => $bills,
             ]
         ]);
     }

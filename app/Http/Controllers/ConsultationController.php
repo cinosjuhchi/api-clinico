@@ -639,8 +639,9 @@ class ConsultationController extends Controller
         if ($appointment->status != 'on-consultation') {
             try {
                 DB::beginTransaction();
-                $appointment->status = 'on-consultation';
-                $appointment->save();
+                $appointment->update([
+                    'status' => 'on-consultation',
+                ]);
                 DB::commit();
                 return response()->json([
                     'status'  => 'success',

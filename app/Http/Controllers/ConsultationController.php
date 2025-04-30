@@ -392,7 +392,7 @@ class ConsultationController extends Controller
                     });
                 })
                 ->latest()
-                ->paginate(5);
+                ->paginate(15);
 
             // Menambahkan waiting_time_prediction
             $appointments->getCollection()->transform(function ($appointment) use ($currentWaitingNumber) {

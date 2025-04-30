@@ -34,23 +34,16 @@ class DoctorDataController extends Controller
 
         // Mendapatkan antrian utama berdasarkan prioritas on-consultation
         $currentAppointment = $doctor->consultationAppointments()
-            ->where('status', 'on-consultation')
+            ->whereIn('status', ['consultation', 'on-consultation'])
             ->orderBy('waiting_number', 'asc') // Pastikan urut terkecil
             ->first();
-
-        // Jika tidak ada yang on-consultation, ambil yang consultation
-        if (!$currentAppointment) {
-            $currentAppointment = $doctor->consultationAppointments()
-                ->where('status', 'consultation')
-                ->orderBy('waiting_number', 'asc') // Pastikan urut terkecil
-                ->first();
-        }
 
         $currentWaitingNumber = $currentAppointment ? $currentAppointment->waiting_number : null;
 
         // Ambil daftar appointment dan urutkan dari waiting_number terkecil
         $appointments = $doctor->consultationAppointments()
             ->with(['patient', 'patient.demographics', 'doctor.category', 'clinic', 'service', 'medicalRecord'])
+            ->whereIn('status', ['consultation', 'on-consultation'])
             ->when($query, function ($q) use ($query) {
                 $q->where(function ($subQuery) use ($query) {
                     $subQuery->where('waiting_number', 'like', "%{$query}%")
@@ -125,7 +118,7 @@ class DoctorDataController extends Controller
         return response()->json($appointments);
     }
 
-    
+
 
     /**
      * Store a newly created resource in storage.
@@ -155,7 +148,7 @@ class DoctorDataController extends Controller
                 'patient.physicalExaminations',
                 'patient.demographics',
                 'patient.medicalRecords',
-                'patient.occupation',                
+                'patient.occupation',
                 'patient.chronics',
                 'patient.medications',
                 'patient.immunizations',
@@ -175,7 +168,7 @@ class DoctorDataController extends Controller
                 'medicalRecord.investigationRecord',
                 'medicalRecord.diagnosisRecord',
                 'medicalRecord.gestationalAge',
-                
+
             ]
         )->where('slug', $slug)->first();
         if (!$appointment) {

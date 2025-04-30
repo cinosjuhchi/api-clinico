@@ -642,10 +642,13 @@ class ConsultationController extends Controller
                 $appointment->update([
                     'status' => 'on-consultation',
                 ]);
+                $room->update([
+                    "status" => $patient->name
+                ]);
                 DB::commit();
                 return response()->json([
                     'status'  => 'success',
-                    'message' => 'Appointment on-consultation successfully!',
+                    'message' => 'Appointment and room updated successfully!',
                 ], 200);
             } catch (Exception $e) {
                 DB::rollBack();
@@ -656,17 +659,6 @@ class ConsultationController extends Controller
             }
         }
 
-
-        try {
-            DB::beginTransaction();
-            $room->update([
-                "status" => $patient->name
-            ]);
-            DB::commit();
-        } catch (Exception $e) {
-            DB::rollBack();
-            Log::error('Error updating room status: ' . $e->getMessage());
-        }
 
         return response()->json([
             'status'  => 'success',

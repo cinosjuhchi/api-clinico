@@ -391,7 +391,7 @@ class ConsultationController extends Controller
                             });
                     });
                 })
-                ->latest()
+                ->orderBy('check_in_at', 'asc')
                 ->paginate(15);
 
             // Menambahkan waiting_time_prediction
@@ -430,8 +430,8 @@ class ConsultationController extends Controller
                         });
                 });
             })
-            ->latest()
-            ->paginate(5);
+            ->orderBy('check_in_at', 'asc')
+            ->paginate(15);
 
         // Menambahkan waiting_time_prediction
         $appointments->getCollection()->transform(function ($appointment) use ($currentWaitingNumber) {

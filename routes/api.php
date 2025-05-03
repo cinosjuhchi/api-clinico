@@ -90,6 +90,7 @@ use App\Http\Controllers\Api\V1\Auth\DoctorAuthController;
 use App\Http\Controllers\Api\V1\ClaimPermissionController;
 use App\Http\Controllers\Api\V1\LeavePermissionController;
 use App\Http\Controllers\Api\V1\LeaveTypeDetailController;
+use App\Http\Controllers\BackOfficeNotificationController;
 use App\Http\Controllers\DemographicInformationController;
 use App\Http\Controllers\Api\V1\ClinicInvoiceItemController;
 use App\Http\Controllers\Api\V1\OvertimePermissionController;
@@ -101,6 +102,11 @@ Route::prefix('v1')->group(function () {
         Route::middleware(['auth:sanctum', 'abilities:backOffice'])->group(function () {
             Route::prefix('web-push')->group(function () {
                 Route::post('/save-notification', [PushNotificationController::class, 'saveSubscription']);
+            });
+            Route::prefix('notifications')->group(function () {
+                Route::get('/', [BackOfficeNotificationController::class, 'getNotifications']); // Ambil notifikasi yang belum dibaca
+                Route::put('/mark-read/{id}', [BackOfficeNotificationController::class, 'markAsRead']); // Tandai satu notifikasi sebagai sudah dibaca
+                Route::put('/mark-all-read', [BackOfficeNotificationController::class, 'markAllAsRead']); // Tandai semua notifikasi sebagai sudah dibaca
             });
             Route::get('/me', [BackOfficeController::class, 'me']);
             Route::get('/top-employee', [TopEmployeeController::class, 'index']);

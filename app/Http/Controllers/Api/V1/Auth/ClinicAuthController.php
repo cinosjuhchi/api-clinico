@@ -10,6 +10,7 @@ use App\Models\Clinic;
 use App\Models\Referral;
 use App\Models\ReferralCode;
 use App\Models\User;
+use App\Notifications\NewClinicNotification;
 use App\Notifications\SetUpProfileNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -112,6 +113,18 @@ class ClinicAuthController extends Controller
             }
 
             DB::commit();
+            try {
+                $title = "New Clinic";
+                $type = "info";
+                $message = "New clinic has been registered and is awaiting approval.";
+                $user->notify(new NewClinicNotification($title, $message, $type));
+                $notification = $user->notifications()->latest()->first();
+                $notification->update([
+                    'expired_at' => now()->addDay(),
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Notification error: ' . $e->getMessage());
+            }
 
             return response()->json(['status' => 'success', 'message' => 'Register Successful'], 201);
         } catch (\Exception $e) {

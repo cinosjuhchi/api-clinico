@@ -239,6 +239,9 @@ Route::prefix('v1')->group(function () {
             Route::prefix('web-push')->group(function () {
                 Route::post('/save-notification', [PushNotificationController::class, 'saveSubscription']);
             });
+            Route::prefix('panel')->group(function () {
+                Route::get('/resources', [PanelClinicController::class, 'patientResource']);
+            });
             Route::post('/store', [FamilyController::class, 'store']);
             Route::get('/user/{id}', [UserController::class, 'show']);
             Route::get('/logout-user', [AuthController::class, 'logout']);
@@ -541,6 +544,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/show/{panelClinic}', [PanelClinicController::class, 'show']); // Show a specific panel
                 Route::put('/update/{panelClinic}', [PanelClinicController::class, 'update']); // Update a panel
                 Route::delete('/delete/{panelClinic}', [PanelClinicController::class, 'destroy']); // Update a panel
+                Route::get('/resources', [PanelClinicController::class, 'resource']);
             });
         });
     });
@@ -601,6 +605,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/history-chat/{user}', [MessageClinicoController::class, 'getChatHistory']);
             Route::get('/total-unread-messages', [MessageClinicoController::class, 'getChatHistory']);
         });
+
 
         //================== Permission (Overtime, Claim, Leave) ==================//
         Route::prefix('permission')->group(function () {

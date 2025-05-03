@@ -469,6 +469,8 @@ class ConsultationController extends Controller
             'procedure.*.name'         => 'required|string',
             'procedure.*.remark'       => 'nullable|string',
             'procedure.*.cost'         => 'required|numeric',
+
+            'panel_name'               => 'required_if:type,panel'
         ]);
         $medicalRecord = $appointment->medicalRecord;
         try {
@@ -534,6 +536,10 @@ class ConsultationController extends Controller
             if ($validated['type'] == 'cash' || $validated == 'panel') {
                 $appointment->status = 'completed';
                 $bill->type          = $validated['type'];
+                if($validated['type'] == 'panel')
+                {
+                    $bill->panel_name = $validated['panel_name']
+                }
                 $bill->is_paid       = true;
             } else {
                 $appointment->status = 'waiting-payment';

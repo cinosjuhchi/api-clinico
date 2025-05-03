@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PanelClinic;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -168,4 +169,52 @@ class PanelClinicController extends Controller
             ], 500);
         }
     }
+
+    public function resource(Request $request)
+    {
+        $user = Auth::user();
+        $clinic = match ($user->role) {
+            'clinic' => $user->clinic,
+            'doctor' => $user->doctor->clinic,
+            'staff' => $user->staff->clinic,
+            default => abort(401, 'Unauthorized access. Invalid role.'),
+        };
+        
+        if (!$clinic) {
+            return response()->json([
+                'status' => 'not found',
+                'message' => 'Clinic not found',
+            ], 404);
+        }
+        
+        $query = $clinic->panels();                
+        
+        $panels = $query->get();
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => $panels
+        ], 200);
+    }
+    public function patientResource(Request $request)
+    {
+        $user = Auth::user();
+
+        $query = PanelClinic::query();
+
+        // Jika ada query parameter 'search', filter berdasarkan kolom 'name'
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        // Paginasi hasilnya
+        $panels = $query->paginate(20);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $panels
+        ], 200);
+    }
+
 }

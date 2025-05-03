@@ -474,7 +474,7 @@ class ConsultationController extends Controller
         try {
             DB::beginTransaction();
             $bill = $appointment->bill;
-            if (! empty($validated['medicine'])) {
+            if (!empty($validated['medicine'])) {
                 $medicalRecord->medicationRecords()->delete();
                 foreach ($validated['medicine'] as $medicine) {
                     $medication = Medication::find($medicine['medicine_id']);
@@ -517,7 +517,7 @@ class ConsultationController extends Controller
                     $injection->save();
                 }
             }
-            if (! empty($validated['procedure'])) {
+            if (!empty($validated['procedure'])) {
                 $medicalRecord->procedureRecords()->delete();
                 foreach ($validated['procedure'] as $procedure) {
                     $medicalRecord->procedureRecords()->create([
@@ -549,7 +549,7 @@ class ConsultationController extends Controller
                 'status'  => 'success',
                 'message' => 'Appointment in-progress successfully',
             ], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             return response([
                 'status'  => 'failed',

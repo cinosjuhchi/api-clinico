@@ -419,6 +419,9 @@ Route::prefix('v1')->group(function () {
             });
         });
         Route::middleware(['auth:sanctum', 'abilities:hasAccessResource'])->group(function () {
+            Route::prefix('web-push')->group(function () {
+                Route::post('/save-notification', [PushNotificationController::class, 'saveSubscription']);
+            });
             Route::get('/clinic-information', [ClinicController::class, 'clinicInformation']);
             Route::get('inventory', [InventoryController::class, 'index']);
             Route::prefix('patient')->group(function () {

@@ -538,7 +538,7 @@ class ConsultationController extends Controller
                 $bill->type          = $validated['type'];
                 if($validated['type'] == 'panel')
                 {
-                    $bill->panel_name = $validated['panel_name']
+                    $bill->panel_name = $validated['panel_name'];
                 }
                 $bill->is_paid       = true;
             } else {

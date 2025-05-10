@@ -312,7 +312,7 @@ class ConsultationController extends Controller
 
         $appointments = $clinic->consultationTakeMedicine()
             ->with([
-                'patient',
+                'patient.occupation',
                 'doctor.category',
                 'clinic',
                 'service',
@@ -539,14 +539,14 @@ class ConsultationController extends Controller
             }
 
             $bill->total_cost = $validated['total_cost'];
-            if ($validated['type'] == 'cash' || $validated == 'panel') {
-                $appointment->status = 'completed';
-                $bill->type          = $validated['type'];
+            if ($validated['type'] == 'cash' || $validated['type'] == 'panel') {
+                $bill->type = $validated['type'];
                 if($validated['type'] == 'panel')
                 {
                     $bill->panel_name = $validated['panel_name'];
                 }
                 $bill->is_paid       = true;
+                $appointment->status = 'completed';
             } else {
                 $appointment->status = 'waiting-payment';
                 if ($appointment->patient->is_offline) {

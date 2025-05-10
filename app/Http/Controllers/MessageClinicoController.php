@@ -2,13 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreMessageClinicoRequest;
-use App\Models\MessageClinico;
+use Exception;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
+use App\Models\MessageClinico;
 use Illuminate\Support\Carbon;
+use Minishlink\WebPush\WebPush;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Minishlink\WebPush\Subscription;
+use App\Notifications\MessageNotification;
+use App\Http\Requests\StoreMessageClinicoRequest;
 
 class MessageClinicoController extends Controller
 {
@@ -39,6 +44,66 @@ class MessageClinicoController extends Controller
             'receiver_id' => $validated['receiver_id'],
             'message' => $validated['message'],
         ]);
+
+        $user = User::find($validated['receiver_id']);
+
+        try {
+            $message = $validated['message'];            
+            $user->notify(new MessageNotification($user->email, $message));            
+        } catch (Exception $e) {
+            Log::error('Notification error: ' . $e->getMessage());
+        }
+
+        try {
+            $subscriptions = $user->pushSubscriptions; // Ambil semua subscriptions untuk user
+            if ($subscriptions->isNotEmpty()) {
+                $webPush = new WebPush([
+                    'VAPID' => [
+                        'subject'    => env('APP_URL', 'https://clinico.site'),
+                        'publicKey'  => env('VAPID_PUBLIC_KEY'),
+                        'privateKey' => env('VAPID_PRIVATE_KEY'),
+                    ],
+                ]);
+
+                // Payload data untuk notifikasi
+                $payload = json_encode([
+                    'title' => 'Message for you',
+                    'body'  => $validated['message'],
+                    'icon'  => '/icon512_rounded.png',
+                    'data'  => [
+                        'url' => env('WEB_CLINICO_URL'),
+                    ],
+                ]);
+
+                // Kirim notifikasi ke semua subscriptions
+                foreach ($subscriptions as $subscription) {
+                    $webPush->queueNotification(
+                        Subscription::create([
+                            'endpoint' => $subscription->endpoint,
+                            'keys'     => [
+                                'p256dh' => $subscription->p256dh,
+                                'auth'   => $subscription->auth,
+                            ],
+                        ]),
+                        $payload
+                    );
+                }
+
+                // Flush semua notifikasi dan log hasilnya
+                foreach ($webPush->flush() as $report) {
+                    $endpoint = $report->getRequest()->getUri()->__toString();
+                    if ($report->isSuccess()) {
+                        Log::info("Web Push sent successfully to {$endpoint}");
+                    } else {
+                        Log::error("Web Push failed to {$endpoint}: {$report->getReason()}");
+                    }
+                }
+            } else {
+                Log::error('Web Push error: No subscriptions found for user.');
+            }
+        } catch (Exception $e) {
+            Log::error('Web Push error: ' . $e->getMessage());
+        }
 
         return response()->json($message, 201);
     }

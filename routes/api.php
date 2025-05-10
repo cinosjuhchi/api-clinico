@@ -69,6 +69,7 @@ use App\Http\Controllers\BackOfficeRevenueController;
 use App\Http\Controllers\PregnancyCategoryController;
 use App\Http\Controllers\Api\V1\AppointmentController;
 use App\Http\Controllers\Api\V1\TopEmployeeController;
+use App\Http\Controllers\ClinicNotificationController;
 use App\Http\Controllers\FamilyRelationshipController;
 use App\Http\Controllers\OnlineConsultationController;
 use App\Http\Controllers\Api\V1\ClinicReportController;
@@ -371,6 +372,11 @@ Route::prefix('v1')->group(function () {
                 Route::get('/month', [BillController::class, 'getMyRevenue']);
                 Route::get('/daily', [BillController::class, 'getMyDailyRevenue']);
             });
+            Route::prefix('notifications')->group(function () {
+                Route::get('/', [ClinicNotificationController::class, 'getNotifications']); // Ambil notifikasi yang belum dibaca
+                Route::put('/mark-read/{id}', [ClinicNotificationController::class, 'markAsRead']); // Tandai satu notifikasi sebagai sudah dibaca
+                Route::put('/mark-all-read', [ClinicNotificationController::class, 'markAllAsRead']); // Tandai semua notifikasi sebagai sudah dibaca
+            });
         });
     });
     Route::prefix('staff')->group(function () {
@@ -379,6 +385,11 @@ Route::prefix('v1')->group(function () {
             Route::prefix('me')->group(function () {
                 Route::get('/logout-staff', [StaffAuthController::class, 'logout']);
                 Route::get('/user', [StaffAuthController::class, 'me']);
+            });
+            Route::prefix('notifications')->group(function () {
+                Route::get('/', [ClinicNotificationController::class, 'getNotifications']); // Ambil notifikasi yang belum dibaca
+                Route::put('/mark-read/{id}', [ClinicNotificationController::class, 'markAsRead']); // Tandai satu notifikasi sebagai sudah dibaca
+                Route::put('/mark-all-read', [ClinicNotificationController::class, 'markAllAsRead']); // Tandai semua notifikasi sebagai sudah dibaca
             });
         });
     });
@@ -396,7 +407,11 @@ Route::prefix('v1')->group(function () {
                 Route::post('/{clinic}/images', [ClinicImageController::class, 'store']);
                 Route::post('/store-profile-image', [ClinicImageController::class, 'storeProfile']);
             });
-
+            Route::prefix('notifications')->group(function () {
+                Route::get('/', [ClinicNotificationController::class, 'getNotifications']); // Ambil notifikasi yang belum dibaca
+                Route::put('/mark-read/{id}', [ClinicNotificationController::class, 'markAsRead']); // Tandai satu notifikasi sebagai sudah dibaca
+                Route::put('/mark-all-read', [ClinicNotificationController::class, 'markAllAsRead']); // Tandai semua notifikasi sebagai sudah dibaca
+            });
             Route::prefix('invoice')->group(function () {
                 Route::get('/', [ClinicInvoiceController::class, 'index']);
                 Route::post('/', [ClinicInvoiceController::class, 'store']);

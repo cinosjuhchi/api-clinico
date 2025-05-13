@@ -187,7 +187,7 @@ class MessageClinicoController extends Controller
             ->where('is_read', false)
             ->count();
 
-        $userRole = $user->roles->first()->name ?? null;
+        $userRole = $user->role ?? null;
         $chatInfo = [
             'user' => [
                 'id' => $user->id,
@@ -241,9 +241,11 @@ class MessageClinicoController extends Controller
 
         switch ($role) {
             case 'clinic':
-                return $user->clinic?->clinic_name ?? 'Unknown Clinic';
+                return $user->clinic?->name ?? 'Unknown Clinic';
             case 'doctor':
-                return $user->doctor?->doctor_name ?? 'Unknown Doctor';
+                return $user->doctor?->name ?? 'Unknown Doctor';
+            case 'staff':
+                return $user->staff?->name ?? 'Unknown Doctor';
             default:
                 return 'Unknown User';
         }

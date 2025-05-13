@@ -105,7 +105,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('/save-notification', [PushNotificationController::class, 'saveSubscription']);
             });
             Route::prefix('notifications')->group(function () {
-                Route::get('/', [BackOfficeNotificationController::class, 'getNotifications']); // Ambil notifikasi yang belum dibaca
+                Route::get('/all', [BackOfficeNotificationController::class, 'getNotifications']); // Ambil notifikasi yang belum dibaca
                 Route::put('/mark-read/{id}', [BackOfficeNotificationController::class, 'markAsRead']); // Tandai satu notifikasi sebagai sudah dibaca
                 Route::put('/mark-all-read', [BackOfficeNotificationController::class, 'markAllAsRead']); // Tandai semua notifikasi sebagai sudah dibaca
             });
@@ -373,7 +373,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/daily', [BillController::class, 'getMyDailyRevenue']);
             });
             Route::prefix('notifications')->group(function () {
-                Route::get('/', [ClinicNotificationController::class, 'getNotifications']); // Ambil notifikasi yang belum dibaca
+                Route::get('/all', [ClinicNotificationController::class, 'getNotifications']); // Ambil notifikasi yang belum dibaca
                 Route::put('/mark-read/{id}', [ClinicNotificationController::class, 'markAsRead']); // Tandai satu notifikasi sebagai sudah dibaca
                 Route::put('/mark-all-read', [ClinicNotificationController::class, 'markAllAsRead']); // Tandai semua notifikasi sebagai sudah dibaca
             });
@@ -408,7 +408,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('/store-profile-image', [ClinicImageController::class, 'storeProfile']);
             });
             Route::prefix('notifications')->group(function () {
-                Route::get('/', [ClinicNotificationController::class, 'getNotifications']); // Ambil notifikasi yang belum dibaca
+                Route::get('/all', [ClinicNotificationController::class, 'getNotifications']); // Ambil notifikasi yang belum dibaca
                 Route::put('/mark-read/{id}', [ClinicNotificationController::class, 'markAsRead']); // Tandai satu notifikasi sebagai sudah dibaca
                 Route::put('/mark-all-read', [ClinicNotificationController::class, 'markAllAsRead']); // Tandai semua notifikasi sebagai sudah dibaca
             });

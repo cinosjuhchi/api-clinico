@@ -110,6 +110,12 @@ class MessageClinicoController extends Controller
 
     public function getMessages(User $user)
     {
+        // Update unread messages from the sender to mark them as read
+        MessageClinico::where('sender_id', $user->id)
+            ->where('receiver_id', Auth::id())
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+        
         // Ambil semua pesan antara user yang sedang login dan user yang dimaksud
         $messages = MessageClinico::where(function ($query) use ($user) {
             $query->where('sender_id', Auth::id())
@@ -118,13 +124,7 @@ class MessageClinicoController extends Controller
             $query->where('sender_id', $user->id)
                 ->where('receiver_id', Auth::id());
         })->orderBy('created_at', 'asc')->get();
-
-        // Update semua pesan dari user tersebut ke user yang sedang login yang belum dibaca menjadi sudah dibaca
-        MessageClinico::where('sender_id', $user->id)
-            ->where('receiver_id', Auth::id())
-            ->where('is_read', false)
-            ->update(['is_read' => true]);
-
+        
         return response()->json($messages, 200);
     }
 
@@ -208,7 +208,10 @@ class MessageClinicoController extends Controller
             ->where('is_read', false)
             ->count();
 
-        return response()->json(['unread_count' => $unreadCount]);
+            return response()->json([
+                'success' => true,
+                'unread_count' => $unreadCount
+            ], 200);
     }
 
 

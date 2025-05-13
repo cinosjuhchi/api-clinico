@@ -14,9 +14,10 @@ class ClinicNotificationController extends Controller
 
         // Mengambil semua notifikasi
         $notifications = $user->notifications()
-            ->where('expired_at', '>', Carbon::now())
-            ->latest()
-            ->get();
+        ->where('expired_at', '>', Carbon::now())
+        ->orWhereNull('expired_at')
+        ->latest()
+        ->get();
 
         // Menghitung jumlah notifikasi yang belum dibaca
         $unreadCount = $user->unreadNotifications

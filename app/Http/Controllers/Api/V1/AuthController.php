@@ -127,8 +127,9 @@ class AuthController extends Controller
                 'name' => $patient->name,
                 'verification_url' => $verificationUrl
             ]));
+            $url = env('WEB_CLINICO_URL') . '/patient/profile';
             try {
-                $user->notify(new SetUpProfileNotification());
+                $user->notify(new SetUpProfileNotification($url));
             } catch (\Exception $e) {                
                 Log::error('Notification error: ' . $e->getMessage());
             }

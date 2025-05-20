@@ -2,16 +2,21 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Helpers\WaitingNumberHelper;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\AppointmentRequest;
-use App\Models\Appointment;
+use Exception;
 use App\Models\Clinic;
 use App\Models\Doctor;
 use App\Models\Patient;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Models\Appointment;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Minishlink\WebPush\WebPush;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Helpers\WaitingNumberHelper;
+use App\Http\Controllers\Controller;
+use Minishlink\WebPush\Subscription;
+use App\Http\Requests\AppointmentRequest;
+use App\Notifications\WaitingPatientNotification;
 
 class AppointmentController extends Controller
 {
@@ -221,11 +226,11 @@ class AppointmentController extends Controller
      */
     public function checkin(Appointment $appointment)
     {
-        // Validate appointment status
+        // 1. Validate appointment status
         if (
-            $appointment->status == 'consultation' ||
-            $appointment->status == 'cancelled' ||
-            $appointment->status == 'completed'
+            $appointment->status === 'consultation' ||
+            $appointment->status === 'cancelled' ||
+            $appointment->status === 'completed'
         ) {
             return response()->json([
                 'status' => 'failed',
@@ -233,7 +238,7 @@ class AppointmentController extends Controller
             ], 403);
         }
 
-        // Check if there's another appointment on the same day with consultation status
+        // 2. Cek apakah ada janji temu lain pada hari yang sama yang masih aktif
         $existingConsultation = Appointment::where('doctor_id', $appointment->doctor_id)
             ->where('patient_id', $appointment->patient_id)
             ->where('appointment_date', $appointment->appointment_date)
@@ -243,11 +248,13 @@ class AppointmentController extends Controller
         if ($existingConsultation) {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'You already have an appointment that didn"t completed yet.',
+                'message' => 'You already have an appointment that didn\'t complete yet.',
             ], 403);
         }
 
-        // Check appointment with consultation status first
+        // 3. Tentukan waiting number
+        $waitingNumber = 1;
+
         $bookedConsultation = Appointment::where('appointment_date', $appointment->appointment_date)
             ->where('status', 'consultation')
             ->where('doctor_id', $appointment->doctor_id)
@@ -255,27 +262,119 @@ class AppointmentController extends Controller
             ->latest('updated_at')
             ->first();
 
-        // If no consultation status, check on-consultation status
-        $bookedOnConsultation = null;
-        if (!$bookedConsultation) {
+        if ($bookedConsultation) {
+            $waitingNumber = $bookedConsultation->waiting_number + 1;
+        } else {
             $bookedOnConsultation = Appointment::where('appointment_date', $appointment->appointment_date)
                 ->where('status', 'on-consultation')
                 ->where('doctor_id', $appointment->doctor_id)
                 ->where('room_id', $appointment->room_id)
                 ->latest('updated_at')
                 ->first();
+
+            if ($bookedOnConsultation) {
+                $waitingNumber = $bookedOnConsultation->waiting_number + 1;
+            }
         }
 
-        // Determine waiting number based on check results
-        $waitingNumber = 1;
-        if ($bookedConsultation) {
-            $waitingNumber = $bookedConsultation->waiting_number + 1;
-        } elseif ($bookedOnConsultation) {
-            $waitingNumber = $bookedOnConsultation->waiting_number + 1;
+        $time = now()->setTimezone('Asia/Jakarta')->toDateTimeString();
+
+        // 4. Notifikasi ke clinic user dan staff
+        $clinic = $appointment->clinic;
+        $clinicUser = $clinic->user;
+        $room = $appointment->room;
+        $name = $appointment->patient->name;
+        $message = "There are new patients waiting";
+
+        try {
+            // Laravel notification ke user utama
+            $clinicUser->notify(new WaitingPatientNotification($room, $name, $message));
+            $clinicUser->notifications()->latest()->first()?->update(['expired_at' => now()->addDay()]);
+
+            // Laravel notification ke semua staff user
+            foreach ($clinic->staffs as $staff) {
+                if ($staff->user) {
+                    $staff->user->notify(new WaitingPatientNotification($room, $name, $message));
+                    $staff->user->notifications()->latest()->first()?->update(['expired_at' => now()->addDay()]);
+                }
+            }
+            foreach ($clinic->doctors as $doctor) {
+                if ($doctor->user) {
+                    $doctor->user->notify(new WaitingPatientNotification($room, $name, $message));
+                    $doctor->user->notifications()->latest()->first()?->update(['expired_at' => now()->addDay()]);
+                }
+            }
+        } catch (Exception $e) {
+            \Log::error('Notification error: ' . $e->getMessage());
         }
 
-        $time =  now()->setTimezone('Asia/Jakarta')->toDateTimeString();
-        // Update appointment
+        try {
+            $webPush = new WebPush([
+                'VAPID' => [
+                    'subject'    => env('APP_URL', 'https://clinico.site'),
+                    'publicKey'  => env('VAPID_PUBLIC_KEY'),
+                    'privateKey' => env('VAPID_PRIVATE_KEY'),
+                ],
+            ]);
+
+            $payload = json_encode([
+                'title' => 'There are new patient waiting',
+                'body'  => 'Immediately check the patient on the waiting list',
+                'icon'  => '/icon512_rounded.png',
+                'data'  => [
+                    'url' => 'https://clinic.clinico.site',
+                ],
+            ]);
+
+            // Function helper untuk kirim WebPush ke user tertentu
+            $sendWebPushToUser = function ($user) use ($webPush, $payload) {
+                $subscriptions = $user->pushSubscriptions;
+                if ($subscriptions->isNotEmpty()) {
+                    foreach ($subscriptions as $subscription) {
+                        $webPush->queueNotification(
+                            Subscription::create([
+                                'endpoint' => $subscription->endpoint,
+                                'keys'     => [
+                                    'p256dh' => $subscription->p256dh,
+                                    'auth'   => $subscription->auth,
+                                ],
+                            ]),
+                            $payload
+                        );
+                    }
+                } else {
+                    \Log::warning("No subscriptions found for user ID: {$user->id}");
+                }
+            };
+
+            // WebPush untuk clinic user
+            $sendWebPushToUser($clinicUser);
+
+            // WebPush untuk semua staff
+            foreach ($clinic->staffs as $staff) {
+                if ($staff->user) {
+                    $sendWebPushToUser($staff->user);
+                }
+            }
+            foreach ($clinic->doctors as $doctor) {
+                if ($doctor->user) {
+                    $sendWebPushToUser($doctor->user);
+                }
+            }
+
+            foreach ($webPush->flush() as $report) {
+                $endpoint = $report->getRequest()->getUri()->__toString();
+                if ($report->isSuccess()) {
+                    \Log::info("Web Push sent successfully to {$endpoint}");
+                } else {
+                    \Log::error("Web Push failed to {$endpoint}: {$report->getReason()}");
+                }
+            }
+        } catch (Exception $e) {
+            \Log::error('Web Push error: ' . $e->getMessage());
+        }
+
+        // 5. Update appointment
         $appointment->update([
             'status' => 'consultation',
             'check_in_at' => $time,
@@ -288,6 +387,7 @@ class AppointmentController extends Controller
             'data' => $waitingNumber,
         ], 200);
     }
+
 
     public function waitingNumber(Appointment $appointment)
     {

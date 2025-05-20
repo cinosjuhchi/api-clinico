@@ -7,18 +7,21 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SetUpProfileNotification extends Notification
+class WaitingPatientNotification extends Notification
 {
     use Queueable;
-
-    protected $url;
+    protected $room;
+    protected $name;
+    protected $message;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($url)
+    public function __construct($room, $name, $message)
     {
-        $this->url = $url;
+        $this->room = $room;        
+        $this->name = $name;
+        $this->message = $message;
     }
 
     /**
@@ -50,9 +53,8 @@ class SetUpProfileNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'title' => 'Welcome to Clinico!',
-            'message' => '🌟 Come on, set up your profile now to get the best experience! Click here to start.',
-            'action_url' => $this->url,
+            'title' => "New Patient!" . $this->name,
+            'message' => $this->message . "in " . $this->room->name,            
             'type' => 'info'            
         ];        
     }

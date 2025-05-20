@@ -105,9 +105,9 @@ class ClinicAuthController extends Controller
                 'name' => $clinic->name,
                 'verification_url' => $verificationUrl,
             ]));
-
+            $url = "https://clinic.clinico.site/clinic/profile";
             try {
-                $user->notify(new SetUpProfileNotification());
+                $user->notify(new SetUpProfileNotification($url));
             } catch (\Exception $e) {
                 Log::error('Notification error: ' . $e->getMessage());
             }
@@ -117,14 +117,24 @@ class ClinicAuthController extends Controller
                 $title = "New Clinic";
                 $type = "info";
                 $message = "New clinic has been registered and is awaiting approval.";
-                $user->notify(new NewClinicNotification($title, $message, $type));
-                $notification = $user->notifications()->latest()->first();
-                $notification->update([
-                    'expired_at' => now()->addDay(),
-                ]);
+            
+                // Ambil semua user dengan role 'superadmin' atau 'admin'
+                $adminUsers = User::whereIn('role', ['superadmin', 'admin'])->get();
+            
+                foreach ($adminUsers as $user) {
+                    $user->notify(new NewClinicNotification($title, $message, $type));
+            
+                    $latestNotification = $user->notifications()->latest()->first();
+                    if ($latestNotification) {
+                        $latestNotification->update([
+                            'expired_at' => now()->addDay(),
+                        ]);
+                    }
+                }
             } catch (\Exception $e) {
                 Log::error('Notification error: ' . $e->getMessage());
             }
+            
 
             return response()->json(['status' => 'success', 'message' => 'Register Successful'], 201);
         } catch (\Exception $e) {

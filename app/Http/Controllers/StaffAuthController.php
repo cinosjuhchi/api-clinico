@@ -41,8 +41,7 @@ class StaffAuthController extends Controller
             'reference',
             'basicSkills',
             'financialInformation',
-            'employmentInformation',
-            'staffSchedule'
+            'employmentInformation',            
         ])->where('user_id', $user->id)->first();
 
         return response()->json([

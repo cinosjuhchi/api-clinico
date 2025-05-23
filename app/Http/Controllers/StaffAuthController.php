@@ -34,7 +34,7 @@ class StaffAuthController extends Controller
             'educational',
             'staffClinicSchedule',
             'contributionInfo',
-            'emergencyContact',
+            'emergencyContact',            
             'spouseInformation',
             'childsInformation',
             'parentInformation',
@@ -42,6 +42,7 @@ class StaffAuthController extends Controller
             'basicSkills',
             'financialInformation',
             'employmentInformation',
+            'staffSchedule'
         ])->where('user_id', $user->id)->first();
 
         return response()->json([

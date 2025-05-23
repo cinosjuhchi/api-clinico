@@ -81,7 +81,7 @@ class Staff extends Model
 
     public function staffClinicSchedule(): HasMany
     {
-        return $this->hasMany(StaffClinicSchedule::class);
+        return $this->hasMany(StaffClinicSchedule::class, 'staff_id');
     }
 
     public function staffSchedule(): HasOne

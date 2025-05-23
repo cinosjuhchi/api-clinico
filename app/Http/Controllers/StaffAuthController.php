@@ -32,7 +32,7 @@ class StaffAuthController extends Controller
             'clinic',
             'demographic',
             'educational',
-            'staffClinicSchedule',
+            'schedules',
             'contributionInfo',
             'emergencyContact',            
             'spouseInformation',

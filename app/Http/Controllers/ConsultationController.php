@@ -488,6 +488,7 @@ class ConsultationController extends Controller
                     $medication = Medication::find($medicine['medicine_id']);
                     $price      = $medication->price;
                     $medicalRecord->medicationRecords()->create([
+                        'medication_id' => $medication->id,
                         'medicine'   => $medicine['name'],
                         'frequency'  => $medicine['frequency'],
                         'price'      => $price,

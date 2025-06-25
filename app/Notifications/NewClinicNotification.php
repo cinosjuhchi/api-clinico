@@ -55,7 +55,8 @@ class NewClinicNotification extends Notification
         return [
             'title' => $this->title,
             'message' => $this->message,            
-            'type' => $this->type
+            'type' => $this->type,
+            'action_url' => "https://admin.clinico.site/gp-clinic/request"
         ];
     }
 }
